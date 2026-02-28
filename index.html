@@ -181,14 +181,15 @@ body.admin-mode .shorts-add-btn{display:flex;}
 /* Track — flex row of cards */
 .shorts-track{display:flex;gap:16px;transition:transform .65s cubic-bezier(.77,0,.175,1);}
 
-/* Each short card — vertical phone aspect ratio */
+/* Each short card — larger for full section presence (was 200px, now 340px) */
 .short-card{
   flex-shrink:0;
-  width:200px;          /* phone-width */
+  width:min(340px,calc(100vw - 80px));  /* full width on mobile when 1 visible */
+  max-width:340px;
   position:relative;
 }
 .short-vid-wrap{
-  width:200px;
+  width:100%;
   aspect-ratio:9/16;    /* portrait vertical */
   border-radius:18px;
   overflow:hidden;
@@ -880,7 +881,7 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
     </div>
     <div class="ab-right">
       <button class="ab-exit-btn" id="admin-exit">✕ Exit</button>
-      <button class="ab-save-btn" id="admin-save">💾 Save &amp; Download</button>
+      <button class="ab-save-btn" id="admin-save">💾 Save</button>
     </div>
   </div>
 </div>
@@ -1796,6 +1797,80 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ═══════════════════════════════════════════════
+   PERSISTENCE — save/restore images & videos to localStorage
+═══════════════════════════════════════════════ */
+(function(){
+  const KEY = 'aidobot_media';
+  function getMediaFromEl(el){
+    const img=el.querySelector('img'),vid=el.querySelector('video'),iframe=el.querySelector('iframe');
+    if(img&&img.src)return{src:img.src,type:'image'};
+    if(vid&&vid.src)return{src:vid.src,type:'video'};
+    if(iframe&&iframe.src)return{src:iframe.src,type:'video'};
+    return null;
+  }
+  function applyToElement(el,src,type){
+    if(!el||!src)return;
+    const isYT=/youtube\.com\/embed\//.test(src);
+    const isVid=type==='video'||src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    if(isYT){
+      el.querySelectorAll('img,video,iframe,.short-ph,.robot-ph').forEach(x=>x.remove());
+      const ph=el.querySelector('.upload-overlay');if(ph){const next=ph.nextElementSibling;if(next&&next.classList.contains('short-ph'))next.remove();}
+      const iframe=document.createElement('iframe');
+      iframe.src=src;iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+      iframe.allowFullscreen=true;iframe.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:none;';
+      el.appendChild(iframe);
+    }else if(isVid){
+      let v=el.querySelector('video');
+      if(!v){v=document.createElement('video');v.controls=true;v.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';el.querySelectorAll('.short-ph,.robot-ph').forEach(x=>x.remove());el.appendChild(v);}
+      v.src=src;v.load();
+      if(el.closest('.hero-robot-slide')){v.autoplay=true;v.muted=true;v.loop=true;v.removeAttribute('controls');}
+    }else{
+      el.querySelectorAll('video,iframe,.short-ph,.robot-ph').forEach(x=>x.remove());
+      let img=el.querySelector('img');
+      if(!img){img=document.createElement('img');img.alt='';img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(img);}
+      img.src=src;
+    }
+  }
+  window._saveMediaToStorage=function(){
+    const media={},heroSlidesExtra=[],shortsExtra=[];
+    document.querySelectorAll('.hero-robot-slide').forEach(slide=>{
+      const wrap=slide.querySelector('.hero-robot-img,.uploadable[data-id]');
+      if(!wrap)return;
+      const id=wrap.dataset.id;const d=getMediaFromEl(wrap);
+      if(!d)return;
+      if(id&&/^hero-robot-\d+$/.test(id))media[id]=d;
+      else heroSlidesExtra.push(d);
+    });
+    document.querySelectorAll('#shorts-track .short-card').forEach(card=>{
+      const wrap=card.querySelector('.short-vid-wrap');if(!wrap)return;
+      const id=wrap.dataset.id;const d=getMediaFromEl(wrap);
+      if(!d)return;
+      if(id&&/^short-\d+$/.test(id))media[id]=d;
+      else shortsExtra.push(d.src);
+    });
+    document.querySelectorAll('.uploadable[data-id]').forEach(el=>{
+      if(el.closest('.hero-robot-slide')||el.closest('#shorts-track'))return;
+      const id=el.dataset.id;if(!id)return;
+      const d=getMediaFromEl(el);
+      if(d)media[id]=d;
+    });
+    try{localStorage.setItem(KEY,JSON.stringify({media,heroSlidesExtra,shortsExtra}));}catch(e){}
+  };
+  window._restoreMediaFromStorage=function(){
+    let raw;try{raw=localStorage.getItem(KEY);}catch(e){return;}
+    if(!raw)return;
+    let data;try{data=JSON.parse(raw);}catch(e){return;}
+    const {media={},heroSlidesExtra=[],shortsExtra=[]}=data||{};
+    for(const[id,obj]of Object.entries(media)){
+      const el=document.querySelector(`.uploadable[data-id="${id}"]`);
+      if(el)applyToElement(el,obj.src,obj.type);
+    }
+    heroSlidesExtra.forEach(o=>{if(window._createHeroSlide)window._createHeroSlide(o.src);});
+    shortsExtra.forEach(src=>{if(window._createShortCard)window._createShortCard(src);});
+  };
+})();
+
+/* ═══════════════════════════════════════════════
    CURSOR
 ═══════════════════════════════════════════════ */
 const cr=document.getElementById('crsr'),cr2=document.getElementById('crsr2');
@@ -1994,6 +2069,7 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
     track.appendChild(slide);
     attachDel(slide);
     if(window._reattachAdminListeners) window._reattachAdminListeners();
+    if(window._saveMediaToStorage) window._saveMediaToStorage();
     rebuildDots();
     go(track.children.length - 1);
     document.getElementById('murl-modal').classList.remove('open');
@@ -2034,8 +2110,8 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
   const addBtn  = document.getElementById('shorts-add-btn');
   let idx = 0;
 
-  const VIS    = () => window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : window.innerWidth < 1200 ? 3 : 4;
-  const CARD_W = () => { const c = track.querySelector('.short-card'); return c ? c.offsetWidth + 16 : 216; };
+  const VIS    = () => window.innerWidth < 768 ? 1 : window.innerWidth < 1200 ? 2 : 3;  /* fewer visible = each takes more space */
+  const CARD_W = () => { const c = track.querySelector('.short-card'); return c ? c.offsetWidth + 20 : 360; };
 
   function go(n){
     const total = track.children.length;
@@ -2128,6 +2204,7 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
     rebuildDots();
     go(track.children.length - 1);
     if(window._reattachAdminListeners) window._reattachAdminListeners();
+    if(window._saveMediaToStorage) window._saveMediaToStorage();
     document.getElementById('murl-modal').classList.remove('open');
   };
 
@@ -2508,6 +2585,7 @@ document.getElementById('m-email-btn').onclick=()=>{
 
     changes[id]={name:fileName||src.slice(0,60),type:isVid?'video':'image',src};
     renderChanges();
+    if(window._saveMediaToStorage)window._saveMediaToStorage();
     showToast(isYT?'✓ YouTube video embedded!':'✓ Media updated!',2200,false);
     activeTarget=null;
   }
@@ -2554,6 +2632,7 @@ document.getElementById('m-email-btn').onclick=()=>{
     if(adminOn) attachListeners();
     changes[id]={name:fname,type:isVid?'video':'image',src};
     renderChanges();
+    if(window._saveMediaToStorage)window._saveMediaToStorage();
     showToast('✓ Gallery item added!',2200,false);
   }
 
@@ -2600,6 +2679,7 @@ document.getElementById('m-email-btn').onclick=()=>{
     if(adminOn) attachListeners();
     changes[id]={name:fname,type:'video',src};
     renderChanges();
+    if(window._saveMediaToStorage)window._saveMediaToStorage();
     showToast('✓ Video review added!',2200,false);
   }
 
@@ -3190,6 +3270,9 @@ document.getElementById('m-email-btn').onclick=()=>{
   };
 
 })();
+
+/* Restore saved media from localStorage (runs after all modules) */
+if(window._restoreMediaFromStorage)window._restoreMediaFromStorage();
 </script>
 </body>
 </html>
