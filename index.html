@@ -79,22 +79,63 @@ nav.sol .nav-i{padding:15px 60px;}
 .vc span{font-size:.78rem;font-weight:600;color:var(--ink);}
 
 /* Hero right - Slider */
-.hero-r{position:relative;display:flex;align-items:center;justify-content:center;padding:100px 60px 60px 0;z-index:2;}
-.hero-slider-wrap{position:relative;width:100%;max-width:520px;border-radius:32px;overflow:hidden;box-shadow:0 40px 100px var(--shd);border:3px solid rgba(255,255,255,.7);animation:fu .9s .3s both;}
-.hero-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);width:100%;}
+.hero-r{position:relative;display:flex;align-items:center;justify-content:center;padding:80px 40px 80px 0;z-index:2;}
+.hero-slider-wrap{position:relative;width:100%;max-width:560px;animation:fu .9s .3s both;}
+/* Default state — no border, no background, overflow visible for PNG */
+.hero-slider-wrap.has-png{overflow:visible;background:none;border:none;box-shadow:none;border-radius:0;}
+/* When showing video/non-transparent: restore the nice frame */
+.hero-slider-wrap.has-video{border-radius:32px;overflow:hidden;box-shadow:0 40px 100px var(--shd);border:3px solid rgba(255,255,255,.7);}
+.hero-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);width:100%;overflow:visible;}
 .hero-slide{min-width:100%;position:relative;}
-.hero-slide img,.hero-slide video{width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);}
+
+/* PNG robot image slide — no crop, full size, transparent, with shadow */
+.hero-slide.is-png{background:none;}
+.hero-slide.is-png img{
+  width:100%;
+  display:block;
+  max-height:640px;
+  object-fit:contain;
+  background:transparent;
+  /* Beautiful drop shadow that works on transparent PNGs */
+  filter:drop-shadow(0 40px 80px rgba(35,26,16,.35)) drop-shadow(0 8px 24px rgba(155,123,78,.25));
+}
+/* Duration indicator for PNG slides */
+.slide-timer-bar{
+  position:absolute;
+  bottom:0;left:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--mw));
+  border-radius:0 2px 2px 0;
+  width:0%;
+  transition:none;
+  z-index:15;
+}
+
+/* Regular (video/non-PNG) slide images */
+.hero-slide:not(.is-png) img,.hero-slide video{
+  width:100%;display:block;
+  min-height:380px;max-height:520px;
+  object-fit:cover;
+  background:linear-gradient(135deg,#EAD9C2,#C9A97A);
+}
 .hero-slide-ph{min-height:380px;background:linear-gradient(135deg,#EAD9C2,#C9A97A);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--dim);font-size:.85rem;font-weight:600;}
-.hero-slider-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,transparent 40%,rgba(35,26,16,.3));z-index:1;pointer-events:none;border-radius:29px;}
+
+/* Overlay gradient — only on non-PNG slides */
+.hero-slide:not(.is-png)::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(160deg,transparent 40%,rgba(35,26,16,.3));
+  pointer-events:none;border-radius:inherit;
+}
+
 /* Slider controls */
 .slider-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(253,252,250,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dw);box-shadow:0 4px 16px rgba(35,26,16,.2);transition:all .25s;}
 .slider-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);}
-.slider-btn.prev{left:12px;}
-.slider-btn.next{right:12px;}
-.slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;}
-.slider-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);border:none;cursor:pointer;transition:all .25s;padding:0;}
-.slider-dot.on{background:#fff;width:22px;border-radius:4px;}
-.hero-badge{position:absolute;bottom:-16px;left:-20px;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:14px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
+.slider-btn.prev{left:-20px;}
+.slider-btn.next{right:-20px;}
+.slider-dots{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;}
+.slider-dot{width:8px;height:8px;border-radius:50%;background:rgba(35,26,16,.2);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.slider-dot.on{background:var(--gold);width:22px;border-radius:4px;}
+.hero-badge{position:absolute;bottom:-36px;left:0;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:14px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
 .hb-dot{width:10px;height:10px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
 
 /* About right column */
@@ -1668,22 +1709,75 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
 
 /* ═══ HERO SLIDER ═══ */
 let heroIdx = 0;
-const heroSlides = document.getElementById('hero-slides');
-const heroDots   = document.getElementById('hero-dots');
-const heroPrev   = document.getElementById('hero-prev');
-const heroNext   = document.getElementById('hero-next');
+const heroSlides   = document.getElementById('hero-slides');
+const heroDots     = document.getElementById('hero-dots');
+const heroPrev     = document.getElementById('hero-prev');
+const heroNext     = document.getElementById('hero-next');
+const heroWrap     = document.getElementById('hero-slider-wrap');
+
+// Progress bar for image slides
+const heroBar = document.createElement('div');
+heroBar.className = 'slide-timer-bar';
+heroWrap.appendChild(heroBar);
+let heroBarAnim = null;
+
+function isSlidePng(slideEl){
+  const img = slideEl.querySelector('img');
+  if(!img) return false;
+  // PNG/transparent if: src ends in .png OR data-type is image AND no video sibling
+  const src = img.src || '';
+  return src.match(/\.png($|\?)/i) || slideEl.classList.contains('is-png');
+}
+
+function updateHeroWrap(){
+  const slide = heroSlides.children[heroIdx];
+  const png = isSlidePng(slide);
+  const hasVid = !!slide.querySelector('video,iframe');
+  if(png){
+    heroWrap.className = 'hero-slider-wrap has-png';
+    heroSlides.style.overflow = 'visible';
+  } else {
+    heroWrap.className = 'hero-slider-wrap has-video';
+    heroSlides.style.overflow = '';
+  }
+  // Manage progress bar
+  clearTimeout(heroBarAnim);
+  heroBar.style.transition = 'none';
+  heroBar.style.width = '0%';
+  if(png && !hasVid){
+    // 2-second hold then advance — animate bar
+    setTimeout(()=>{
+      heroBar.style.transition = 'width 2s linear';
+      heroBar.style.width = '100%';
+    }, 30);
+    heroBarAnim = setTimeout(()=>{
+      if(heroSlides.children.length > 1) heroGo(heroIdx + 1);
+    }, 2000);
+  }
+}
 
 function heroGo(n){
   const total = heroSlides.children.length;
   heroIdx = ((n % total) + total) % total;
   heroSlides.style.transform = `translateX(-${heroIdx * 100}%)`;
   [...heroDots.children].forEach((d,i)=>d.classList.toggle('on', i===heroIdx));
+  updateHeroWrap();
 }
-heroPrev.addEventListener('click',()=>heroGo(heroIdx-1));
-heroNext.addEventListener('click',()=>heroGo(heroIdx+1));
-[...heroDots.children].forEach(d=>d.addEventListener('click',()=>heroGo(+d.dataset.i)));
-// Auto-advance hero slider
-setInterval(()=>{if(heroSlides.children.length>1)heroGo(heroIdx+1);}, 5000);
+
+heroPrev.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(heroIdx-1); });
+heroNext.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(heroIdx+1); });
+[...heroDots.children].forEach(d=>d.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(+d.dataset.i); }));
+
+// Auto-advance: 5s for video slides (PNG slides self-advance after 2s)
+setInterval(()=>{
+  if(heroSlides.children.length < 2) return;
+  const slide = heroSlides.children[heroIdx];
+  if(isSlidePng(slide)) return; // PNG handles own timing
+  heroGo(heroIdx + 1);
+}, 5000);
+
+// Init
+updateHeroWrap();
 
 function heroRebuildDots(){
   const total = heroSlides.children.length;
@@ -1692,7 +1786,7 @@ function heroRebuildDots(){
     const d=document.createElement('button');
     d.className='slider-dot'+(i===heroIdx?' on':'');
     d.dataset.i=i;
-    d.addEventListener('click',()=>heroGo(i));
+    d.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(i); });
     heroDots.appendChild(d);
   }
 }
@@ -1999,6 +2093,14 @@ document.getElementById('m-email-btn').onclick=()=>{
         target.appendChild(img);
       }
       img.src=src;
+      // If this is a hero slide image, make it PNG-style (no crop, drop shadow, transparent)
+      const heroSlide = target.closest('.hero-slide');
+      if(heroSlide){
+        heroSlide.classList.add('is-png');
+        img.style.cssText='width:100%;display:block;max-height:640px;object-fit:contain;background:transparent;filter:drop-shadow(0 40px 80px rgba(35,26,16,.35)) drop-shadow(0 8px 24px rgba(155,123,78,.25));';
+        // Update wrap class immediately
+        updateHeroWrap();
+      }
     }
 
     changes[id]={name:fileName||src.slice(0,60),type:isVid?'video':'image',src};
@@ -2081,8 +2183,10 @@ document.getElementById('m-email-btn').onclick=()=>{
       inner.appendChild(v);
     } else {
       const i=document.createElement('img');
-      i.src=src;i.style.cssText='width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);';
+      i.src=src;
+      i.style.cssText='width:100%;display:block;max-height:640px;object-fit:contain;background:transparent;filter:drop-shadow(0 40px 80px rgba(35,26,16,.35)) drop-shadow(0 8px 24px rgba(155,123,78,.25));';
       inner.appendChild(i);
+      slide.classList.add('is-png');
     }
     slide.appendChild(inner);
     heroSlides.appendChild(slide);
