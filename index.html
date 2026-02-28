@@ -175,21 +175,23 @@ body.admin-mode .shorts-add-btn{display:flex;}
   width:200px;          /* phone-width */
   position:relative;
 }
-.short-vid-wrap{
-  width:200px;
-  aspect-ratio:9/16;    /* portrait vertical */
-  border-radius:18px;
-  overflow:hidden;
-  background:#111;
-  border:2px solid rgba(255,255,255,.07);
-  position:relative;
-  cursor:pointer;
-  transition:transform .35s,box-shadow .35s;
+.short-vid-wrap {
+  width: 100%;
+  aspect-ratio: 9/16; /* This ensures the full vertical "Shorts" shape */
+  border-radius: 18px;
+  overflow: hidden;
+  background: #111;
+  border: 2px solid rgba(255,255,255,.07);
+  position: relative;
+  cursor: pointer;
+  transition: transform .35s, box-shadow .35s;
 }
-.short-vid-wrap:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.5);}
-.short-vid-wrap video{
-  width:100%;height:100%;object-fit:cover;display:block;
-  position:absolute;inset:0;
+
+.short-vid-wrap iframe, 
+.short-vid-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This makes the video fill the container correctly */
 }
 .short-ph{
   width:100%;height:100%;
@@ -1930,49 +1932,30 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
   });
 
   // Called from applyMedia when _heroAddSlide is true
-  window._createHeroSlide = function(src, fname){
+window._createHeroSlide = function(src, fname) {
     window._heroAddSlide = false;
-    const isVid = src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
-    const slideId = 'hrs-' + track.children.length;
+    const isVid = src.startsWith('data:video') || src.includes('youtube') || /\.(mp4|mov|webm)(\?.*)?$/i.test(src);
+    const track = document.getElementById('hero-robot-slides');
     const slide = document.createElement('div');
     slide.className = 'hero-robot-slide';
-    slide.id = slideId;
+    slide.style.minWidth = "100%";
 
-    if(isVid){
-      const uploadEl = document.createElement('div');
-      uploadEl.className = 'uploadable';
-      uploadEl.dataset.id = 'hero-slide-' + track.children.length;
-      uploadEl.dataset.type = 'video';
-      uploadEl.style.cssText = 'position:absolute;inset:0;';
-      uploadEl.innerHTML = `<div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Replace</div><div class="up-sub">Video</div></div><span class="type-badge vid-badge" style="display:none;">VIDEO</span>`;
-      const vid = document.createElement('video');
-      vid.src = src; vid.autoplay = true; vid.muted = true; vid.loop = true;
-      vid.setAttribute('playsinline','');
-      vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;';
-      const overlay = document.createElement('div');
-      overlay.className = 'hero-vid-overlay';
-      slide.style.cssText = 'position:relative;min-height:100%;';
-      uploadEl.appendChild(vid);
-      slide.appendChild(uploadEl);
-      slide.appendChild(overlay);
+    if(isVid) {
+        // Handle YouTube or direct Video
+        let videoHtml = src.includes('youtube') ? 
+            `<iframe src="${src.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1" style="width:100%;height:100%;border:none;"></iframe>` :
+            `<video src="${src}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+        
+        slide.innerHTML = `<div class="uploadable" style="height:100%;">${videoHtml}</div>`;
     } else {
-      const uploadEl = document.createElement('div');
-      uploadEl.className = 'hero-robot-img uploadable';
-      uploadEl.dataset.id = 'hero-slide-' + track.children.length;
-      uploadEl.dataset.type = 'image';
-      uploadEl.innerHTML = `<div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace</div><div class="up-sub">Image</div></div><span class="type-badge img-badge" style="display:none;">IMAGE</span>`;
-      const img = document.createElement('img');
-      img.src = src; img.alt = 'AiDoBot';
-      uploadEl.appendChild(img);
-      slide.appendChild(uploadEl);
+        slide.innerHTML = `<div class="hero-robot-img uploadable"><img src="${src}" style="width:100%;height:100%;object-fit:contain;"></div>`;
     }
-    track.appendChild(slide);
-    rebuildDots();
-    go(track.children.length - 1);
-    // Re-attach admin listeners
-    if(window._reattachAdminListeners) window._reattachAdminListeners();
-  };
 
+    track.appendChild(slide);
+    window._heroRobotRebuildDots(); // Refresh dots
+    window._heroRobotGo(track.children.length - 1); // Move to new slide
+    if(window._reattachAdminListeners) window._reattachAdminListeners();
+};
   rebuildDots();
   window._heroRobotGo = go;
   window._heroRobotRebuildDots = rebuildDots;
@@ -2046,28 +2029,41 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
     murlModal.classList.add('open');
   });
 
-  window._createShortCard = function(src){
+window._createShortCard = function(src) {
     window._shortsAddPending = false;
     const id = 'short-' + Date.now();
     const card = document.createElement('div');
     card.className = 'short-card';
     card.id = id;
+
+    // Detect if it's a YouTube link and convert to embed
+    let finalSrc = src;
+    if (src.includes('youtube.com') || src.includes('youtu.be')) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+        const match = src.match(regExp);
+        if (match && match[2].length === 11) {
+            finalSrc = `https://www.youtube.com/embed/${match[2]}?autoplay=0&rel=0`;
+        }
+    }
+
+    const isEmbed = finalSrc.includes('youtube.com/embed');
+
     card.innerHTML = `
       <div class="short-vid-wrap uploadable" data-id="${id}" data-type="video">
         <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Replace</div><div class="up-sub">Video</div></div>
-        <span class="type-badge vid-badge" style="display:none;">VIDEO</span>
+        ${isEmbed ? 
+            `<iframe src="${finalSrc}" frameborder="0" allowfullscreen></iframe>` : 
+            `<video src="${finalSrc}" controls></video>`
+        }
       </div>
       <button class="short-del-btn" title="Delete">✕</button>`;
-    const vid = document.createElement('video');
-    vid.src = src; vid.controls = true;
-    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;';
-    card.querySelector('.short-vid-wrap').appendChild(vid);
+
     track.appendChild(card);
     bindShortDel(card);
     rebuildDots();
     go(track.children.length - 1);
     if(window._reattachAdminListeners) window._reattachAdminListeners();
-  };
+};
 
   rebuildDots();
 })();
