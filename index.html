@@ -1796,85 +1796,13 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ═══════════════════════════════════════════════
-   PERSISTENCE — save/restore images & videos to localStorage
-═══════════════════════════════════════════════ */
-(function(){
-  const KEY = 'aidobot_media';
-  function getMediaFromEl(el){
-    const img=el.querySelector('img'),vid=el.querySelector('video'),iframe=el.querySelector('iframe');
-    if(img&&img.src)return{src:img.src,type:'image'};
-    if(vid&&vid.src)return{src:vid.src,type:'video'};
-    if(iframe&&iframe.src)return{src:iframe.src,type:'video'};
-    return null;
-  }
-  function applyToElement(el,src,type){
-    if(!el||!src)return;
-    const isYT=/youtube\.com\/embed\//.test(src);
-    const isVid=type==='video'||src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
-    if(isYT){
-      el.querySelectorAll('img,video,iframe,.short-ph,.robot-ph').forEach(x=>x.remove());
-      const ph=el.querySelector('.upload-overlay');if(ph){const next=ph.nextElementSibling;if(next&&next.classList.contains('short-ph'))next.remove();}
-      const iframe=document.createElement('iframe');
-      iframe.src=src;iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
-      iframe.allowFullscreen=true;iframe.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:none;';
-      el.appendChild(iframe);
-    }else if(isVid){
-      let v=el.querySelector('video');
-      if(!v){v=document.createElement('video');v.controls=true;v.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';el.querySelectorAll('.short-ph,.robot-ph').forEach(x=>x.remove());el.appendChild(v);}
-      v.src=src;v.load();
-      if(el.closest('.hero-robot-slide')){v.autoplay=true;v.muted=true;v.loop=true;v.removeAttribute('controls');}
-    }else{
-      el.querySelectorAll('video,iframe,.short-ph,.robot-ph').forEach(x=>x.remove());
-      let img=el.querySelector('img');
-      if(!img){img=document.createElement('img');img.alt='';img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';el.appendChild(img);}
-      img.src=src;
-    }
-  }
-  window._saveMediaToStorage=function(){
-    const media={},heroSlidesExtra=[],shortsExtra=[];
-    document.querySelectorAll('.hero-robot-slide').forEach(slide=>{
-      const wrap=slide.querySelector('.hero-robot-img,.uploadable[data-id]');
-      if(!wrap)return;
-      const id=wrap.dataset.id;const d=getMediaFromEl(wrap);
-      if(!d)return;
-      if(id&&/^hero-robot-\d+$/.test(id))media[id]=d;
-      else heroSlidesExtra.push(d);
-    });
-    document.querySelectorAll('#shorts-track .short-card').forEach(card=>{
-      const wrap=card.querySelector('.short-vid-wrap');if(!wrap)return;
-      const id=wrap.dataset.id;const d=getMediaFromEl(wrap);
-      if(!d)return;
-      if(id&&/^short-\d+$/.test(id))media[id]=d;
-      else shortsExtra.push(d.src);
-    });
-    document.querySelectorAll('.uploadable[data-id]').forEach(el=>{
-      if(el.closest('.hero-robot-slide')||el.closest('#shorts-track'))return;
-      const id=el.dataset.id;if(!id)return;
-      const d=getMediaFromEl(el);
-      if(d)media[id]=d;
-    });
-    try{localStorage.setItem(KEY,JSON.stringify({media,heroSlidesExtra,shortsExtra}));}catch(e){}
-  };
-  window._restoreMediaFromStorage=function(){
-    let raw;try{raw=localStorage.getItem(KEY);}catch(e){return;}
-    if(!raw)return;
-    let data;try{data=JSON.parse(raw);}catch(e){return;}
-    const {media={},heroSlidesExtra=[],shortsExtra=[]}=data||{};
-    for(const[id,obj]of Object.entries(media)){
-      const el=document.querySelector(`.uploadable[data-id="${id}"]`);
-      if(el)applyToElement(el,obj.src,obj.type);
-    }
-    heroSlidesExtra.forEach(o=>{if(window._createHeroSlide)window._createHeroSlide(o.src);});
-    shortsExtra.forEach(src=>{if(window._createShortCard)window._createShortCard(src);});
-  };
-})();
-
 // ═══════════════════════════════════════════════
 // BACKEND API HELPERS (Flask on Vercel)
-// Uses relative paths so the HTML + Flask backend can be on same origin.
+// By default uses same origin. You can override by setting:
+//   window.AIDOBOT_API_BASE = 'https://your-flask-backend.vercel.app';
+// before this script runs.
 // ═══════════════════════════════════════════════
-const API_BASE = '';
+const API_BASE = window.AIDOBOT_API_BASE || '';
 
 async function postJSON(path, payload){
   const res = await fetch(API_BASE + path, {
@@ -1894,7 +1822,7 @@ async function postJSON(path, payload){
 async function uploadMediaFile(file, mediaId){
   const form = new FormData();
   form.append('file', file);
-  if(mediaId) form.append('media_id', mediaId);
+  if(mediaId) form.append('slot', mediaId);
   const res = await fetch(API_BASE + '/api/media/upload', {
     method:'POST',
     body: form
@@ -1912,7 +1840,7 @@ async function uploadMediaFromUrl(url, mediaId){
   const res = await fetch(API_BASE + '/api/media/upload-url', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({url, media_id: mediaId||''})
+    body: JSON.stringify({url, slot: mediaId||''})
   });
   let data = null;
   try{ data = await res.json(); }catch(e){ data = null; }
@@ -2581,38 +2509,23 @@ document.getElementById('m-email-btn').onclick=async()=>{
   murlApply.addEventListener('click',()=>{
     const url=murlUrlInp.value.trim();
     if(!url) return;
-    const yt = getYouTubeEmbed(url);
-    // YouTube URLs are embedded directly (kept on YouTube, not Cloudinary)
-    if(yt){
-      if(window._heroAddSlide || window._shortsAddPending){
-        applyMedia(null, url, null);
-        return;
-      }
-      if(!activeTarget) return;
-      applyMedia(activeTarget, url, null);
-      murlModal.classList.remove('open');
-      return;
-    }
-    // Non-YouTube URLs → upload to Cloudinary via backend
-    if(window._heroAddSlide || window._shortsAddPending){
-      showToast('Uploading from URL…',0,true);
-      uploadMediaFromUrl(url,'')
-        .then(data=>{applyMedia(null,data.url,null);})
-        .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
-        .finally(()=>{hideToast();murlModal.classList.remove('open');});
-      return;
-    }
-    if(!activeTarget) return;
-    const mediaId=activeTarget.dataset.id||'';
+    // All URLs go via backend so they are persisted in Neon.
+    const slot = (window._heroAddSlide || window._shortsAddPending || !activeTarget)
+      ? ''
+      : (activeTarget.dataset.id || '');
     showToast('Uploading from URL…',0,true);
-    uploadMediaFromUrl(url,mediaId)
-      .then(data=>{applyMedia(activeTarget,data.url,null);})
+    uploadMediaFromUrl(url,slot)
+      .then(data=>{
+        // data.type may be 'youtube', 'image', or 'video'
+        const target = (window._heroAddSlide || window._shortsAddPending) ? null : activeTarget;
+        applyMedia(target,data.url,null);
+      })
       .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
-      .finally(()=>{hideToast();murlModal.classList.remove('open');});
+      .finally(()=>{hideToast();murlModal.classList.remove('open');window._heroAddSlide=false;window._shortsAddPending=false;});
   });
 
-  // File chosen via input
-  fileInp.addEventListener('change',()=>{
+// File chosen via input
+fileInp.addEventListener('change',()=>{
     const file=fileInp.files[0];
     if(!file) return;
     if(window._heroAddSlide || window._shortsAddPending){
@@ -2736,7 +2649,6 @@ document.getElementById('m-email-btn').onclick=async()=>{
 
     changes[id]={name:fileName||src.slice(0,60),type:isVid?'video':'image',src};
     renderChanges();
-    if(window._saveMediaToStorage)window._saveMediaToStorage();
     showToast(isYT?'✓ YouTube video embedded!':'✓ Media updated!',2200,false);
     activeTarget=null;
   }
@@ -2783,7 +2695,6 @@ document.getElementById('m-email-btn').onclick=async()=>{
     if(adminOn) attachListeners();
     changes[id]={name:fname,type:isVid?'video':'image',src};
     renderChanges();
-    if(window._saveMediaToStorage)window._saveMediaToStorage();
     showToast('✓ Gallery item added!',2200,false);
   }
 
@@ -2830,7 +2741,6 @@ document.getElementById('m-email-btn').onclick=async()=>{
     if(adminOn) attachListeners();
     changes[id]={name:fname,type:'video',src};
     renderChanges();
-    if(window._saveMediaToStorage)window._saveMediaToStorage();
     showToast('✓ Video review added!',2200,false);
   }
 
@@ -3420,10 +3330,51 @@ document.getElementById('m-email-btn').onclick=async()=>{
     fi.click();
   };
 
+  // Expose for content load (persistence from backend)
+  window._applyContentToElement = function(el, url, typeHint){
+    if(!el||!url) return;
+    applyMedia(el, url, null);
+  };
+
 })();
 
-/* Restore saved media from localStorage (runs after all modules) */
-if(window._restoreMediaFromStorage)window._restoreMediaFromStorage();
+/* Load persisted media content from backend on page load — production robust */
+document.addEventListener('DOMContentLoaded',function(){
+  const API_BASE = window.AIDOBOT_API_BASE || '';
+  if(!API_BASE) return;
+  const CONTENT_TIMEOUT_MS = 15000;
+  const slotSafeRe = /^[a-zA-Z0-9_-]{1,120}$/;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(function(){ controller.abort(); }, CONTENT_TIMEOUT_MS);
+
+  fetch(API_BASE + '/api/content', { signal: controller.signal })
+    .then(function(r){
+      clearTimeout(timeoutId);
+      if(!r.ok) throw new Error('Content API failed: ' + r.status);
+      return r.json();
+    })
+    .then(function(list){
+      if(!Array.isArray(list)) return;
+      var bySlot = {};
+      list.forEach(function(m){
+        if(!m || !m.url) return;
+        var slot = m.slot;
+        if(!slot || !slotSafeRe.test(slot)) return;
+        bySlot[slot] = m;
+      });
+      Object.keys(bySlot).forEach(function(slot){
+        var m = bySlot[slot];
+        var el = document.querySelector('.uploadable[data-id="' + slot + '"]');
+        if(!el || !window._applyContentToElement) return;
+        window._applyContentToElement(el, m.url, m.type);
+      });
+    })
+    .catch(function(err){
+      clearTimeout(timeoutId);
+      if(err && err.name !== 'AbortError') console.error('Failed to load content', err);
+    });
+});
 </script>
 </body>
 </html>
