@@ -78,29 +78,25 @@ nav.sol .nav-i{padding:15px 60px;}
 .vd{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:gp 2s infinite;}
 .vc span{font-size:.78rem;font-weight:600;color:var(--ink);}
 
-/* Hero right - Robot image floating */
-.hero-r{position:relative;display:flex;align-items:center;justify-content:center;z-index:2;overflow:visible;padding:0;}
-.hero-robot-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:visible;}
+/* ═══════════════════════════════════════
+   HERO RIGHT — image/video slider, dots only
+═══════════════════════════════════════ */
+.hero-r{position:relative;display:flex;align-items:stretch;justify-content:center;z-index:2;overflow:hidden;padding:0;}
+.hero-robot-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;overflow:hidden;}
 
-/* THE ROBOT IMAGE — big, transparent, no border, floating */
+/* Slides track */
+.hero-robot-slides{display:flex;width:100%;height:100%;transition:transform .75s cubic-bezier(.77,0,.175,1);}
+.hero-robot-slide{min-width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;}
+
+/* Image slide — transparent, big, floating */
 .hero-robot-img{
-  position:relative;
-  width:100%;
-  cursor:pointer;
-  overflow:visible;
-  background:transparent;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
+  position:relative;width:100%;height:100%;
+  cursor:pointer;overflow:visible;background:transparent;
+  display:flex;align-items:flex-end;justify-content:center;
 }
 .hero-robot-img img{
-  width:100%;
-  max-width:620px;
-  height:auto;
-  display:block;
-  object-fit:contain;
-  background:transparent;
-  /* Drop shadow that traces the robot shape (not box) */
+  width:100%;max-width:640px;height:100%;
+  display:block;object-fit:contain;background:transparent;
   filter:
     drop-shadow(0 60px 120px rgba(35,26,16,.5))
     drop-shadow(0 20px 50px rgba(155,123,78,.4))
@@ -108,53 +104,131 @@ nav.sol .nav-i{padding:15px 60px;}
     drop-shadow(20px 0 60px rgba(200,146,10,.08));
   animation:fu .9s .3s both;
 }
-/* Placeholder state */
-.robot-ph{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;padding:80px 40px;width:100%;
+
+/* Video slide inside hero */
+.hero-robot-slide video{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+  position:absolute;inset:0;
 }
+.hero-robot-slide .hero-vid-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,transparent 40%,rgba(35,26,16,.25));
+  pointer-events:none;
+}
+
+/* Placeholder */
+.robot-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:80px 40px;width:100%;}
 .robot-ph-ico{font-size:5rem;filter:drop-shadow(0 20px 40px rgba(155,123,78,.3));animation:fl 4s ease-in-out infinite;}
 .robot-ph-txt{font-size:.85rem;font-weight:600;color:var(--dim);text-align:center;line-height:1.7;}
 .robot-ph-txt small{font-size:.75rem;font-weight:400;}
-/* Admin hover */
-body.admin-mode .hero-robot-img:hover::after{
-  content:'📷 Click to upload robot image';
+
+/* Admin hover hint */
+body.admin-mode .hero-robot-img:hover::after,
+body.admin-mode .hero-robot-slide .uploadable:hover::after{
+  content:'📷 Click to upload';
   position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
   background:rgba(200,146,10,.92);color:#fff;
   padding:8px 18px;border-radius:100px;
   font-size:.8rem;font-weight:700;font-family:'Outfit',sans-serif;
   white-space:nowrap;pointer-events:none;z-index:10;
 }
-.hero-badge{
-  position:relative;margin-top:20px;
-  background:var(--w);border:2px solid var(--lw);border-radius:20px;
-  padding:12px 20px;box-shadow:0 12px 40px var(--sh);
-  font-size:.82rem;font-weight:700;color:var(--ink);
-  display:inline-flex;align-items:center;gap:10px;
-  animation:fl 5s 1s ease-in-out infinite;
+
+/* Dots */
+.hero-robot-dots{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;z-index:10;
 }
+.hrd{
+  width:9px;height:9px;border-radius:50%;
+  background:rgba(35,26,16,.25);border:none;cursor:pointer;
+  transition:all .3s;padding:0;
+}
+.hrd.on{background:var(--gold);width:24px;border-radius:5px;}
+
+/* Admin add slide button */
+.hero-add-slide{display:none;position:absolute;top:16px;right:16px;z-index:20;padding:9px 18px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);}
+body.admin-mode .hero-add-slide{display:flex;align-items:center;gap:6px;}
+
+/* Badge */
+.hero-badge{position:absolute;bottom:52px;left:32px;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:12px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
 .hb-dot{width:10px;height:10px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
 
-/* ═══ VIDEO SHOWCASE SECTION ═══ */
-.vid-showcase{background:var(--ink);padding:60px;}
-.vid-showcase-inner{max-width:900px;margin:0 auto;}
-/* Video slider inside showcase */
-.hero-slider-wrap{position:relative;width:100%;border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.08);}
-.hero-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);width:100%;}
-.hero-slide{min-width:100%;position:relative;}
-.hero-slide video,.hero-slide iframe{width:100%;display:block;max-height:480px;object-fit:cover;background:#000;}
-.hero-slide-ph{min-height:280px;background:linear-gradient(135deg,#EAD9C2,#C9A97A);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--dim);font-size:.85rem;}
-/* Controls */
-.slider-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(253,252,250,.92);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dw);box-shadow:0 4px 16px rgba(35,26,16,.3);transition:all .25s;}
-.slider-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);}
-.slider-btn.prev{left:14px;}
-.slider-btn.next{right:14px;}
-.slider-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;}
-.slider-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);border:none;cursor:pointer;transition:all .25s;padding:0;}
-.slider-dot.on{background:#fff;width:22px;border-radius:4px;}
-/* Admin add slide */
-.hero-add-slide{display:none;position:absolute;top:12px;right:12px;z-index:20;padding:8px 16px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);}
-body.admin-mode .hero-add-slide{display:flex;align-items:center;gap:6px;}
+/* ═══════════════════════════════════════
+   SHORT REVIEWS — vertical shorts slider
+═══════════════════════════════════════ */
+.shorts-section{background:var(--ink);padding:90px 60px;}
+.shorts-in{max-width:1440px;margin:0 auto;}
+.shorts-hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:20px;}
+.shorts-add-btn{display:none;padding:11px 24px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.84rem;font-weight:700;cursor:pointer;gap:7px;align-items:center;box-shadow:0 4px 16px rgba(200,146,10,.25);transition:all .3s;}
+.shorts-add-btn:hover{transform:translateY(-2px);}
+body.admin-mode .shorts-add-btn{display:flex;}
+
+/* Slider outer — clips cards */
+.shorts-slider-wrap{position:relative;overflow:hidden;}
+/* Track — flex row of cards */
+.shorts-track{display:flex;gap:16px;transition:transform .65s cubic-bezier(.77,0,.175,1);}
+
+/* Each short card — vertical phone aspect ratio */
+.short-card{
+  flex-shrink:0;
+  width:200px;          /* phone-width */
+  position:relative;
+}
+.short-vid-wrap{
+  width:200px;
+  aspect-ratio:9/16;    /* portrait vertical */
+  border-radius:18px;
+  overflow:hidden;
+  background:#111;
+  border:2px solid rgba(255,255,255,.07);
+  position:relative;
+  cursor:pointer;
+  transition:transform .35s,box-shadow .35s;
+}
+.short-vid-wrap:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.short-vid-wrap video{
+  width:100%;height:100%;object-fit:cover;display:block;
+  position:absolute;inset:0;
+}
+.short-ph{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:20px;text-align:center;
+  font-size:1.8rem;color:rgba(255,255,255,.25);
+}
+.short-ph span{font-size:.75rem;font-weight:500;color:rgba(255,255,255,.3);line-height:1.5;}
+
+/* Delete button — admin only */
+.short-del-btn{
+  display:none;
+  position:absolute;top:8px;right:8px;z-index:20;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(192,57,43,.9);color:#fff;
+  border:none;cursor:pointer;font-size:.8rem;font-weight:700;
+  align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.short-del-btn:hover{background:#c0392b;transform:scale(1.1);}
+body.admin-mode .short-del-btn{display:flex;}
+
+/* Nav arrows */
+.shorts-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(253,252,250,.12);border:1px solid rgba(255,255,255,.15);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;z-index:10;transition:all .25s;
+  backdrop-filter:blur(8px);
+}
+.shorts-nav:hover{background:rgba(200,146,10,.4);border-color:var(--gold);}
+.shorts-nav.prev{left:-20px;}
+.shorts-nav.next{right:-20px;}
+
+/* Dots */
+.shorts-dots{display:flex;justify-content:center;gap:6px;margin-top:24px;}
+.sd{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.sd.on{background:var(--gold);width:20px;border-radius:4px;}
 
 /* About right column */
 .about-right{align-self:center;}
@@ -926,51 +1000,113 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
     </div>
   </div>
 
-  <!-- ROBOT IMAGE — floating, transparent, no border, no slider -->
+  <!-- HERO RIGHT — Robot image slider (dots only, image + video, no arrow buttons) -->
   <div class="hero-r">
     <div class="hero-robot-wrap" id="hero-robot-wrap">
-      <div class="hero-robot-img uploadable" id="hero-robot-img" data-id="hero-robot" data-type="image">
-        <div class="upload-overlay">
-          <div class="up-ico">🖼️</div>
-          <div class="up-txt">Upload Robot Image</div>
-          <div class="up-sub">PNG transparent background</div>
+      <!-- Admin: add slide button -->
+      <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
+
+      <!-- Slides container -->
+      <div class="hero-robot-slides" id="hero-robot-slides">
+
+        <!-- Slide 1: Robot PNG image -->
+        <div class="hero-robot-slide" id="hrs-0">
+          <div class="hero-robot-img uploadable" data-id="hero-robot-0" data-type="image">
+            <div class="upload-overlay">
+              <div class="up-ico">🖼️</div>
+              <div class="up-txt">Upload Robot Image</div>
+              <div class="up-sub">PNG transparent background</div>
+            </div>
+            <span class="type-badge img-badge" style="display:none;">IMAGE</span>
+            <div class="robot-ph" id="robot-ph">
+              <div class="robot-ph-ico">🤖</div>
+              <div class="robot-ph-txt">Upload robot PNG<br><small>Click in admin mode</small></div>
+            </div>
+          </div>
         </div>
-        <span class="type-badge img-badge" style="display:none;">IMAGE</span>
-        <!-- Robot placeholder -->
-        <div class="robot-ph" id="robot-ph">
-          <div class="robot-ph-ico">🤖</div>
-          <div class="robot-ph-txt">Upload robot PNG<br><small>Click in admin mode</small></div>
-        </div>
+
       </div>
+
+      <!-- Dots only — no arrow buttons -->
+      <div class="hero-robot-dots" id="hero-robot-dots">
+        <button class="hrd on" data-i="0"></button>
+      </div>
+
       <div class="hero-badge"><div class="hb-dot"></div>Live screening in progress</div>
     </div>
   </div>
 </section>
 
-<!-- ═══ VIDEO SHOWCASE (separate from hero robot image) ═══ -->
-<div class="vid-showcase" id="vid-showcase">
-  <div class="vid-showcase-inner">
-    <div class="hero-slider-wrap" id="hero-slider-wrap">
-      <button class="hero-add-slide" id="hero-add-slide">➕ Add Video</button>
-      <div class="hero-slides" id="hero-slides">
-        <div class="hero-slide" data-slide-id="hero-slide-0">
-          <div class="uploadable" data-id="hero-slide-0" data-type="video" style="position:relative;">
-            <div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Click to replace</div><div class="up-sub">Video or YouTube URL</div></div>
-            <span class="type-badge vid-badge">VIDEO</span>
-            <video autoplay muted loop playsinline style="width:100%;display:block;max-height:480px;object-fit:cover;">
-              <source src="Healthcare_Robot_Medical_Check_Video.mp4" type="video/mp4">
-            </video>
-          </div>
-        </div>
+<!-- ═══ SHORT REVIEWS (vertical short videos) ═══ -->
+<section class="shorts-section" id="shorts-section">
+  <div class="shorts-in">
+    <div class="shorts-hd">
+      <div>
+        <div class="lbl" style="color:var(--gold);">What People Say</div>
+        <h2 class="ttl" style="color:#fff;">Short <em>Reviews.</em></h2>
+        <p style="color:rgba(201,169,122,.7);font-size:.95rem;font-weight:300;margin-top:8px;">Real people. Real reactions. Swipe to see more.</p>
       </div>
-      <button class="slider-btn prev" id="hero-prev">‹</button>
-      <button class="slider-btn next" id="hero-next">›</button>
-      <div class="slider-dots" id="hero-dots">
-        <button class="slider-dot on" data-i="0"></button>
-      </div>
+      <button class="shorts-add-btn" id="shorts-add-btn">➕ Add Short</button>
     </div>
+
+    <!-- Shorts slider — multiple vertical videos visible -->
+    <div class="shorts-slider-wrap">
+      <div class="shorts-track" id="shorts-track">
+
+        <div class="short-card" id="sc-0">
+          <div class="short-vid-wrap uploadable" data-id="short-0" data-type="video">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Upload Short</div><div class="up-sub">Vertical video</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="short-ph">📱<br><span>Upload a short review video</span></div>
+          </div>
+          <button class="short-del-btn" title="Delete">✕</button>
+        </div>
+
+        <div class="short-card" id="sc-1">
+          <div class="short-vid-wrap uploadable" data-id="short-1" data-type="video">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Upload Short</div><div class="up-sub">Vertical video</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="short-ph">📱<br><span>Upload a short review video</span></div>
+          </div>
+          <button class="short-del-btn" title="Delete">✕</button>
+        </div>
+
+        <div class="short-card" id="sc-2">
+          <div class="short-vid-wrap uploadable" data-id="short-2" data-type="video">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Upload Short</div><div class="up-sub">Vertical video</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="short-ph">📱<br><span>Upload a short review video</span></div>
+          </div>
+          <button class="short-del-btn" title="Delete">✕</button>
+        </div>
+
+        <div class="short-card" id="sc-3">
+          <div class="short-vid-wrap uploadable" data-id="short-3" data-type="video">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Upload Short</div><div class="up-sub">Vertical video</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="short-ph">📱<br><span>Upload a short review video</span></div>
+          </div>
+          <button class="short-del-btn" title="Delete">✕</button>
+        </div>
+
+        <div class="short-card" id="sc-4">
+          <div class="short-vid-wrap uploadable" data-id="short-4" data-type="video">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Upload Short</div><div class="up-sub">Vertical video</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="short-ph">📱<br><span>Upload a short review video</span></div>
+          </div>
+          <button class="short-del-btn" title="Delete">✕</button>
+        </div>
+
+      </div>
+      <button class="shorts-nav prev" id="shorts-prev">‹</button>
+      <button class="shorts-nav next" id="shorts-next">›</button>
+    </div>
+
+    <!-- Dots -->
+    <div class="shorts-dots" id="shorts-dots"></div>
   </div>
-</div>
+</section>
 
 <!-- MARQUEE -->
 <div class="mq"><div class="mqt" id="mqt"></div></div>
@@ -1746,35 +1882,195 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
   return {go, getCurrent:()=>current, getTotal};
 }
 
-/* ═══ HERO VIDEO SLIDER ═══ */
-let heroIdx = 0;
-const heroSlides = document.getElementById('hero-slides');
-const heroDots   = document.getElementById('hero-dots');
-const heroPrev   = document.getElementById('hero-prev');
-const heroNext   = document.getElementById('hero-next');
+/* ═══════════════════════════════════
+   HERO ROBOT SLIDER (dots only, image+video)
+═══════════════════════════════════ */
+(function(){
+  const track  = document.getElementById('hero-robot-slides');
+  const dotsEl = document.getElementById('hero-robot-dots');
+  const addBtn = document.getElementById('hero-add-slide');
+  let idx = 0;
 
-function heroGo(n){
-  const total = heroSlides.children.length;
-  heroIdx = ((n % total) + total) % total;
-  heroSlides.style.transform = `translateX(-${heroIdx * 100}%)`;
-  [...heroDots.children].forEach((d,i)=>d.classList.toggle('on', i===heroIdx));
-}
-heroPrev.addEventListener('click',()=>heroGo(heroIdx-1));
-heroNext.addEventListener('click',()=>heroGo(heroIdx+1));
-[...heroDots.children].forEach(d=>d.addEventListener('click',()=>heroGo(+d.dataset.i)));
-setInterval(()=>{ if(heroSlides.children.length>1) heroGo(heroIdx+1); }, 6000);
-
-function heroRebuildDots(){
-  const total = heroSlides.children.length;
-  heroDots.innerHTML = '';
-  for(let i=0;i<total;i++){
-    const d=document.createElement('button');
-    d.className='slider-dot'+(i===heroIdx?' on':'');
-    d.dataset.i=i;
-    d.addEventListener('click',()=>heroGo(i));
-    heroDots.appendChild(d);
+  function go(n){
+    const total = track.children.length;
+    idx = ((n % total) + total) % total;
+    track.style.transform = `translateX(-${idx * 100}%)`;
+    [...dotsEl.children].forEach((d,i) => d.classList.toggle('on', i === idx));
   }
-}
+
+  function rebuildDots(){
+    dotsEl.innerHTML = '';
+    [...track.children].forEach((_,i) => {
+      const d = document.createElement('button');
+      d.className = 'hrd' + (i === idx ? ' on' : '');
+      d.dataset.i = i;
+      d.addEventListener('click', () => go(i));
+      dotsEl.appendChild(d);
+    });
+  }
+
+  // Auto advance every 5s
+  setInterval(() => { if(track.children.length > 1) go(idx + 1); }, 5000);
+
+  // Add slide (admin)
+  addBtn && addBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if(!document.body.classList.contains('admin-mode')) return;
+    // Open media modal for new slide — accepts image AND video
+    window._heroAddSlide = true;
+    const murlModal = document.getElementById('murl-modal');
+    const murlSub   = document.getElementById('murl-subtitle');
+    const murlHint  = document.getElementById('murl-accept-hint');
+    const murlUrlInp= document.getElementById('murl-url-inp');
+    murlSub.textContent  = 'Add a new hero slide — image or video';
+    murlHint.textContent = 'PNG, JPG, MP4, MOV supported';
+    murlUrlInp.placeholder = 'https://example.com/robot.png';
+    murlUrlInp.value = '';
+    murlModal.classList.add('open');
+  });
+
+  // Called from applyMedia when _heroAddSlide is true
+  window._createHeroSlide = function(src, fname){
+    window._heroAddSlide = false;
+    const isVid = src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    const slideId = 'hrs-' + track.children.length;
+    const slide = document.createElement('div');
+    slide.className = 'hero-robot-slide';
+    slide.id = slideId;
+
+    if(isVid){
+      const uploadEl = document.createElement('div');
+      uploadEl.className = 'uploadable';
+      uploadEl.dataset.id = 'hero-slide-' + track.children.length;
+      uploadEl.dataset.type = 'video';
+      uploadEl.style.cssText = 'position:absolute;inset:0;';
+      uploadEl.innerHTML = `<div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Replace</div><div class="up-sub">Video</div></div><span class="type-badge vid-badge" style="display:none;">VIDEO</span>`;
+      const vid = document.createElement('video');
+      vid.src = src; vid.autoplay = true; vid.muted = true; vid.loop = true;
+      vid.setAttribute('playsinline','');
+      vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;';
+      const overlay = document.createElement('div');
+      overlay.className = 'hero-vid-overlay';
+      slide.style.cssText = 'position:relative;min-height:100%;';
+      uploadEl.appendChild(vid);
+      slide.appendChild(uploadEl);
+      slide.appendChild(overlay);
+    } else {
+      const uploadEl = document.createElement('div');
+      uploadEl.className = 'hero-robot-img uploadable';
+      uploadEl.dataset.id = 'hero-slide-' + track.children.length;
+      uploadEl.dataset.type = 'image';
+      uploadEl.innerHTML = `<div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace</div><div class="up-sub">Image</div></div><span class="type-badge img-badge" style="display:none;">IMAGE</span>`;
+      const img = document.createElement('img');
+      img.src = src; img.alt = 'AiDoBot';
+      uploadEl.appendChild(img);
+      slide.appendChild(uploadEl);
+    }
+    track.appendChild(slide);
+    rebuildDots();
+    go(track.children.length - 1);
+    // Re-attach admin listeners
+    if(window._reattachAdminListeners) window._reattachAdminListeners();
+  };
+
+  rebuildDots();
+  window._heroRobotGo = go;
+  window._heroRobotRebuildDots = rebuildDots;
+})();
+
+/* ═══════════════════════════════════
+   SHORTS SLIDER
+═══════════════════════════════════ */
+(function(){
+  const track    = document.getElementById('shorts-track');
+  const dotsEl   = document.getElementById('shorts-dots');
+  const prevBtn  = document.getElementById('shorts-prev');
+  const nextBtn  = document.getElementById('shorts-next');
+  const addBtn   = document.getElementById('shorts-add-btn');
+  let idx = 0;
+  const VIS = () => window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : window.innerWidth < 1200 ? 3 : 4;
+  const CARD_W = () => { const c = track.querySelector('.short-card'); return c ? c.offsetWidth + 16 : 216; };
+
+  function go(n){
+    const total = track.children.length;
+    const vis = VIS();
+    const max = Math.max(0, total - vis);
+    idx = Math.max(0, Math.min(n, max));
+    track.style.transform = `translateX(-${idx * CARD_W()}px)`;
+    rebuildDots();
+  }
+
+  function rebuildDots(){
+    const total = track.children.length;
+    const vis = VIS();
+    const needed = Math.max(1, total - vis + 1);
+    dotsEl.innerHTML = '';
+    for(let i = 0; i < needed; i++){
+      const d = document.createElement('button');
+      d.className = 'sd' + (i === idx ? ' on' : '');
+      d.dataset.i = i;
+      d.addEventListener('click', () => go(i));
+      dotsEl.appendChild(d);
+    }
+  }
+
+  prevBtn.addEventListener('click', () => go(idx - 1));
+  nextBtn.addEventListener('click', () => go(idx + 1));
+  window.addEventListener('resize', () => go(idx));
+
+  // Bind delete buttons
+  function bindShortDel(card){
+    const btn = card.querySelector('.short-del-btn');
+    btn && btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if(!document.body.classList.contains('admin-mode')) return;
+      if(!confirm('Remove this short?')) return;
+      card.style.opacity = '0'; card.style.transition = 'opacity .3s';
+      setTimeout(() => { card.remove(); go(Math.max(0, idx - 1)); rebuildDots(); }, 300);
+    });
+  }
+  document.querySelectorAll('.short-card').forEach(bindShortDel);
+
+  // Add short (admin)
+  addBtn && addBtn.addEventListener('click', () => {
+    if(!document.body.classList.contains('admin-mode')) return;
+    window._shortsAddPending = true;
+    const murlModal = document.getElementById('murl-modal');
+    const murlSub   = document.getElementById('murl-subtitle');
+    const murlHint  = document.getElementById('murl-accept-hint');
+    const murlUrlInp= document.getElementById('murl-url-inp');
+    murlSub.textContent  = 'Upload a short review video';
+    murlHint.textContent = 'Vertical MP4 or MOV — portrait format';
+    murlUrlInp.placeholder = 'https://example.com/short.mp4';
+    murlUrlInp.value = '';
+    murlModal.classList.add('open');
+  });
+
+  window._createShortCard = function(src){
+    window._shortsAddPending = false;
+    const id = 'short-' + Date.now();
+    const card = document.createElement('div');
+    card.className = 'short-card';
+    card.id = id;
+    card.innerHTML = `
+      <div class="short-vid-wrap uploadable" data-id="${id}" data-type="video">
+        <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Replace</div><div class="up-sub">Video</div></div>
+        <span class="type-badge vid-badge" style="display:none;">VIDEO</span>
+      </div>
+      <button class="short-del-btn" title="Delete">✕</button>`;
+    const vid = document.createElement('video');
+    vid.src = src; vid.controls = true;
+    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;';
+    card.querySelector('.short-vid-wrap').appendChild(vid);
+    track.appendChild(card);
+    bindShortDel(card);
+    rebuildDots();
+    go(track.children.length - 1);
+    if(window._reattachAdminListeners) window._reattachAdminListeners();
+  };
+
+  rebuildDots();
+})();
 
 /* Gallery slider */
 const galSlides = document.getElementById('gal-slides');
@@ -1965,6 +2261,7 @@ document.getElementById('m-email-btn').onclick=()=>{
       },true);
     });
   }
+  window._reattachAdminListeners = attachListeners;
 
   // ── Open media upload/URL modal ──
   function openMediaModal(target){
@@ -2050,6 +2347,23 @@ document.getElementById('m-email-btn').onclick=()=>{
   }
 
   function applyMedia(target, src, fileName){
+    // Intercept: adding a new hero slide
+    if(window._heroAddSlide){
+      window._createHeroSlide && window._createHeroSlide(src, fileName);
+      murlModal.classList.remove('open');
+      showToast('✓ Hero slide added!', 2200, false);
+      activeTarget = null;
+      return;
+    }
+    // Intercept: adding a new short review
+    if(window._shortsAddPending){
+      window._createShortCard && window._createShortCard(src);
+      murlModal.classList.remove('open');
+      showToast('✓ Short added!', 2200, false);
+      activeTarget = null;
+      return;
+    }
+
     const id = target.dataset.id;
     const ytEmbed = getYouTubeEmbed(src);
     const isYT = !!ytEmbed;
@@ -2082,7 +2396,7 @@ document.getElementById('m-email-btn').onclick=()=>{
       if(target.closest('.hero-slide')){vid.autoplay=true;vid.muted=true;vid.loop=true;vid.removeAttribute('controls');}
     } else {
       // image
-      const isRobot = (target.id === 'hero-robot-img' || target.dataset.id === 'hero-robot');
+      const isRobot = target.dataset.id === 'hero-robot' || (target.dataset.id || '').startsWith('hero-robot-') || (target.dataset.id || '').startsWith('hero-slide-');
 
       if(isRobot){
         // Clear placeholder
@@ -2119,96 +2433,6 @@ document.getElementById('m-email-btn').onclick=()=>{
     renderChanges();
     showToast(isYT?'✓ YouTube video embedded!':'✓ Media updated!',2200,false);
     activeTarget=null;
-  }
-
-  // ── HERO: Add new slide ──
-  document.getElementById('hero-add-slide').addEventListener('click',e=>{
-    e.stopPropagation();
-    // open media modal but for new slide
-    activeTarget = null;
-    const isVid = true; // default assume video, will be detected
-    murlSub.textContent = 'Upload image or video for new hero slide';
-    murlHint.textContent = 'Image, Video or YouTube URL';
-    murlUrlInp.placeholder = 'https://youtube.com/watch?v=... or image/video URL';
-    murlUrlInp.value='';
-    // override apply to add new slide
-    activeCallback = (src, fname)=>{
-      addHeroSlide(src, fname);
-    };
-    murlModal.classList.add('open');
-    // Override file input too
-    fileInp.accept='image/*,video/*';
-  });
-
-  // override file chosen when activeCallback set
-  const origFileChange = fileInp.onchange;
-  fileInp.addEventListener('change',()=>{
-    if(!activeCallback)return;
-    const file=fileInp.files[0];if(!file)return;
-    showToast('Reading '+shortName(file.name)+'…',0,true);
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      murlModal.classList.remove('open');
-      activeCallback(ev.target.result, file.name);
-      activeCallback=null;
-      hideToast();
-    };
-    reader.readAsDataURL(file);
-  });
-  murlApply.addEventListener('click',()=>{
-    if(!activeCallback)return;
-    const url=murlUrlInp.value.trim();if(!url)return;
-    murlModal.classList.remove('open');
-    activeCallback(url, url);
-    activeCallback=null;
-  });
-
-  function addHeroSlide(src, fname){
-    const idx = heroSlides.children.length;
-    const slideId = 'hero-slide-'+idx;
-    const ytEmbed = getYouTubeEmbed(src);
-    const isVid = !!ytEmbed || src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
-    const isImg = !isVid;
-    const slide=document.createElement('div');
-    slide.className='hero-slide';
-    slide.dataset.slideId=slideId;
-    const inner=document.createElement('div');
-    inner.className='uploadable';
-    inner.dataset.id=slideId;
-    inner.dataset.type=isVid?'video':'image';
-    inner.style.cssText='position:relative;min-height:380px;';
-    inner.innerHTML=`
-      <div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Click to replace</div><div class="up-sub">Image, Video or YouTube URL</div></div>
-      <span class="type-badge ${isVid?'vid-badge':'img-badge'}">${ytEmbed?'YOUTUBE':isVid?'VIDEO':'IMAGE'}</span>
-    `;
-    if(ytEmbed){
-      const iframe=document.createElement('iframe');
-      iframe.src=ytEmbed;
-      iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen=true;
-      iframe.style.cssText='width:100%;aspect-ratio:16/9;display:block;border:none;min-height:380px;';
-      inner.appendChild(iframe);
-    } else if(isVid){
-      const v=document.createElement('video');
-      v.src=src;v.autoplay=true;v.muted=true;v.loop=true;v.setAttribute('playsinline','');
-      v.style.cssText='width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);';
-      inner.appendChild(v);
-    } else {
-      const i=document.createElement('img');
-      i.src=src;
-      i.style.cssText='width:100%;display:block;max-height:640px;object-fit:contain;background:transparent;filter:drop-shadow(0 40px 80px rgba(35,26,16,.35)) drop-shadow(0 8px 24px rgba(155,123,78,.25));';
-      inner.appendChild(i);
-      slide.classList.add('is-png');
-    }
-    slide.appendChild(inner);
-    heroSlides.appendChild(slide);
-    heroRebuildDots();
-    heroGo(idx);
-    inner._adminBound=false;
-    if(adminOn) attachListeners();
-    changes[slideId]={name:fname,type:isVid?'video':'image',src};
-    renderChanges();
-    showToast(ytEmbed?'✓ YouTube slide added!':'✓ New hero slide added!',2200,false);
   }
 
   // ── GALLERY: Add new slide ──
