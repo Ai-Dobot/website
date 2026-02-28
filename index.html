@@ -20,6 +20,19 @@ body{font-family:'Outfit',sans-serif;background:var(--w);color:var(--ink);overfl
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:var(--cream);}
 ::-webkit-scrollbar-thumb{background:var(--mw);border-radius:2px;}
+  
+
+  /* This ensures the Pop-up Modals are ALWAYS on top of the Admin Sidebar */
+.murl-bg, .mbg, .mteam-bg, .gadmin-bg {
+  z-index: 9999 !important; /* Higher than the sidebar's 9040 */
+}
+
+/* Optional: Move the close buttons slightly so they are easier to hit */
+.murl-close, .mx, .mteam-close, .gadmin-close {
+  z-index: 10000 !important;
+  background: var(--gold) !important; /* Make it stand out */
+  color: white !important;
+}
 
 /* CURSOR */
 #crsr{position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:multiply;}
