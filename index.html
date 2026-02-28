@@ -147,8 +147,16 @@ body.admin-mode .hero-robot-slide .uploadable:hover::after{
 .hrd.on{background:var(--gold);width:24px;border-radius:5px;}
 
 /* Admin add slide button */
-.hero-add-slide{display:none;position:absolute;top:16px;right:16px;z-index:20;padding:9px 18px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);}
-body.admin-mode .hero-add-slide{display:flex;align-items:center;gap:6px;}
+/* This makes the button show up ONLY when Admin Mode is turned on */
+body.admin-mode .hero-add-slide {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 500;
+}
 
 /* Badge */
 .hero-badge{position:absolute;bottom:52px;left:32px;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:12px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
@@ -2015,20 +2023,14 @@ window._createHeroSlide = function(src, fname) {
   document.querySelectorAll('.short-card').forEach(bindShortDel);
 
   // Add short (admin)
-  addBtn && addBtn.addEventListener('click', () => {
+addBtn && addBtn.addEventListener('click', () => {
     if(!document.body.classList.contains('admin-mode')) return;
-    window._shortsAddPending = true;
+    window._shortsAddPending = true; // This tells the "Apply" button to create a NEW card
     const murlModal = document.getElementById('murl-modal');
-    const murlSub   = document.getElementById('murl-subtitle');
-    const murlHint  = document.getElementById('murl-accept-hint');
-    const murlUrlInp= document.getElementById('murl-url-inp');
-    murlSub.textContent  = 'Upload a short review video';
-    murlHint.textContent = 'Vertical MP4 or MOV — portrait format';
-    murlUrlInp.placeholder = 'https://example.com/short.mp4';
-    murlUrlInp.value = '';
+    document.getElementById('murl-subtitle').textContent = 'Add New Video (YouTube or File)';
     murlModal.classList.add('open');
   });
-
+  
 window._createShortCard = function(src) {
     window._shortsAddPending = false;
     const id = 'short-' + Date.now();
@@ -2342,93 +2344,44 @@ document.getElementById('m-email-btn').onclick=()=>{
     return null;
   }
 
-  function applyMedia(target, src, fileName){
-    // Intercept: adding a new hero slide
+function applyMedia(target, src, fileName){
+    // 1. Check if we are adding a NEW Hero Slide
     if(window._heroAddSlide){
       window._createHeroSlide && window._createHeroSlide(src, fileName);
       murlModal.classList.remove('open');
-      showToast('✓ Hero slide added!', 2200, false);
-      activeTarget = null;
       return;
     }
-    // Intercept: adding a new short review
+    // 2. Check if we are adding a NEW Short Video
     if(window._shortsAddPending){
       window._createShortCard && window._createShortCard(src);
       murlModal.classList.remove('open');
-      showToast('✓ Short added!', 2200, false);
-      activeTarget = null;
       return;
     }
 
+    // 3. Logic for REPLACING existing media
     const id = target.dataset.id;
     const ytEmbed = getYouTubeEmbed(src);
-    const isYT = !!ytEmbed;
-    const isVid = isYT || src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    const isVid = ytEmbed || src.startsWith('data:video') || /\.(mp4|mov|webm)(\?.*)?$/i.test(src);
 
-    if(isYT){
-      // Remove existing media
-      [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge'))ch.remove();});
-      // Remove old iframe if any
-      const oldIframe=target.querySelector('iframe');if(oldIframe)oldIframe.remove();
-      const iframe=document.createElement('iframe');
-      iframe.src=ytEmbed;
-      iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen=true;
-      iframe.style.cssText='width:100%;aspect-ratio:16/9;display:block;border:none;min-height:180px;';
-      // Remove play-c placeholder text if any
-      target.appendChild(iframe);
-      if(target.classList.contains('tl-vid-ph')){target.classList.remove('tl-vid-ph');target.classList.add('tl-vid');}
-    } else if(isVid){
-      let vid=target.querySelector('video');
-      if(!vid){
-        vid=document.createElement('video');
-        vid.controls=true;
-        vid.style.cssText='width:100%;display:block;min-height:180px;max-height:520px;object-fit:cover;';
-        [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge'))ch.remove();});
-        target.appendChild(vid);
-        if(target.classList.contains('tl-vid-ph')){target.classList.remove('tl-vid-ph');target.classList.add('tl-vid');}
-      }
-      vid.src=src; vid.load();
-      if(target.closest('.hero-slide')){vid.autoplay=true;vid.muted=true;vid.loop=true;vid.removeAttribute('controls');}
+    target.innerHTML = ''; // Clear existing content
+    
+    if(ytEmbed) {
+      target.innerHTML = `<iframe src="${ytEmbed}" style="width:100%;height:100%;border:none;aspect-ratio:9/16;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    } else if(isVid) {
+      target.innerHTML = `<video src="${src}" controls style="width:100%;height:100%;object-fit:cover;"></video>`;
     } else {
-      // image
-      const isRobot = target.dataset.id === 'hero-robot' || (target.dataset.id || '').startsWith('hero-robot-') || (target.dataset.id || '').startsWith('hero-slide-');
-
-      if(isRobot){
-        // Clear placeholder
-        const ph = document.getElementById('robot-ph');
-        if(ph) ph.remove();
-        // Remove old img if any
-        let img = target.querySelector('img');
-        if(!img){
-          img = document.createElement('img');
-          target.appendChild(img);
-        }
-        img.src = src;
-        img.alt = 'AiDoBot Robot';
-        // No style override — CSS handles it via .hero-robot-img img
-        img.style.cssText = '';
-        // Hide the type badge
-        const badge = target.querySelector('.type-badge');
-        if(badge) badge.style.display = 'none';
-      } else {
-        // Normal image (non-hero)
-        let img=target.querySelector('img');
-        if(!img){
-          img=document.createElement('img');
-          img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
-          const svgWrap=target.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
-          [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge')&&ch.tagName!=='SPAN')ch.remove();});
-          target.appendChild(img);
-        }
-        img.src=src;
-      }
+      target.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:contain;">`;
     }
 
-    changes[id]={name:fileName||src.slice(0,60),type:isVid?'video':'image',src};
+    // Keep the admin overlay so you can change it again later
+    const overlay = document.createElement('div');
+    overlay.className = 'upload-overlay';
+    overlay.innerHTML = '<div class="up-ico">🎬</div><div class="up-txt">Replace</div>';
+    target.appendChild(overlay);
+
+    changes[id] = {name: fileName || 'URL Link', type: isVid ? 'video' : 'image', src};
     renderChanges();
-    showToast(isYT?'✓ YouTube video embedded!':'✓ Media updated!',2200,false);
-    activeTarget=null;
+    showToast('✓ Media updated!', 2000, false);
   }
 
   // ── GALLERY: Add new slide ──
