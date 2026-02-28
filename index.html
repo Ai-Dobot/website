@@ -20,19 +20,6 @@ body{font-family:'Outfit',sans-serif;background:var(--w);color:var(--ink);overfl
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:var(--cream);}
 ::-webkit-scrollbar-thumb{background:var(--mw);border-radius:2px;}
-  
-
-  /* This ensures the Pop-up Modals are ALWAYS on top of the Admin Sidebar */
-.murl-bg, .mbg, .mteam-bg, .gadmin-bg {
-  z-index: 9999 !important; /* Higher than the sidebar's 9040 */
-}
-
-/* Optional: Move the close buttons slightly so they are easier to hit */
-.murl-close, .mx, .mteam-close, .gadmin-close {
-  z-index: 10000 !important;
-  background: var(--gold) !important; /* Make it stand out */
-  color: white !important;
-}
 
 /* CURSOR */
 #crsr{position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:multiply;}
@@ -862,6 +849,22 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
   .gadmin-box{padding:28px 20px;}
   .gadmin-row{grid-template-columns:1fr;}
 }
+
+  body.admin-mode .hero-add-slide {
+  display: flex !important;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  z-index: 999;
+  background: var(--gold);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 <body>
@@ -1030,25 +1033,25 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
       <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
 
       <!-- Slides container -->
-      <div class="hero-robot-slides" id="hero-robot-slides">
+<div class="hero-r">
+  <div class="hero-robot-wrap" id="hero-robot-wrap">
+    <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
 
-        <!-- Slide 1: Robot PNG image -->
-        <div class="hero-robot-slide" id="hrs-0">
-          <div class="hero-robot-img uploadable" data-id="hero-robot-0" data-type="image">
-            <div class="upload-overlay">
-              <div class="up-ico">🖼️</div>
-              <div class="up-txt">Upload Robot Image</div>
-              <div class="up-sub">PNG transparent background</div>
-            </div>
-            <span class="type-badge img-badge" style="display:none;">IMAGE</span>
-            <div class="robot-ph" id="robot-ph">
-              <div class="robot-ph-ico">🤖</div>
-              <div class="robot-ph-txt">Upload robot PNG<br><small>Click in admin mode</small></div>
-            </div>
+    <div class="hero-robot-slides" id="hero-robot-slides" style="display:flex; transition: transform 0.8s ease-in-out;">
+      <div class="hero-robot-slide" style="min-width: 100%; height: 100%;">
+        <div class="hero-robot-img uploadable" data-id="hero-robot-1" data-type="image">
+          <div class="robot-ph">
+            <div class="robot-ph-ico">🤖</div>
+            <div class="robot-ph-txt">Primary Image<br><small>Click to Change</small></div>
           </div>
         </div>
-
       </div>
+    </div>
+
+    <div class="hero-robot-dots" id="hero-robot-dots"></div>
+    <div class="hero-badge"><div class="hb-dot"></div>Live screening in progress</div>
+  </div>
+</div>
 
       <!-- Dots only — no arrow buttons -->
       <div class="hero-robot-dots" id="hero-robot-dots">
@@ -3076,6 +3079,62 @@ function applyMedia(target, src, fileName){
   };
 
 })();
+
+  /* ═══════════════════════════════════
+   HERO AUTO-SLIDER LOGIC
+═══════════════════════════════════ */
+(function() {
+  const track = document.getElementById('hero-robot-slides');
+  const dots = document.getElementById('hero-robot-dots');
+  let index = 0;
+
+  // Function to move the slide
+  function startLoop() {
+    setInterval(() => {
+      const slides = track.children;
+      if (slides.length > 1) {
+        index = (index + 1) % slides.length;
+        track.style.transform = `translateX(-${index * 100}%)`;
+        updateDots();
+      }
+    }, 3000); // Changes every 3 seconds
+  }
+
+  function updateDots() {
+    dots.innerHTML = '';
+    Array.from(track.children).forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = i === index ? 'hrd on' : 'hrd';
+      dots.appendChild(d);
+    });
+  }
+
+  // Modified Add Slide Function
+  window._createHeroSlide = function(src, fname) {
+    const newSlide = document.createElement('div');
+    newSlide.className = 'hero-robot-slide';
+    newSlide.style.minWidth = '100%';
+    
+    // Check if video or image
+    const isVid = src.includes('youtube') || src.startsWith('data:video');
+    
+    newSlide.innerHTML = `
+      <div class="uploadable" data-id="hero-slide-${Date.now()}" data-type="${isVid ? 'video' : 'image'}">
+        ${isVid ? 
+          `<iframe src="${src.replace('watch?v=', 'embed/')}?autoplay=1&mute=1" style="width:100%;height:100%;border:none;"></iframe>` :
+          `<img src="${src}" style="width:100%;height:100%;object-fit:contain;">`
+        }
+      </div>`;
+    
+    track.appendChild(newSlide);
+    updateDots();
+    if(window._reattachAdminListeners) window._reattachAdminListeners();
+    showToast("Slide Added to Loop!", 2000);
+  };
+
+  startLoop();
+})();
+  
 </script>
 </body>
 </html>
