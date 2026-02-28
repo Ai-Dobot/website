@@ -78,65 +78,83 @@ nav.sol .nav-i{padding:15px 60px;}
 .vd{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:gp 2s infinite;}
 .vc span{font-size:.78rem;font-weight:600;color:var(--ink);}
 
-/* Hero right - Slider */
-.hero-r{position:relative;display:flex;align-items:center;justify-content:center;padding:80px 40px 80px 0;z-index:2;}
-.hero-slider-wrap{position:relative;width:100%;max-width:560px;animation:fu .9s .3s both;}
-/* Default state — no border, no background, overflow visible for PNG */
-.hero-slider-wrap.has-png{overflow:visible;background:none;border:none;box-shadow:none;border-radius:0;}
-/* When showing video/non-transparent: restore the nice frame */
-.hero-slider-wrap.has-video{border-radius:32px;overflow:hidden;box-shadow:0 40px 100px var(--shd);border:3px solid rgba(255,255,255,.7);}
-.hero-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);width:100%;overflow:visible;}
-.hero-slide{min-width:100%;position:relative;}
+/* Hero right - Robot image floating */
+.hero-r{position:relative;display:flex;align-items:center;justify-content:center;z-index:2;overflow:visible;padding:0;}
+.hero-robot-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:visible;}
 
-/* PNG robot image slide — no crop, full size, transparent, with shadow */
-.hero-slide.is-png{background:none;}
-.hero-slide.is-png img{
+/* THE ROBOT IMAGE — big, transparent, no border, floating */
+.hero-robot-img{
+  position:relative;
   width:100%;
+  cursor:pointer;
+  overflow:visible;
+  background:transparent;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.hero-robot-img img{
+  width:100%;
+  max-width:620px;
+  height:auto;
   display:block;
-  max-height:640px;
   object-fit:contain;
   background:transparent;
-  /* Beautiful drop shadow that works on transparent PNGs */
-  filter:drop-shadow(0 40px 80px rgba(35,26,16,.35)) drop-shadow(0 8px 24px rgba(155,123,78,.25));
+  /* Drop shadow that traces the robot shape (not box) */
+  filter:
+    drop-shadow(0 60px 120px rgba(35,26,16,.5))
+    drop-shadow(0 20px 50px rgba(155,123,78,.4))
+    drop-shadow(-20px 0 60px rgba(200,146,10,.08))
+    drop-shadow(20px 0 60px rgba(200,146,10,.08));
+  animation:fu .9s .3s both;
 }
-/* Duration indicator for PNG slides */
-.slide-timer-bar{
-  position:absolute;
-  bottom:0;left:0;
-  height:3px;
-  background:linear-gradient(90deg,var(--gold),var(--mw));
-  border-radius:0 2px 2px 0;
-  width:0%;
-  transition:none;
-  z-index:15;
+/* Placeholder state */
+.robot-ph{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:80px 40px;width:100%;
 }
-
-/* Regular (video/non-PNG) slide images */
-.hero-slide:not(.is-png) img,.hero-slide video{
-  width:100%;display:block;
-  min-height:380px;max-height:520px;
-  object-fit:cover;
-  background:linear-gradient(135deg,#EAD9C2,#C9A97A);
+.robot-ph-ico{font-size:5rem;filter:drop-shadow(0 20px 40px rgba(155,123,78,.3));animation:fl 4s ease-in-out infinite;}
+.robot-ph-txt{font-size:.85rem;font-weight:600;color:var(--dim);text-align:center;line-height:1.7;}
+.robot-ph-txt small{font-size:.75rem;font-weight:400;}
+/* Admin hover */
+body.admin-mode .hero-robot-img:hover::after{
+  content:'📷 Click to upload robot image';
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  background:rgba(200,146,10,.92);color:#fff;
+  padding:8px 18px;border-radius:100px;
+  font-size:.8rem;font-weight:700;font-family:'Outfit',sans-serif;
+  white-space:nowrap;pointer-events:none;z-index:10;
 }
-.hero-slide-ph{min-height:380px;background:linear-gradient(135deg,#EAD9C2,#C9A97A);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--dim);font-size:.85rem;font-weight:600;}
-
-/* Overlay gradient — only on non-PNG slides */
-.hero-slide:not(.is-png)::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(160deg,transparent 40%,rgba(35,26,16,.3));
-  pointer-events:none;border-radius:inherit;
+.hero-badge{
+  position:relative;margin-top:20px;
+  background:var(--w);border:2px solid var(--lw);border-radius:20px;
+  padding:12px 20px;box-shadow:0 12px 40px var(--sh);
+  font-size:.82rem;font-weight:700;color:var(--ink);
+  display:inline-flex;align-items:center;gap:10px;
+  animation:fl 5s 1s ease-in-out infinite;
 }
-
-/* Slider controls */
-.slider-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(253,252,250,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dw);box-shadow:0 4px 16px rgba(35,26,16,.2);transition:all .25s;}
-.slider-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);}
-.slider-btn.prev{left:-20px;}
-.slider-btn.next{right:-20px;}
-.slider-dots{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;}
-.slider-dot{width:8px;height:8px;border-radius:50%;background:rgba(35,26,16,.2);border:none;cursor:pointer;transition:all .25s;padding:0;}
-.slider-dot.on{background:var(--gold);width:22px;border-radius:4px;}
-.hero-badge{position:absolute;bottom:-36px;left:0;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:14px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
 .hb-dot{width:10px;height:10px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+
+/* ═══ VIDEO SHOWCASE SECTION ═══ */
+.vid-showcase{background:var(--ink);padding:60px;}
+.vid-showcase-inner{max-width:900px;margin:0 auto;}
+/* Video slider inside showcase */
+.hero-slider-wrap{position:relative;width:100%;border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.08);}
+.hero-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);width:100%;}
+.hero-slide{min-width:100%;position:relative;}
+.hero-slide video,.hero-slide iframe{width:100%;display:block;max-height:480px;object-fit:cover;background:#000;}
+.hero-slide-ph{min-height:280px;background:linear-gradient(135deg,#EAD9C2,#C9A97A);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--dim);font-size:.85rem;}
+/* Controls */
+.slider-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(253,252,250,.92);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dw);box-shadow:0 4px 16px rgba(35,26,16,.3);transition:all .25s;}
+.slider-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);}
+.slider-btn.prev{left:14px;}
+.slider-btn.next{right:14px;}
+.slider-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;}
+.slider-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.slider-dot.on{background:#fff;width:22px;border-radius:4px;}
+/* Admin add slide */
+.hero-add-slide{display:none;position:absolute;top:12px;right:12px;z-index:20;padding:8px 16px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);}
+body.admin-mode .hero-add-slide{display:flex;align-items:center;gap:6px;}
 
 /* About right column */
 .about-right{align-self:center;}
@@ -907,17 +925,39 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
       <div class="vc"><span class="vd"></span><span>BP: 118/76</span></div>
     </div>
   </div>
+
+  <!-- ROBOT IMAGE — floating, transparent, no border, no slider -->
   <div class="hero-r">
+    <div class="hero-robot-wrap" id="hero-robot-wrap">
+      <div class="hero-robot-img uploadable" id="hero-robot-img" data-id="hero-robot" data-type="image">
+        <div class="upload-overlay">
+          <div class="up-ico">🖼️</div>
+          <div class="up-txt">Upload Robot Image</div>
+          <div class="up-sub">PNG transparent background</div>
+        </div>
+        <span class="type-badge img-badge" style="display:none;">IMAGE</span>
+        <!-- Robot placeholder -->
+        <div class="robot-ph" id="robot-ph">
+          <div class="robot-ph-ico">🤖</div>
+          <div class="robot-ph-txt">Upload robot PNG<br><small>Click in admin mode</small></div>
+        </div>
+      </div>
+      <div class="hero-badge"><div class="hb-dot"></div>Live screening in progress</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VIDEO SHOWCASE (separate from hero robot image) ═══ -->
+<div class="vid-showcase" id="vid-showcase">
+  <div class="vid-showcase-inner">
     <div class="hero-slider-wrap" id="hero-slider-wrap">
-      <!-- Add slide button (admin only) -->
-      <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
+      <button class="hero-add-slide" id="hero-add-slide">➕ Add Video</button>
       <div class="hero-slides" id="hero-slides">
-        <!-- Slide 1: default video -->
         <div class="hero-slide" data-slide-id="hero-slide-0">
-          <div class="uploadable" data-id="hero-slide-0" data-type="video" style="position:relative;min-height:380px;">
-            <div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Click to replace</div><div class="up-sub">Image or Video</div></div>
+          <div class="uploadable" data-id="hero-slide-0" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Click to replace</div><div class="up-sub">Video or YouTube URL</div></div>
             <span class="type-badge vid-badge">VIDEO</span>
-            <video autoplay muted loop playsinline style="width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);">
+            <video autoplay muted loop playsinline style="width:100%;display:block;max-height:480px;object-fit:cover;">
               <source src="Healthcare_Robot_Medical_Check_Video.mp4" type="video/mp4">
             </video>
           </div>
@@ -928,10 +968,9 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
       <div class="slider-dots" id="hero-dots">
         <button class="slider-dot on" data-i="0"></button>
       </div>
-      <div class="hero-badge"><div class="hb-dot"></div>Live screening in progress</div>
     </div>
   </div>
-</section>
+</div>
 
 <!-- MARQUEE -->
 <div class="mq"><div class="mqt" id="mqt"></div></div>
@@ -1707,77 +1746,23 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
   return {go, getCurrent:()=>current, getTotal};
 }
 
-/* ═══ HERO SLIDER ═══ */
+/* ═══ HERO VIDEO SLIDER ═══ */
 let heroIdx = 0;
-const heroSlides   = document.getElementById('hero-slides');
-const heroDots     = document.getElementById('hero-dots');
-const heroPrev     = document.getElementById('hero-prev');
-const heroNext     = document.getElementById('hero-next');
-const heroWrap     = document.getElementById('hero-slider-wrap');
-
-// Progress bar for image slides
-const heroBar = document.createElement('div');
-heroBar.className = 'slide-timer-bar';
-heroWrap.appendChild(heroBar);
-let heroBarAnim = null;
-
-function isSlidePng(slideEl){
-  const img = slideEl.querySelector('img');
-  if(!img) return false;
-  // PNG/transparent if: src ends in .png OR data-type is image AND no video sibling
-  const src = img.src || '';
-  return src.match(/\.png($|\?)/i) || slideEl.classList.contains('is-png');
-}
-
-function updateHeroWrap(){
-  const slide = heroSlides.children[heroIdx];
-  const png = isSlidePng(slide);
-  const hasVid = !!slide.querySelector('video,iframe');
-  if(png){
-    heroWrap.className = 'hero-slider-wrap has-png';
-    heroSlides.style.overflow = 'visible';
-  } else {
-    heroWrap.className = 'hero-slider-wrap has-video';
-    heroSlides.style.overflow = '';
-  }
-  // Manage progress bar
-  clearTimeout(heroBarAnim);
-  heroBar.style.transition = 'none';
-  heroBar.style.width = '0%';
-  if(png && !hasVid){
-    // 2-second hold then advance — animate bar
-    setTimeout(()=>{
-      heroBar.style.transition = 'width 2s linear';
-      heroBar.style.width = '100%';
-    }, 30);
-    heroBarAnim = setTimeout(()=>{
-      if(heroSlides.children.length > 1) heroGo(heroIdx + 1);
-    }, 2000);
-  }
-}
+const heroSlides = document.getElementById('hero-slides');
+const heroDots   = document.getElementById('hero-dots');
+const heroPrev   = document.getElementById('hero-prev');
+const heroNext   = document.getElementById('hero-next');
 
 function heroGo(n){
   const total = heroSlides.children.length;
   heroIdx = ((n % total) + total) % total;
   heroSlides.style.transform = `translateX(-${heroIdx * 100}%)`;
   [...heroDots.children].forEach((d,i)=>d.classList.toggle('on', i===heroIdx));
-  updateHeroWrap();
 }
-
-heroPrev.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(heroIdx-1); });
-heroNext.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(heroIdx+1); });
-[...heroDots.children].forEach(d=>d.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(+d.dataset.i); }));
-
-// Auto-advance: 5s for video slides (PNG slides self-advance after 2s)
-setInterval(()=>{
-  if(heroSlides.children.length < 2) return;
-  const slide = heroSlides.children[heroIdx];
-  if(isSlidePng(slide)) return; // PNG handles own timing
-  heroGo(heroIdx + 1);
-}, 5000);
-
-// Init
-updateHeroWrap();
+heroPrev.addEventListener('click',()=>heroGo(heroIdx-1));
+heroNext.addEventListener('click',()=>heroGo(heroIdx+1));
+[...heroDots.children].forEach(d=>d.addEventListener('click',()=>heroGo(+d.dataset.i)));
+setInterval(()=>{ if(heroSlides.children.length>1) heroGo(heroIdx+1); }, 6000);
 
 function heroRebuildDots(){
   const total = heroSlides.children.length;
@@ -1786,7 +1771,7 @@ function heroRebuildDots(){
     const d=document.createElement('button');
     d.className='slider-dot'+(i===heroIdx?' on':'');
     d.dataset.i=i;
-    d.addEventListener('click',()=>{ clearTimeout(heroBarAnim); heroGo(i); });
+    d.addEventListener('click',()=>heroGo(i));
     heroDots.appendChild(d);
   }
 }
@@ -1984,10 +1969,22 @@ document.getElementById('m-email-btn').onclick=()=>{
   // ── Open media upload/URL modal ──
   function openMediaModal(target){
     activeTarget = target;
-    const isVid = (target.dataset.type==='video');
-    murlSub.textContent = isVid ? 'Upload a video file or paste a video URL' : 'Upload an image or paste a URL';
-    murlHint.textContent = isVid ? 'YouTube URL, MP4, MOV, WEBM supported' : 'JPG, PNG, WEBP supported';
-    murlUrlInp.placeholder = isVid ? 'https://youtube.com/watch?v=... or direct video URL' : 'https://example.com/image.jpg';
+    const isHeroSlide = !!target.closest('.hero-slide');
+    const isVid = (target.dataset.type==='video') && !isHeroSlide;
+
+    if(isHeroSlide){
+      murlSub.textContent = 'Upload robot image (PNG) or video';
+      murlHint.textContent = 'PNG with transparent background recommended · Also supports JPG, MP4, YouTube';
+      murlUrlInp.placeholder = 'https://example.com/robot.png or YouTube URL';
+    } else if(isVid){
+      murlSub.textContent = 'Upload a video file or paste a video URL';
+      murlHint.textContent = 'YouTube URL, MP4, MOV, WEBM supported';
+      murlUrlInp.placeholder = 'https://youtube.com/watch?v=... or direct video URL';
+    } else {
+      murlSub.textContent = 'Upload an image or paste a URL';
+      murlHint.textContent = 'JPG, PNG, WEBP supported';
+      murlUrlInp.placeholder = 'https://example.com/image.jpg';
+    }
     murlUrlInp.value = '';
     murlModal.classList.add('open');
   }
@@ -1998,8 +1995,9 @@ document.getElementById('m-email-btn').onclick=()=>{
   // Drop area click → file input
   murlDrop.addEventListener('click',()=>{
     if(!activeTarget)return;
-    const isVid = (activeTarget.dataset.type==='video');
-    fileInp.accept = isVid ? 'video/*' : 'image/*,video/*';
+    const isHeroSlide = !!activeTarget.closest('.hero-slide');
+    const isVid = (activeTarget.dataset.type==='video') && !isHeroSlide;
+    fileInp.accept = (isVid && !isHeroSlide) ? 'video/*' : 'image/*,video/*';
     fileInp.value='';
     fileInp.click();
   });
@@ -2084,22 +2082,36 @@ document.getElementById('m-email-btn').onclick=()=>{
       if(target.closest('.hero-slide')){vid.autoplay=true;vid.muted=true;vid.loop=true;vid.removeAttribute('controls');}
     } else {
       // image
-      let img=target.querySelector('img');
-      if(!img){
-        img=document.createElement('img');
-        img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
-        const svgWrap=target.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
-        [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge')&&ch.tagName!=='SPAN')ch.remove();});
-        target.appendChild(img);
-      }
-      img.src=src;
-      // If this is a hero slide image, make it PNG-style (no crop, drop shadow, transparent)
-      const heroSlide = target.closest('.hero-slide');
-      if(heroSlide){
-        heroSlide.classList.add('is-png');
-        img.style.cssText='width:100%;display:block;max-height:640px;object-fit:contain;background:transparent;filter:drop-shadow(0 40px 80px rgba(35,26,16,.35)) drop-shadow(0 8px 24px rgba(155,123,78,.25));';
-        // Update wrap class immediately
-        updateHeroWrap();
+      const isRobot = (target.id === 'hero-robot-img' || target.dataset.id === 'hero-robot');
+
+      if(isRobot){
+        // Clear placeholder
+        const ph = document.getElementById('robot-ph');
+        if(ph) ph.remove();
+        // Remove old img if any
+        let img = target.querySelector('img');
+        if(!img){
+          img = document.createElement('img');
+          target.appendChild(img);
+        }
+        img.src = src;
+        img.alt = 'AiDoBot Robot';
+        // No style override — CSS handles it via .hero-robot-img img
+        img.style.cssText = '';
+        // Hide the type badge
+        const badge = target.querySelector('.type-badge');
+        if(badge) badge.style.display = 'none';
+      } else {
+        // Normal image (non-hero)
+        let img=target.querySelector('img');
+        if(!img){
+          img=document.createElement('img');
+          img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+          const svgWrap=target.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
+          [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge')&&ch.tagName!=='SPAN')ch.remove();});
+          target.appendChild(img);
+        }
+        img.src=src;
       }
     }
 
