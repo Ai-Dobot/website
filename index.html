@@ -1870,6 +1870,59 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
   };
 })();
 
+// ═══════════════════════════════════════════════
+// BACKEND API HELPERS (Flask on Vercel)
+// Uses relative paths so the HTML + Flask backend can be on same origin.
+// ═══════════════════════════════════════════════
+const API_BASE = '';
+
+async function postJSON(path, payload){
+  const res = await fetch(API_BASE + path, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload||{})
+  });
+  let data = null;
+  try{ data = await res.json(); }catch(e){ data = null; }
+  if(!res.ok || (data && data.error)){
+    const msg = (data && data.error) || ('Request failed: '+res.status);
+    throw new Error(msg);
+  }
+  return data || {};
+}
+
+async function uploadMediaFile(file, mediaId){
+  const form = new FormData();
+  form.append('file', file);
+  if(mediaId) form.append('media_id', mediaId);
+  const res = await fetch(API_BASE + '/api/media/upload', {
+    method:'POST',
+    body: form
+  });
+  let data = null;
+  try{ data = await res.json(); }catch(e){ data = null; }
+  if(!res.ok || !data || !data.ok){
+    const msg = (data && data.error) || ('Media upload failed: '+res.status);
+    throw new Error(msg);
+  }
+  return data;
+}
+
+async function uploadMediaFromUrl(url, mediaId){
+  const res = await fetch(API_BASE + '/api/media/upload-url', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({url, media_id: mediaId||''})
+  });
+  let data = null;
+  try{ data = await res.json(); }catch(e){ data = null; }
+  if(!res.ok || !data || !data.ok){
+    const msg = (data && data.error) || ('Media URL upload failed: '+res.status);
+    throw new Error(msg);
+  }
+  return data;
+}
+
 /* ═══════════════════════════════════════════════
    CURSOR
 ═══════════════════════════════════════════════ */
@@ -2265,18 +2318,67 @@ document.querySelectorAll('.sbtn').forEach(b=>{
 });
 function updStars(){document.querySelectorAll('.sbtn').forEach(x=>x.style.color=+x.dataset.v<=rating?'var(--gold)':'var(--lw)');}
 
-/* ═══ FORMS ═══ */
-document.getElementById('fb-form')?.addEventListener('submit',e=>{
-  e.preventDefault();
-  document.getElementById('fb-form').style.display='none';
-  document.getElementById('fb-ok').classList.add('show');
-});
-document.getElementById('ct-form')?.addEventListener('submit',e=>{
-  e.preventDefault();
-  const b=e.target.querySelector('.cf-btn');
-  b.textContent='Sent ✓';b.style.background='linear-gradient(135deg,#1A7A4A,#2ECC71)';
-  setTimeout(()=>{e.target.reset();b.textContent='Send Message →';b.style.background='';},3000);
-});
+/* ═══ FORMS — send to Flask backend ═══ */
+const fbForm = document.getElementById('fb-form');
+if(fbForm){
+  fbForm.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const form=e.target;
+    const name=form.querySelector('input[placeholder="Your name"]')?.value.trim()||'';
+    const role=form.querySelector('input[placeholder^="Your role"]')?.value.trim()||'';
+    const message=form.querySelector('textarea')?.value.trim()||'';
+    if(!name || !message){
+      alert('Please enter your name and feedback message.');
+      return;
+    }
+    try{
+      await postJSON('/api/feedback',{name,role:role||null,message,rating:rating||null});
+      fbForm.style.display='none';
+      document.getElementById('fb-ok').classList.add('show');
+    }catch(err){
+      console.error(err);
+      alert('There was an error sending your feedback. Please try again later.');
+    }
+  });
+}
+
+const ctForm = document.getElementById('ct-form');
+if(ctForm){
+  ctForm.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const form=e.target;
+    const first=form.querySelector('input[placeholder="First name"]')?.value.trim()||'';
+    const last=form.querySelector('input[placeholder="Last name"]')?.value.trim()||'';
+    const email=form.querySelector('input[type="email"]')?.value.trim()||'';
+    const org=form.querySelector('input[placeholder="Where are you from?"]')?.value.trim()||'';
+    const message=form.querySelector('textarea')?.value.trim()||'';
+    if(!first || !email || !message){
+      alert('Please fill first name, email and message.');
+      return;
+    }
+    const b=form.querySelector('.cf-btn');
+    b.textContent='Sending…';
+    b.style.background='linear-gradient(135deg,#1A7A4A,#2ECC71)';
+    b.disabled=true;
+    try{
+      await postJSON('/api/contact',{
+        first_name:first,
+        last_name:last||null,
+        email,
+        organisation:org||null,
+        message
+      });
+      b.textContent='Sent ✓';
+      setTimeout(()=>{form.reset();b.textContent='Send Message →';b.style.background='';b.disabled=false;},3000);
+    }catch(err){
+      console.error(err);
+      b.textContent='Send Message →';
+      b.style.background='';
+      b.disabled=false;
+      alert('There was an error sending your message. Please try again later.');
+    }
+  });
+}
 
 /* ═══ BOOK MODAL ═══ */
 const bmod=document.getElementById('book-modal');
@@ -2287,15 +2389,36 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){bmod.classList.remo
 const WA='918800510790',EM='abdoukadrjabbi1@gmail.com';
 function getBD(){return{date:document.getElementById('m-date').value,time:document.getElementById('m-time').value,name:document.getElementById('m-name').value,country:document.getElementById('m-country').value,email:document.getElementById('m-email').value};}
 function bMsg(d){return `New AiDoBot Meeting Request:\n\nName: ${d.name}\nCountry: ${d.country}\nEmail: ${d.email}\nDate: ${d.date}\nTime: ${d.time}`;}
-document.getElementById('m-wa-btn').onclick=()=>{
-  if(!document.getElementById('book-form').reportValidity())return;
-  const d=getBD();window.open(`https://wa.me/${WA}?text=${encodeURIComponent(bMsg(d))}`, '_blank');
-  bmod.classList.remove('open');document.getElementById('book-form').reset();
+async function saveMeeting(channel,d){
+  try{
+    await postJSON('/api/book-meeting',{
+      date:d.date,
+      time:d.time,
+      name:d.name,
+      country:d.country,
+      email:d.email,
+      channel
+    });
+  }catch(err){
+    console.error(err);
+    // Continue with WhatsApp / email even if saving fails
+  }
+}
+document.getElementById('m-wa-btn').onclick=async()=>{
+  const form=document.getElementById('book-form');
+  if(!form.reportValidity())return;
+  const d=getBD();
+  await saveMeeting('whatsapp',d);
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(bMsg(d))}`, '_blank');
+  bmod.classList.remove('open');form.reset();
 };
-document.getElementById('m-email-btn').onclick=()=>{
-  if(!document.getElementById('book-form').reportValidity())return;
-  const d=getBD();window.location.href=`mailto:${EM}?subject=${encodeURIComponent('AiDoBot Meeting Request')}&body=${encodeURIComponent(bMsg(d))}`;
-  bmod.classList.remove('open');document.getElementById('book-form').reset();
+document.getElementById('m-email-btn').onclick=async()=>{
+  const form=document.getElementById('book-form');
+  if(!form.reportValidity())return;
+  const d=getBD();
+  await saveMeeting('email',d);
+  window.location.href=`mailto:${EM}?subject=${encodeURIComponent('AiDoBot Meeting Request')}&body=${encodeURIComponent(bMsg(d))}`;
+  bmod.classList.remove('open');form.reset();
 };
 
 /* ═══════════════════════════════════════════════
@@ -2458,14 +2581,34 @@ document.getElementById('m-email-btn').onclick=()=>{
   murlApply.addEventListener('click',()=>{
     const url=murlUrlInp.value.trim();
     if(!url) return;
-    // Hero add or Shorts add — no activeTarget needed
+    const yt = getYouTubeEmbed(url);
+    // YouTube URLs are embedded directly (kept on YouTube, not Cloudinary)
+    if(yt){
+      if(window._heroAddSlide || window._shortsAddPending){
+        applyMedia(null, url, null);
+        return;
+      }
+      if(!activeTarget) return;
+      applyMedia(activeTarget, url, null);
+      murlModal.classList.remove('open');
+      return;
+    }
+    // Non-YouTube URLs → upload to Cloudinary via backend
     if(window._heroAddSlide || window._shortsAddPending){
-      applyMedia(null, url, null);
+      showToast('Uploading from URL…',0,true);
+      uploadMediaFromUrl(url,'')
+        .then(data=>{applyMedia(null,data.url,null);})
+        .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
+        .finally(()=>{hideToast();murlModal.classList.remove('open');});
       return;
     }
     if(!activeTarget) return;
-    applyMedia(activeTarget, url, null);
-    murlModal.classList.remove('open');
+    const mediaId=activeTarget.dataset.id||'';
+    showToast('Uploading from URL…',0,true);
+    uploadMediaFromUrl(url,mediaId)
+      .then(data=>{applyMedia(activeTarget,data.url,null);})
+      .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
+      .finally(()=>{hideToast();murlModal.classList.remove('open');});
   });
 
   // File chosen via input
@@ -2474,10 +2617,11 @@ document.getElementById('m-email-btn').onclick=()=>{
     if(!file) return;
     if(window._heroAddSlide || window._shortsAddPending){
       murlModal.classList.remove('open');
-      showToast('Reading '+shortName(file.name)+'…',0,true);
-      const r=new FileReader();
-      r.onload=ev=>{ applyMedia(null, ev.target.result, file.name); hideToast(); };
-      r.readAsDataURL(file);
+      showToast('Uploading '+shortName(file.name)+'…',0,true);
+      uploadMediaFile(file,'')
+        .then(data=>{applyMedia(null,data.url,file.name);})
+        .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
+        .finally(()=>hideToast());
       return;
     }
     if(file&&activeTarget){
@@ -2486,11 +2630,18 @@ document.getElementById('m-email-btn').onclick=()=>{
     }
   });
 
-  function processFile(file, target){
-    showToast('Reading '+shortName(file.name)+'…',0,true);
-    const reader=new FileReader();
-    reader.onload=ev=>{ applyMedia(target, ev.target.result, file.name); hideToast(); };
-    reader.readAsDataURL(file);
+  async function processFile(file, target){
+    showToast('Uploading '+shortName(file.name)+'…',0,true);
+    try{
+      const mediaId=target?.dataset?.id||'';
+      const data=await uploadMediaFile(file,mediaId);
+      applyMedia(target,data.url,file.name);
+    }catch(err){
+      console.error(err);
+      showToast('❌ Upload failed',3000,false);
+    }finally{
+      hideToast();
+    }
   }
 
   // ── YouTube URL converter ──
