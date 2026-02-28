@@ -3179,4 +3179,17 @@ document.getElementById('m-email-btn').onclick=()=>{
 
   // Expose admin open media for dynamically added uploadable elements
   window._adminOpenMedia=function(el){
-    // find the admin openMediaModal funct
+    // find the admin openMediaModal funct    // find the admin openMediaModal function if available — fallback: just file pick
+    if(window._adminOpenMediaFn){window._adminOpenMediaFn(el);return;}
+    const fi=document.getElementById('file-inp');
+    if(!fi)return;
+    fi.accept=el.dataset.type==='video'?'video/*':'image/*,video/*';
+    fi.value='';
+    window._tempAdminTarget=el;
+    fi.click();
+  };
+
+})();
+</script>
+</body>
+</html>
