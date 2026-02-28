@@ -146,17 +146,21 @@ body.admin-mode .hero-robot-slide .uploadable:hover::after{
 }
 .hrd.on{background:var(--gold);width:24px;border-radius:5px;}
 
-/* Admin add slide button */
-/* This makes the button show up ONLY when Admin Mode is turned on */
-body.admin-mode .hero-add-slide {
-  display: flex !important;
-  align-items: center;
-  gap: 6px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 500;
+/* Hero slide delete button — admin only */
+.hslide-del{
+  display:none;position:absolute;top:12px;left:12px;z-index:30;
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(192,57,43,.92);color:#fff;border:none;
+  cursor:pointer;font-size:.85rem;font-weight:700;
+  align-items:center;justify-content:center;line-height:1;
+  transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.3);
 }
+.hslide-del:hover{background:#c0392b;transform:scale(1.12);}
+body.admin-mode .hero-robot-slide .hslide-del{display:flex;}
+
+/* Hero add slide button */
+.hero-add-slide{display:none;position:absolute;top:16px;right:16px;z-index:30;padding:9px 18px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);gap:6px;align-items:center;}
+body.admin-mode .hero-add-slide{display:flex;}
 
 /* Badge */
 .hero-badge{position:absolute;bottom:52px;left:32px;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:12px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
@@ -183,23 +187,21 @@ body.admin-mode .shorts-add-btn{display:flex;}
   width:200px;          /* phone-width */
   position:relative;
 }
-.short-vid-wrap {
-  width: 100%;
-  aspect-ratio: 9/16; /* This ensures the full vertical "Shorts" shape */
-  border-radius: 18px;
-  overflow: hidden;
-  background: #111;
-  border: 2px solid rgba(255,255,255,.07);
-  position: relative;
-  cursor: pointer;
-  transition: transform .35s, box-shadow .35s;
+.short-vid-wrap{
+  width:200px;
+  aspect-ratio:9/16;    /* portrait vertical */
+  border-radius:18px;
+  overflow:hidden;
+  background:#111;
+  border:2px solid rgba(255,255,255,.07);
+  position:relative;
+  cursor:pointer;
+  transition:transform .35s,box-shadow .35s;
 }
-
-.short-vid-wrap iframe, 
-.short-vid-wrap video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* This makes the video fill the container correctly */
+.short-vid-wrap:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.short-vid-wrap video{
+  width:100%;height:100%;object-fit:cover;display:block;
+  position:absolute;inset:0;
 }
 .short-ph{
   width:100%;height:100%;
@@ -242,9 +244,6 @@ body.admin-mode .short-del-btn{display:flex;}
 
 /* About right column */
 .about-right{align-self:center;}
-/* ═══ ADMIN HERO add slide btn */
-.hero-add-slide{display:none;position:absolute;top:12px;right:12px;z-index:20;padding:8px 16px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);}
-body.admin-mode .hero-add-slide{display:flex;align-items:center;gap:6px;}
 
 /* MARQUEE */
 .mq{background:var(--ink);padding:14px 0;overflow:hidden;}
@@ -849,22 +848,6 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
   .gadmin-box{padding:28px 20px;}
   .gadmin-row{grid-template-columns:1fr;}
 }
-
-  body.admin-mode .hero-add-slide {
-  display: flex !important;
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  z-index: 999;
-  background: var(--gold);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
 </style>
 </head>
 <body>
@@ -1033,25 +1016,25 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
       <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
 
       <!-- Slides container -->
-<div class="hero-r">
-  <div class="hero-robot-wrap" id="hero-robot-wrap">
-    <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
+      <div class="hero-robot-slides" id="hero-robot-slides">
 
-    <div class="hero-robot-slides" id="hero-robot-slides" style="display:flex; transition: transform 0.8s ease-in-out;">
-      <div class="hero-robot-slide" style="min-width: 100%; height: 100%;">
-        <div class="hero-robot-img uploadable" data-id="hero-robot-1" data-type="image">
-          <div class="robot-ph">
-            <div class="robot-ph-ico">🤖</div>
-            <div class="robot-ph-txt">Primary Image<br><small>Click to Change</small></div>
+        <!-- Slide 1: Robot PNG image -->
+        <div class="hero-robot-slide" id="hrs-0">
+          <div class="hero-robot-img uploadable" data-id="hero-robot-0" data-type="image">
+            <div class="upload-overlay">
+              <div class="up-ico">🖼️</div>
+              <div class="up-txt">Upload Robot Image</div>
+              <div class="up-sub">PNG transparent background</div>
+            </div>
+            <span class="type-badge img-badge" style="display:none;">IMAGE</span>
+            <div class="robot-ph" id="robot-ph">
+              <div class="robot-ph-ico">🤖</div>
+              <div class="robot-ph-txt">Upload robot PNG<br><small>Click in admin mode</small></div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="hero-robot-dots" id="hero-robot-dots"></div>
-    <div class="hero-badge"><div class="hb-dot"></div>Live screening in progress</div>
-  </div>
-</div>
+      </div>
 
       <!-- Dots only — no arrow buttons -->
       <div class="hero-robot-dots" id="hero-robot-dots">
@@ -1770,7 +1753,7 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
     <h2 class="ttl" style="color:var(--w)">Ready to bring<br><em>AiDoBot</em> to you?</h2>
     <div class="ct-g">
       <div class="ct-cards reveal">
-        <div class="ct-card"><div class="ct-ico">📧</div><div class="ct-txt"><h4>Email Us</h4><p><a href="mailto:abdoukadrjabbi1@gmail.com">abdoukadrjabbi1@gmail.com</a><br><a href="mailto:support@aidobot.com">support@aidobot.com</a></p></div></div>
+        <div class="ct-card"><div class="ct-ico">📧</div><div class="ct-txt"><h4>Email Us</h4><p><a href="/cdn-cgi/l/email-protection#91f0f3f5fee4faf0f5e3fbf0f3f3f8a0d1f6fcf0f8fdbff2fefc"><span class="__cf_email__" data-cfemail="4f2e2d2b203a242e2b3d252e2d2d267e0f28222e2623612c2022">[email&#160;protected]</span></a><br><a href="/cdn-cgi/l/email-protection#ccbfb9bcbca3beb88cada5a8a3aea3b8e2afa3a1"><span class="__cf_email__" data-cfemail="a1d2d4d1d1ced3d5e1c0c8c5cec3ced58fc2cecc">[email&#160;protected]</span></a></p></div></div>
         <div class="ct-card"><div class="ct-ico">💬</div><div class="ct-txt"><h4>WhatsApp</h4><p><a href="https://wa.me/918800510790" target="_blank">+91 8800 510 790</a><br>Mon–Fri, 9am–6pm</p></div></div>
         <div class="ct-card"><div class="ct-ico">🌍</div><div class="ct-txt"><h4>Global Deployment</h4><p>Available for deployment worldwide — hospitals, clinics, communities, and homes.</p></div></div>
         <div class="ct-card"><div class="ct-ico">🤝</div><div class="ct-txt"><h4>Partnerships</h4><p>Ministries of Health, hospitals, NGOs, government bodies — let's build together.</p></div></div>
@@ -1811,7 +1794,7 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ═══════════════════════════════════════════════
    CURSOR
 ═══════════════════════════════════════════════ */
@@ -1909,113 +1892,165 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
 }
 
 /* ═══════════════════════════════════
-   HERO ROBOT SLIDER (dots only, image+video)
+   HERO ROBOT SLIDER — dots, add, delete, 2s auto
 ═══════════════════════════════════ */
 (function(){
   const track  = document.getElementById('hero-robot-slides');
   const dotsEl = document.getElementById('hero-robot-dots');
   const addBtn = document.getElementById('hero-add-slide');
-  let idx = 0;
+  let idx = 0, timer = null;
 
   function go(n){
     const total = track.children.length;
+    if(!total) return;
     idx = ((n % total) + total) % total;
     track.style.transform = `translateX(-${idx * 100}%)`;
-    [...dotsEl.children].forEach((d,i) => d.classList.toggle('on', i === idx));
+    rebuildDots();
+    clearTimeout(timer);
+    if(track.children.length > 1)
+      timer = setTimeout(() => go(idx + 1), 2000);
   }
 
   function rebuildDots(){
     dotsEl.innerHTML = '';
-    [...track.children].forEach((_,i) => {
+    [...track.children].forEach((_, i) => {
       const d = document.createElement('button');
       d.className = 'hrd' + (i === idx ? ' on' : '');
-      d.dataset.i = i;
       d.addEventListener('click', () => go(i));
       dotsEl.appendChild(d);
     });
   }
 
-  // Auto advance every 5s
-  setInterval(() => { if(track.children.length > 1) go(idx + 1); }, 5000);
+  // Add delete button to a slide (admin only, visible via CSS)
+  function attachDel(slide){
+    if(slide.querySelector('.hslide-del')) return;
+    const btn = document.createElement('button');
+    btn.className = 'hslide-del';
+    btn.textContent = '✕';
+    btn.title = 'Delete this slide';
+    slide.appendChild(btn);
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if(!document.body.classList.contains('admin-mode')) return;
+      if(track.children.length <= 1) return; // keep at least 1
+      slide.style.opacity='0'; slide.style.transition='opacity .25s';
+      setTimeout(()=>{
+        slide.remove();
+        idx = Math.min(idx, track.children.length - 1);
+        rebuildDots(); go(idx);
+      }, 260);
+    });
+  }
 
-  // Add slide (admin)
+  // Attach delete to all existing slides
+  [...track.children].forEach(attachDel);
+
+  // ➕ Add NEW slide
   addBtn && addBtn.addEventListener('click', e => {
     e.stopPropagation();
     if(!document.body.classList.contains('admin-mode')) return;
-    // Open media modal for new slide — accepts image AND video
     window._heroAddSlide = true;
-    const murlModal = document.getElementById('murl-modal');
-    const murlSub   = document.getElementById('murl-subtitle');
-    const murlHint  = document.getElementById('murl-accept-hint');
-    const murlUrlInp= document.getElementById('murl-url-inp');
-    murlSub.textContent  = 'Add a new hero slide — image or video';
-    murlHint.textContent = 'PNG, JPG, MP4, MOV supported';
-    murlUrlInp.placeholder = 'https://example.com/robot.png';
-    murlUrlInp.value = '';
-    murlModal.classList.add('open');
+    // Configure modal text
+    document.getElementById('murl-subtitle').textContent    = 'Add hero slide — image (PNG) or video';
+    document.getElementById('murl-accept-hint').textContent = 'PNG, JPG, MP4, MOV';
+    const inp = document.getElementById('murl-url-inp');
+    inp.placeholder = 'https://example.com/robot.png'; inp.value = '';
+    document.getElementById('murl-modal').classList.add('open');
   });
 
-  // Called from applyMedia when _heroAddSlide is true
-window._createHeroSlide = function(src, fname) {
+  // Called from applyMedia when _heroAddSlide=true OR when replacing an existing slide's content
+  window._createHeroSlide = function(src){
     window._heroAddSlide = false;
-    const isVid = src.startsWith('data:video') || src.includes('youtube') || /\.(mp4|mov|webm)(\?.*)?$/i.test(src);
-    const track = document.getElementById('hero-robot-slides');
+    const isVid = src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
     const slide = document.createElement('div');
     slide.className = 'hero-robot-slide';
-    slide.style.minWidth = "100%";
 
-    if(isVid) {
-        // Handle YouTube or direct Video
-        let videoHtml = src.includes('youtube') ? 
-            `<iframe src="${src.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1" style="width:100%;height:100%;border:none;"></iframe>` :
-            `<video src="${src}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
-        
-        slide.innerHTML = `<div class="uploadable" style="height:100%;">${videoHtml}</div>`;
+    if(isVid){
+      slide.style.cssText = 'position:relative;overflow:hidden;';
+      const wrap = document.createElement('div');
+      wrap.className = 'uploadable'; wrap.dataset.type = 'video';
+      wrap.dataset.id = 'hero-vid-' + Date.now();
+      wrap.style.cssText = 'position:absolute;inset:0;';
+      wrap.innerHTML = `<div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Replace video</div></div>`;
+      const vid = document.createElement('video');
+      vid.src = src; vid.autoplay = true; vid.muted = true; vid.loop = true;
+      vid.setAttribute('playsinline','');
+      vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      wrap.appendChild(vid);
+      slide.appendChild(wrap);
+      const ov = document.createElement('div'); ov.className = 'hero-vid-overlay';
+      slide.appendChild(ov);
     } else {
-        slide.innerHTML = `<div class="hero-robot-img uploadable"><img src="${src}" style="width:100%;height:100%;object-fit:contain;"></div>`;
+      // Image (PNG transparent)
+      const wrap = document.createElement('div');
+      wrap.className = 'hero-robot-img uploadable'; wrap.dataset.type = 'image';
+      wrap.dataset.id = 'hero-img-' + Date.now();
+      wrap.innerHTML = `<div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace image</div></div>`;
+      const img = document.createElement('img'); img.src = src; img.alt = 'AiDoBot';
+      wrap.appendChild(img);
+      slide.appendChild(wrap);
     }
 
     track.appendChild(slide);
-    window._heroRobotRebuildDots(); // Refresh dots
-    window._heroRobotGo(track.children.length - 1); // Move to new slide
+    attachDel(slide);
     if(window._reattachAdminListeners) window._reattachAdminListeners();
-};
+    rebuildDots();
+    go(track.children.length - 1);
+    document.getElementById('murl-modal').classList.remove('open');
+  };
+
+  // When clicking an existing hero slide image to REPLACE it — applyMedia calls this
+  window._replaceHeroSlideContent = function(uploadEl, src){
+    const isVid = src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    // Remove old media
+    uploadEl.querySelectorAll('img,video,iframe,.robot-ph').forEach(el=>el.remove());
+    if(isVid){
+      const vid = document.createElement('video');
+      vid.src = src; vid.autoplay = true; vid.muted = true; vid.loop = true;
+      vid.setAttribute('playsinline','');
+      vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      uploadEl.dataset.type = 'video';
+      uploadEl.appendChild(vid);
+    } else {
+      const img = document.createElement('img'); img.src = src; img.alt = 'AiDoBot';
+      uploadEl.dataset.type = 'image';
+      uploadEl.appendChild(img);
+    }
+  };
+
   rebuildDots();
-  window._heroRobotGo = go;
-  window._heroRobotRebuildDots = rebuildDots;
+  if(track.children.length > 1) timer = setTimeout(()=>go(1), 2000);
 })();
 
+
 /* ═══════════════════════════════════
-   SHORTS SLIDER
+   SHORTS SLIDER — YouTube + file upload, delete
 ═══════════════════════════════════ */
 (function(){
-  const track    = document.getElementById('shorts-track');
-  const dotsEl   = document.getElementById('shorts-dots');
-  const prevBtn  = document.getElementById('shorts-prev');
-  const nextBtn  = document.getElementById('shorts-next');
-  const addBtn   = document.getElementById('shorts-add-btn');
+  const track   = document.getElementById('shorts-track');
+  const dotsEl  = document.getElementById('shorts-dots');
+  const prevBtn = document.getElementById('shorts-prev');
+  const nextBtn = document.getElementById('shorts-next');
+  const addBtn  = document.getElementById('shorts-add-btn');
   let idx = 0;
-  const VIS = () => window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : window.innerWidth < 1200 ? 3 : 4;
+
+  const VIS    = () => window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : window.innerWidth < 1200 ? 3 : 4;
   const CARD_W = () => { const c = track.querySelector('.short-card'); return c ? c.offsetWidth + 16 : 216; };
 
   function go(n){
     const total = track.children.length;
-    const vis = VIS();
-    const max = Math.max(0, total - vis);
+    const max = Math.max(0, total - VIS());
     idx = Math.max(0, Math.min(n, max));
     track.style.transform = `translateX(-${idx * CARD_W()}px)`;
     rebuildDots();
   }
 
   function rebuildDots(){
-    const total = track.children.length;
-    const vis = VIS();
-    const needed = Math.max(1, total - vis + 1);
+    const needed = Math.max(1, track.children.length - VIS() + 1);
     dotsEl.innerHTML = '';
     for(let i = 0; i < needed; i++){
       const d = document.createElement('button');
       d.className = 'sd' + (i === idx ? ' on' : '');
-      d.dataset.i = i;
       d.addEventListener('click', () => go(i));
       dotsEl.appendChild(d);
     }
@@ -2025,66 +2060,80 @@ window._createHeroSlide = function(src, fname) {
   nextBtn.addEventListener('click', () => go(idx + 1));
   window.addEventListener('resize', () => go(idx));
 
-  // Bind delete buttons
-  function bindShortDel(card){
+  // YouTube ID extractor
+  function getYT(url){
+    const m = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    return m ? 'https://www.youtube.com/embed/'+m[1]+'?rel=0&modestbranding=1' : null;
+  }
+
+  // Bind delete button
+  function bindDel(card){
     const btn = card.querySelector('.short-del-btn');
-    btn && btn.addEventListener('click', e => {
+    if(!btn || btn._b) return; btn._b = true;
+    btn.addEventListener('click', e => {
       e.stopPropagation();
       if(!document.body.classList.contains('admin-mode')) return;
-      if(!confirm('Remove this short?')) return;
-      card.style.opacity = '0'; card.style.transition = 'opacity .3s';
-      setTimeout(() => { card.remove(); go(Math.max(0, idx - 1)); rebuildDots(); }, 300);
+      card.style.opacity='0'; card.style.transition='opacity .3s';
+      setTimeout(()=>{ card.remove(); go(Math.max(0,idx-1)); rebuildDots(); }, 300);
     });
   }
-  document.querySelectorAll('.short-card').forEach(bindShortDel);
+  document.querySelectorAll('.short-card').forEach(bindDel);
 
-  // Add short (admin)
-addBtn && addBtn.addEventListener('click', () => {
+  // ➕ Add Short button
+  addBtn && addBtn.addEventListener('click', () => {
     if(!document.body.classList.contains('admin-mode')) return;
-    window._shortsAddPending = true; // This tells the "Apply" button to create a NEW card
-    const murlModal = document.getElementById('murl-modal');
-    document.getElementById('murl-subtitle').textContent = 'Add New Video (YouTube or File)';
-    murlModal.classList.add('open');
+    window._shortsAddPending = true;
+    document.getElementById('murl-subtitle').textContent    = 'Add a short review video';
+    document.getElementById('murl-accept-hint').textContent = 'YouTube Shorts URL  ·  or upload MP4/MOV';
+    const inp = document.getElementById('murl-url-inp');
+    inp.placeholder = 'https://youtube.com/shorts/... or https://youtu.be/...';
+    inp.value = '';
+    document.getElementById('murl-modal').classList.add('open');
   });
-  
-window._createShortCard = function(src) {
-    window._shortsAddPending = false;
-    const id = 'short-' + Date.now();
-    const card = document.createElement('div');
-    card.className = 'short-card';
-    card.id = id;
 
-    // Detect if it's a YouTube link and convert to embed
-    let finalSrc = src;
-    if (src.includes('youtube.com') || src.includes('youtu.be')) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
-        const match = src.match(regExp);
-        if (match && match[2].length === 11) {
-            finalSrc = `https://www.youtube.com/embed/${match[2]}?autoplay=0&rel=0`;
-        }
+  // Build a card from src (YouTube URL or data URL/file URL)
+  window._createShortCard = function(src){
+    window._shortsAddPending = false;
+    const id  = 'sc-' + Date.now();
+    const ytSrc = getYT(src);
+    const isYT  = !!ytSrc;
+
+    const card = document.createElement('div');
+    card.className = 'short-card'; card.id = id;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'short-vid-wrap uploadable';
+    wrap.dataset.id = id; wrap.dataset.type = 'video';
+    wrap.innerHTML = `<div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Replace</div></div>`;
+
+    if(isYT){
+      const iframe = document.createElement('iframe');
+      iframe.src = ytSrc;
+      iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+      wrap.appendChild(iframe);
+    } else {
+      const vid = document.createElement('video');
+      vid.src = src; vid.controls = true;
+      vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';
+      wrap.appendChild(vid);
     }
 
-    const isEmbed = finalSrc.includes('youtube.com/embed');
-
-    card.innerHTML = `
-      <div class="short-vid-wrap uploadable" data-id="${id}" data-type="video">
-        <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Replace</div><div class="up-sub">Video</div></div>
-        ${isEmbed ? 
-            `<iframe src="${finalSrc}" frameborder="0" allowfullscreen></iframe>` : 
-            `<video src="${finalSrc}" controls></video>`
-        }
-      </div>
-      <button class="short-del-btn" title="Delete">✕</button>`;
-
+    const del = document.createElement('button');
+    del.className = 'short-del-btn'; del.title='Delete'; del.textContent='✕';
+    card.appendChild(wrap); card.appendChild(del);
     track.appendChild(card);
-    bindShortDel(card);
+    bindDel(card);
     rebuildDots();
     go(track.children.length - 1);
     if(window._reattachAdminListeners) window._reattachAdminListeners();
-};
+    document.getElementById('murl-modal').classList.remove('open');
+  };
 
   rebuildDots();
 })();
+
 
 /* Gallery slider */
 const galSlides = document.getElementById('gal-slides');
@@ -2280,13 +2329,13 @@ document.getElementById('m-email-btn').onclick=()=>{
   // ── Open media upload/URL modal ──
   function openMediaModal(target){
     activeTarget = target;
-    const isHeroSlide = !!target.closest('.hero-slide');
-    const isVid = (target.dataset.type==='video') && !isHeroSlide;
+    const isHeroRobotSlide = !!target.closest('.hero-robot-slide');
+    const isVid = (target.dataset.type==='video') && !isHeroRobotSlide;
 
-    if(isHeroSlide){
-      murlSub.textContent = 'Upload robot image (PNG) or video';
-      murlHint.textContent = 'PNG with transparent background recommended · Also supports JPG, MP4, YouTube';
-      murlUrlInp.placeholder = 'https://example.com/robot.png or YouTube URL';
+    if(isHeroRobotSlide){
+      murlSub.textContent = 'Replace slide — upload image or video';
+      murlHint.textContent = 'PNG transparent background · JPG · MP4 · MOV';
+      murlUrlInp.placeholder = 'https://example.com/robot.png';
     } else if(isVid){
       murlSub.textContent = 'Upload a video file or paste a video URL';
       murlHint.textContent = 'YouTube URL, MP4, MOV, WEBM supported';
@@ -2305,12 +2354,17 @@ document.getElementById('m-email-btn').onclick=()=>{
 
   // Drop area click → file input
   murlDrop.addEventListener('click',()=>{
-    if(!activeTarget)return;
-    const isHeroSlide = !!activeTarget.closest('.hero-slide');
-    const isVid = (activeTarget.dataset.type==='video') && !isHeroSlide;
-    fileInp.accept = (isVid && !isHeroSlide) ? 'video/*' : 'image/*,video/*';
-    fileInp.value='';
-    fileInp.click();
+    if(window._heroAddSlide){
+      fileInp.accept='image/*,video/*'; fileInp.value=''; fileInp.click(); return;
+    }
+    if(window._shortsAddPending){
+      fileInp.accept='video/*,image/*'; fileInp.value=''; fileInp.click(); return;
+    }
+    if(!activeTarget) return;
+    const isHeroRobot = !!activeTarget.closest('.hero-robot-slide');
+    const isVid = (activeTarget.dataset.type==='video') && !isHeroRobot;
+    fileInp.accept = (isHeroRobot || !isVid) ? 'image/*,video/*' : 'video/*';
+    fileInp.value=''; fileInp.click();
   });
 
   // Drag & drop
@@ -2326,14 +2380,29 @@ document.getElementById('m-email-btn').onclick=()=>{
   // Apply URL
   murlApply.addEventListener('click',()=>{
     const url=murlUrlInp.value.trim();
-    if(!url||!activeTarget)return;
-    applyMedia(activeTarget,url,null);
+    if(!url) return;
+    // Hero add or Shorts add — no activeTarget needed
+    if(window._heroAddSlide || window._shortsAddPending){
+      applyMedia(null, url, null);
+      return;
+    }
+    if(!activeTarget) return;
+    applyMedia(activeTarget, url, null);
     murlModal.classList.remove('open');
   });
 
   // File chosen via input
   fileInp.addEventListener('change',()=>{
     const file=fileInp.files[0];
+    if(!file) return;
+    if(window._heroAddSlide || window._shortsAddPending){
+      murlModal.classList.remove('open');
+      showToast('Reading '+shortName(file.name)+'…',0,true);
+      const r=new FileReader();
+      r.onload=ev=>{ applyMedia(null, ev.target.result, file.name); hideToast(); };
+      r.readAsDataURL(file);
+      return;
+    }
     if(file&&activeTarget){
       murlModal.classList.remove('open');
       processFile(file,activeTarget);
@@ -2360,44 +2429,87 @@ document.getElementById('m-email-btn').onclick=()=>{
     return null;
   }
 
-function applyMedia(target, src, fileName){
-    // 1. Check if we are adding a NEW Hero Slide
+  function applyMedia(target, src, fileName){
+    // Intercept: adding a new hero slide
     if(window._heroAddSlide){
       window._createHeroSlide && window._createHeroSlide(src, fileName);
       murlModal.classList.remove('open');
+      showToast('✓ Hero slide added!', 2200, false);
+      activeTarget = null;
       return;
     }
-    // 2. Check if we are adding a NEW Short Video
+    // Intercept: adding a new short review
     if(window._shortsAddPending){
       window._createShortCard && window._createShortCard(src);
       murlModal.classList.remove('open');
+      showToast('✓ Short added!', 2200, false);
+      activeTarget = null;
       return;
     }
 
-    // 3. Logic for REPLACING existing media
     const id = target.dataset.id;
     const ytEmbed = getYouTubeEmbed(src);
-    const isVid = ytEmbed || src.startsWith('data:video') || /\.(mp4|mov|webm)(\?.*)?$/i.test(src);
+    const isYT = !!ytEmbed;
+    const isVid = isYT || src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
 
-    target.innerHTML = ''; // Clear existing content
-    
-    if(ytEmbed) {
-      target.innerHTML = `<iframe src="${ytEmbed}" style="width:100%;height:100%;border:none;aspect-ratio:9/16;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    } else if(isVid) {
-      target.innerHTML = `<video src="${src}" controls style="width:100%;height:100%;object-fit:cover;"></video>`;
+    if(isYT){
+      // Remove existing media
+      [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge'))ch.remove();});
+      // Remove old iframe if any
+      const oldIframe=target.querySelector('iframe');if(oldIframe)oldIframe.remove();
+      const iframe=document.createElement('iframe');
+      iframe.src=ytEmbed;
+      iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen=true;
+      iframe.style.cssText='width:100%;aspect-ratio:16/9;display:block;border:none;min-height:180px;';
+      // Remove play-c placeholder text if any
+      target.appendChild(iframe);
+      if(target.classList.contains('tl-vid-ph')){target.classList.remove('tl-vid-ph');target.classList.add('tl-vid');}
+    } else if(isVid){
+      let vid=target.querySelector('video');
+      if(!vid){
+        vid=document.createElement('video');
+        vid.controls=true;
+        vid.style.cssText='width:100%;display:block;min-height:180px;max-height:520px;object-fit:cover;';
+        [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge'))ch.remove();});
+        target.appendChild(vid);
+        if(target.classList.contains('tl-vid-ph')){target.classList.remove('tl-vid-ph');target.classList.add('tl-vid');}
+      }
+      vid.src=src; vid.load();
+      if(target.closest('.hero-robot-slide')){vid.autoplay=true;vid.muted=true;vid.loop=true;vid.removeAttribute('controls');vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';}
     } else {
-      target.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:contain;">`;
+      // image
+      const isRobot = (target.dataset.id || '').startsWith('hero-robot') || (target.dataset.id || '').startsWith('hero-img-') || (target.dataset.id || '').startsWith('hero-vid-');
+
+      if(isRobot){
+        // Replace hero slide content — clear old media, add new
+        target.querySelectorAll('img,video,iframe,.robot-ph').forEach(el=>el.remove());
+        const ph = document.getElementById('robot-ph'); if(ph) ph.remove();
+        const img = document.createElement('img');
+        img.src = src; img.alt = 'AiDoBot';
+        img.style.cssText = '';
+        target.dataset.type = 'image';
+        target.appendChild(img);
+        const badge = target.querySelector('.type-badge');
+        if(badge) badge.style.display = 'none';
+      } else {
+        // Normal image (non-hero)
+        let img=target.querySelector('img');
+        if(!img){
+          img=document.createElement('img');
+          img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+          const svgWrap=target.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
+          [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge')&&ch.tagName!=='SPAN')ch.remove();});
+          target.appendChild(img);
+        }
+        img.src=src;
+      }
     }
 
-    // Keep the admin overlay so you can change it again later
-    const overlay = document.createElement('div');
-    overlay.className = 'upload-overlay';
-    overlay.innerHTML = '<div class="up-ico">🎬</div><div class="up-txt">Replace</div>';
-    target.appendChild(overlay);
-
-    changes[id] = {name: fileName || 'URL Link', type: isVid ? 'video' : 'image', src};
+    changes[id]={name:fileName||src.slice(0,60),type:isVid?'video':'image',src};
     renderChanges();
-    showToast('✓ Media updated!', 2000, false);
+    showToast(isYT?'✓ YouTube video embedded!':'✓ Media updated!',2200,false);
+    activeTarget=null;
   }
 
   // ── GALLERY: Add new slide ──
@@ -3067,74 +3179,4 @@ function applyMedia(target, src, fileName){
 
   // Expose admin open media for dynamically added uploadable elements
   window._adminOpenMedia=function(el){
-    // find the admin openMediaModal function if available — fallback: just file pick
-    if(window._adminOpenMediaFn){window._adminOpenMediaFn(el);return;}
-    const fi=document.getElementById('file-inp');
-    if(!fi)return;
-    fi.accept=el.dataset.type==='video'?'video/*':'image/*,video/*';
-    fi.value='';
-    // temporarily store target
-    window._tempAdminTarget=el;
-    fi.click();
-  };
-
-})();
-
-  /* ═══════════════════════════════════
-   HERO AUTO-SLIDER LOGIC
-═══════════════════════════════════ */
-(function() {
-  const track = document.getElementById('hero-robot-slides');
-  const dots = document.getElementById('hero-robot-dots');
-  let index = 0;
-
-  // Function to move the slide
-  function startLoop() {
-    setInterval(() => {
-      const slides = track.children;
-      if (slides.length > 1) {
-        index = (index + 1) % slides.length;
-        track.style.transform = `translateX(-${index * 100}%)`;
-        updateDots();
-      }
-    }, 3000); // Changes every 3 seconds
-  }
-
-  function updateDots() {
-    dots.innerHTML = '';
-    Array.from(track.children).forEach((_, i) => {
-      const d = document.createElement('div');
-      d.className = i === index ? 'hrd on' : 'hrd';
-      dots.appendChild(d);
-    });
-  }
-
-  // Modified Add Slide Function
-  window._createHeroSlide = function(src, fname) {
-    const newSlide = document.createElement('div');
-    newSlide.className = 'hero-robot-slide';
-    newSlide.style.minWidth = '100%';
-    
-    // Check if video or image
-    const isVid = src.includes('youtube') || src.startsWith('data:video');
-    
-    newSlide.innerHTML = `
-      <div class="uploadable" data-id="hero-slide-${Date.now()}" data-type="${isVid ? 'video' : 'image'}">
-        ${isVid ? 
-          `<iframe src="${src.replace('watch?v=', 'embed/')}?autoplay=1&mute=1" style="width:100%;height:100%;border:none;"></iframe>` :
-          `<img src="${src}" style="width:100%;height:100%;object-fit:contain;">`
-        }
-      </div>`;
-    
-    track.appendChild(newSlide);
-    updateDots();
-    if(window._reattachAdminListeners) window._reattachAdminListeners();
-    showToast("Slide Added to Loop!", 2000);
-  };
-
-  startLoop();
-})();
-  
-</script>
-</body>
-</html>
+    // find the admin openMediaModal funct
