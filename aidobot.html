@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiDoBot — The Future of Healthcare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --w:#FDFCFA; --cream:#F6F0E8; --lw:#EAD9C2; --mw:#C9A97A;
+  --dw:#9B7B4E; --xw:#7A5E38; --gold:#C8920A; --lgold:#FBF4E3;
+  --ink:#231A10; --mid:#6B5740; --dim:#A3906E;
+  --sh:rgba(155,123,78,.10); --shd:rgba(35,26,16,.20);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--w);color:var(--ink);overflow-x:hidden;cursor:none;}
+::selection{background:var(--mw);color:#fff;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--cream);}
+::-webkit-scrollbar-thumb{background:var(--mw);border-radius:2px;}
+
+/* CURSOR */
+#crsr{position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:multiply;}
+#crsr2{position:fixed;width:38px;height:38px;border:1.5px solid var(--dw);border-radius:50%;pointer-events:none;z-index:8999;transform:translate(-50%,-50%);transition:transform .4s cubic-bezier(.23,1,.32,1);opacity:.4;}
+body.hov #crsr{width:22px;height:22px;opacity:.35;}
+body.hov #crsr2{transform:translate(-50%,-50%) scale(1.8);opacity:.18;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:500;transition:all .4s;}
+nav.sol{background:rgba(253,252,250,.96);backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--lw);}
+.nav-i{max-width:1440px;margin:0 auto;padding:22px 60px;display:flex;justify-content:space-between;align-items:center;transition:padding .4s;}
+nav.sol .nav-i{padding:15px 60px;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--xw),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;gap:38px;list-style:none;}
+.nav-links a{font-size:.8rem;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--mid);text-decoration:none;position:relative;transition:color .3s;}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--gold);transition:width .35s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-links a:hover::after{width:100%;}
+.nav-cta{padding:9px 24px;background:linear-gradient(135deg,var(--xw),var(--mw));color:#fff;text-decoration:none;border-radius:100px;font-size:.8rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;transition:all .3s;box-shadow:0 4px 14px rgba(200,146,10,.25);}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(200,146,10,.35);}
+
+/* ═══════════════════════════════════════
+   HERO SLIDER
+═══════════════════════════════════════ */
+.hero{min-height:100vh;display:grid;grid-template-columns:55% 45%;position:relative;overflow:hidden;background:linear-gradient(160deg,var(--w) 0%,var(--cream) 60%,var(--lw) 100%);}
+.hr{position:absolute;border-radius:50%;border:1px solid rgba(200,146,10,.07);pointer-events:none;}
+.hr:nth-child(1){width:800px;height:800px;top:-200px;right:-100px;animation:spn 40s linear infinite;}
+.hr:nth-child(2){width:580px;height:580px;top:-80px;right:40px;animation:spn 28s linear infinite reverse;border-color:rgba(155,123,78,.05);}
+.hr:nth-child(3){width:360px;height:360px;top:80px;right:150px;animation:spn 18s linear infinite;border-color:rgba(200,146,10,.04);}
+@keyframes spn{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hero-l{display:flex;flex-direction:column;justify-content:center;padding:160px 80px 80px;position:relative;z-index:2;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--lgold);border:1px solid rgba(200,146,10,.2);padding:7px 18px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dw);margin-bottom:36px;width:fit-content;}
+.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:gp 2s infinite;}
+@keyframes gp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.5);}}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,7vw,7rem);font-weight:600;line-height:.95;letter-spacing:-2px;color:var(--ink);margin-bottom:32px;}
+.hero h1 .ln{display:block;overflow:hidden;}
+.hero h1 .ln span{display:inline-block;animation:lu .9s cubic-bezier(.23,1,.32,1) both;}
+.hero h1 .ln:nth-child(2) span{animation-delay:.12s;}
+.hero h1 .ln:nth-child(3) span{animation-delay:.24s;}
+@keyframes lu{from{transform:translateY(110%);}to{transform:translateY(0);}}
+.hero h1 em{font-style:italic;background:linear-gradient(135deg,var(--dw),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.12rem;color:var(--mid);line-height:1.8;max-width:460px;font-weight:300;margin-bottom:48px;animation:fu .9s .4s both;}
+.hero-acts{display:flex;gap:16px;flex-wrap:wrap;animation:fu .9s .55s both;}
+@keyframes fu{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.btn-a{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;text-decoration:none;border-radius:14px;font-weight:600;font-size:.95rem;transition:all .35s;box-shadow:0 8px 28px rgba(200,146,10,.3);border:none;cursor:pointer;font-family:'Outfit',sans-serif;}
+.btn-a:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(200,146,10,.4);}
+.btn-b{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:transparent;color:var(--dw);text-decoration:none;border-radius:14px;font-weight:600;font-size:.95rem;border:1.5px solid var(--mw);transition:all .35s;cursor:pointer;font-family:'Outfit',sans-serif;}
+.btn-b:hover{background:var(--cream);transform:translateY(-4px);}
+.vitals{display:flex;gap:16px;margin-top:48px;flex-wrap:wrap;animation:fu .9s .7s both;}
+.vc{display:flex;align-items:center;gap:10px;background:rgba(253,252,250,.85);backdrop-filter:blur(10px);border:1px solid var(--lw);border-radius:100px;padding:9px 18px;box-shadow:0 4px 16px var(--sh);}
+.vc:nth-child(1){animation:fl 4s ease-in-out infinite;}
+.vc:nth-child(2){animation:fl 4s .8s ease-in-out infinite;}
+.vc:nth-child(3){animation:fl 4s 1.6s ease-in-out infinite;}
+.vc:nth-child(4){animation:fl 4s 2.4s ease-in-out infinite;}
+@keyframes fl{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.vd{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:gp 2s infinite;}
+.vc span{font-size:.78rem;font-weight:600;color:var(--ink);}
+
+/* Hero right - Slider */
+.hero-r{position:relative;display:flex;align-items:center;justify-content:center;padding:100px 60px 60px 0;z-index:2;}
+.hero-slider-wrap{position:relative;width:100%;max-width:520px;border-radius:32px;overflow:hidden;box-shadow:0 40px 100px var(--shd);border:3px solid rgba(255,255,255,.7);animation:fu .9s .3s both;}
+.hero-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);width:100%;}
+.hero-slide{min-width:100%;position:relative;}
+.hero-slide img,.hero-slide video{width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);}
+.hero-slide-ph{min-height:380px;background:linear-gradient(135deg,#EAD9C2,#C9A97A);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--dim);font-size:.85rem;font-weight:600;}
+.hero-slider-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,transparent 40%,rgba(35,26,16,.3));z-index:1;pointer-events:none;border-radius:29px;}
+/* Slider controls */
+.slider-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(253,252,250,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dw);box-shadow:0 4px 16px rgba(35,26,16,.2);transition:all .25s;}
+.slider-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);}
+.slider-btn.prev{left:12px;}
+.slider-btn.next{right:12px;}
+.slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;}
+.slider-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.slider-dot.on{background:#fff;width:22px;border-radius:4px;}
+.hero-badge{position:absolute;bottom:-16px;left:-20px;z-index:12;background:var(--w);border:2px solid var(--lw);border-radius:20px;padding:14px 20px;box-shadow:0 12px 40px var(--sh);font-size:.82rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:10px;animation:fl 5s 1s ease-in-out infinite;}
+.hb-dot{width:10px;height:10px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.2);}
+
+/* About right column */
+.about-right{align-self:center;}
+/* ═══ ADMIN HERO add slide btn */
+.hero-add-slide{display:none;position:absolute;top:12px;right:12px;z-index:20;padding:8px 16px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 14px rgba(200,146,10,.3);}
+body.admin-mode .hero-add-slide{display:flex;align-items:center;gap:6px;}
+
+/* MARQUEE */
+.mq{background:var(--ink);padding:14px 0;overflow:hidden;}
+.mqt{display:flex;gap:48px;animation:mqs 22s linear infinite;width:max-content;}
+.mqt span{font-size:.73rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mw);white-space:nowrap;}
+.mqt .sep{color:var(--gold);}
+@keyframes mqs{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* SECTION COMMON */
+.lbl{font-size:.72rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.lbl::before{content:'';width:28px;height:1px;background:var(--gold);}
+.ttl{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5vw,4.5rem);font-weight:600;line-height:1.0;letter-spacing:-1.5px;color:var(--ink);margin-bottom:20px;}
+.ttl em{font-style:italic;background:linear-gradient(135deg,var(--dw),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.desc{font-size:1.05rem;color:var(--mid);line-height:1.85;font-weight:300;max-width:540px;}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.23,1,.32,1),transform .8s cubic-bezier(.23,1,.32,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.12s;}.d2{transition-delay:.24s;}.d3{transition-delay:.36s;}
+
+/* STATS */
+.stats{padding:90px 60px;background:var(--w);}
+.stats-g{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--lw);border-radius:28px;overflow:hidden;}
+.st{padding:48px 32px;text-align:center;border-right:1px solid var(--lw);transition:background .4s;position:relative;overflow:hidden;}
+.st:last-child{border-right:none;}
+.st:hover{background:var(--cream);}
+.st-n{font-family:'Cormorant Garamond',serif;font-size:4.5rem;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--dw),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin-bottom:8px;}
+.st-l{font-size:.88rem;color:var(--mid);font-weight:500;}
+
+/* ═══════════════════════════════════════
+   ABOUT - VERTICAL PHOTOS matching right col
+═══════════════════════════════════════ */
+.about{padding:120px 60px;background:var(--cream);position:relative;overflow:hidden;}
+.about-g{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:stretch;}
+/* Photos column stretches to exact height of right content column */
+.about-photos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-self:stretch;}
+.aph{border-radius:22px;overflow:hidden;box-shadow:0 16px 50px var(--sh);transition:transform .5s,box-shadow .5s;position:relative;flex:1;}
+/* Make each photo fill the full column height equally */
+.about-photos .aph{min-height:0;}
+.about-photos{align-items:stretch;}
+.aph:hover{transform:scale(1.03) translateY(-5px);box-shadow:0 28px 70px var(--shd);}
+.aph img,.aph video{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+/* Keep aspect ratio but let them stretch tall */
+.aph::before{content:'';display:block;padding-top:0;}
+.aph-ph{width:100%;height:100%;background:linear-gradient(135deg,var(--lw),var(--mw));display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;letter-spacing:.5px;padding:12px;text-align:center;}
+.check-l{list-style:none;margin:32px 0 40px;}
+.check-l li{padding:15px 0;display:flex;align-items:flex-start;gap:16px;border-bottom:1px solid rgba(234,217,194,.7);font-size:1rem;color:var(--mid);font-weight:300;line-height:1.5;}
+.check-l li:last-child{border-bottom:none;}
+.ck{width:26px;height:26px;border-radius:50%;flex-shrink:0;margin-top:1px;background:linear-gradient(135deg,var(--mw),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.65rem;font-weight:700;}
+
+/* STORY SCROLL */
+.story{background:var(--ink);padding:120px 0;overflow:hidden;position:relative;}
+.story-hd{max-width:1440px;margin:0 auto;padding:0 60px 72px;}
+.story-hd .lbl{color:var(--gold);}
+.story-row{display:flex;overflow-x:auto;padding:0 60px 56px;scrollbar-width:none;cursor:grab;user-select:none;}
+.story-row::-webkit-scrollbar{display:none;}
+.story-row:active{cursor:grabbing;}
+.sc{min-width:360px;flex-shrink:0;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:28px;padding:44px 38px;margin-right:18px;transition:all .4s;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,146,10,.08),transparent);opacity:0;transition:opacity .4s;}
+.sc:hover{background:rgba(255,255,255,.07);border-color:rgba(200,146,10,.2);transform:translateY(-10px);}
+.sc:hover::before{opacity:1;}
+.sc-n{font-family:'Cormorant Garamond',serif;font-size:5.5rem;font-weight:700;color:rgba(255,255,255,.03);position:absolute;top:16px;right:24px;line-height:1;}
+.sc-ico{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--dw),var(--gold));display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:26px;}
+.sc h3{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--w);margin-bottom:12px;line-height:1.2;}
+.sc p{font-size:.9rem;color:rgba(253,252,250,.55);line-height:1.75;font-weight:300;}
+.drag-hint{text-align:center;margin-top:36px;color:rgba(200,146,10,.35);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;animation:dpa 2.5s ease-in-out infinite;}
+@keyframes dpa{0%,100%{transform:translateX(0);}50%{transform:translateX(8px);}}
+
+/* HOW IT WORKS */
+.hiw{padding:120px 60px;background:var(--w);}
+.hiw-in{max-width:1020px;margin:0 auto;}
+.tl{margin-top:80px;position:relative;}
+.tl::before{content:'';position:absolute;left:44px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),var(--mw),var(--lw));border-radius:2px;}
+.tl-row{display:flex;gap:50px;margin-bottom:72px;position:relative;}
+.tl-row:last-child{margin-bottom:0;}
+.tl-num{flex-shrink:0;width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--dw),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:#fff;box-shadow:0 10px 30px rgba(200,146,10,.3);z-index:2;position:relative;}
+.tl-body{flex:1;padding-top:10px;}
+.tl-body h3{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--ink);margin-bottom:10px;}
+.tl-body p{font-size:.97rem;color:var(--mid);line-height:1.8;font-weight:300;margin-bottom:22px;}
+.tl-vid{border-radius:20px;overflow:hidden;box-shadow:0 14px 44px var(--sh);border:2px solid var(--lw);position:relative;}
+.tl-vid video{width:100%;display:block;min-height:180px;background:linear-gradient(135deg,var(--cream),var(--lw));}
+.tl-vid-ph{background:linear-gradient(135deg,var(--cream),var(--lw));height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--dim);font-size:.82rem;font-weight:600;letter-spacing:.5px;border-radius:20px;border:2px solid var(--lw);}
+.play-c{width:52px;height:52px;border-radius:50%;background:var(--mw);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;transition:transform .25s,background .25s;}
+.tl-vid-ph:hover .play-c{transform:scale(1.12);background:var(--dw);}
+
+/* ═══════════════════════════════════════
+   USE CASES
+═══════════════════════════════════════ */
+.uc{padding:120px 60px;background:var(--cream);}
+.uc-in{max-width:1440px;margin:0 auto;}
+.uc-g{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px;}
+.uc-c{background:var(--w);border-radius:28px;padding:40px 32px;border:1px solid var(--lw);transition:all .45s;position:relative;overflow:hidden;}
+.uc-c::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,146,10,.07),transparent);opacity:0;transition:opacity .4s;}
+.uc-c:hover{transform:translateY(-10px);box-shadow:0 28px 64px var(--sh);border-color:var(--mw);}
+.uc-c:hover::after{opacity:1;}
+.uc-ico{font-size:2rem;margin-bottom:22px;}
+.uc-c h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--ink);margin-bottom:10px;}
+.uc-c p{font-size:.9rem;color:var(--mid);line-height:1.7;font-weight:300;}
+.uc-tag{display:inline-block;margin-top:20px;padding:5px 14px;background:var(--lgold);border:1px solid rgba(200,146,10,.25);border-radius:100px;font-size:.7rem;font-weight:700;color:var(--dw);letter-spacing:.5px;text-transform:uppercase;}
+
+/* ═══════════════════════════════════════
+   GALLERY - INFINITE SLIDER
+═══════════════════════════════════════ */
+.gal{padding:120px 60px;background:var(--ink);}
+.gal-in{max-width:1440px;margin:0 auto;}
+.gal .lbl{color:var(--gold);}
+.gal .ttl{color:var(--w);}
+
+/* Gallery Slider */
+.gal-slider-wrap{position:relative;margin-top:64px;overflow:hidden;border-radius:22px;}
+.gal-slides{display:flex;transition:transform .7s cubic-bezier(.77,0,.175,1);}
+.gal-slide{min-width:calc(33.333% - 14px);margin-right:14px;border-radius:22px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:3/4;}
+.gal-slide img,.gal-slide video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s;filter:sepia(.2) saturate(.85);}
+.gal-slide:hover img,.gal-slide:hover video{transform:scale(1.08);filter:sepia(0) saturate(1);}
+.gal-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(35,26,16,.75));pointer-events:none;}
+.gal-cap{position:absolute;bottom:0;left:0;right:0;padding:22px;z-index:1;transform:translateY(8px);transition:transform .35s;}
+.gal-slide:hover .gal-cap{transform:translateY(0);}
+.gal-cap span{font-size:.82rem;font-weight:600;color:rgba(253,252,250,.9);letter-spacing:.4px;}
+.gal-slide-ph{width:100%;height:100%;background:linear-gradient(135deg,var(--dw),var(--xw));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(255,255,255,.5);font-size:.8rem;}
+
+/* Gallery controls */
+.gal-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:28px;}
+.gal-nav-btns{display:flex;gap:10px;}
+.gal-nav-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(253,252,250,.8);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .25s;}
+.gal-nav-btn:hover{background:rgba(200,146,10,.3);border-color:var(--gold);color:#fff;}
+.gal-dots-row{display:flex;gap:6px;align-items:center;}
+.gal-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.gal-dot.on{background:var(--gold);width:22px;border-radius:4px;}
+/* Admin add gallery */
+.gal-add-btn{display:none;padding:10px 22px;background:linear-gradient(135deg,var(--dw),var(--gold));color:#fff;border:none;border-radius:12px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+body.admin-mode .gal-add-btn{display:flex;align-items:center;gap:6px;}
+
+/* ═══════════════════════════════════════
+   FEEDBACK
+═══════════════════════════════════════ */
+.fb{padding:120px 60px;background:var(--w);}
+.fb-in{max-width:1440px;margin:0 auto;}
+.fb-tabs{display:flex;gap:0;margin-top:60px;border-bottom:2px solid var(--lw);}
+.fb-tab{padding:14px 32px;background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .25s;}
+.fb-tab.on{color:var(--dw);border-bottom-color:var(--gold);}
+.fb-tab:hover{color:var(--ink);}
+.fb-panel{display:none;}
+.fb-panel.on{display:block;animation:fu .5s both;}
+
+/* Video reviews slider */
+.fbv-slider-wrap{position:relative;margin-top:48px;overflow:hidden;}
+.fbv-slides{display:flex;transition:transform .65s cubic-bezier(.77,0,.175,1);}
+.fbv-slide{min-width:calc(33.333% - 16px);margin-right:16px;background:var(--cream);border-radius:22px;overflow:hidden;border:1px solid var(--lw);transition:all .4s;flex-shrink:0;}
+.fbv-slide:hover{transform:translateY(-8px);box-shadow:0 24px 56px var(--sh);}
+.fb-vth{position:relative;height:210px;background:linear-gradient(135deg,var(--lw),var(--mw));overflow:hidden;cursor:pointer;}
+.fb-vth video{width:100%;height:100%;object-fit:cover;display:block;}
+.fb-vth-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--lw),var(--mw));}
+.fb-play{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(253,252,250,.92);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--dw);box-shadow:0 6px 20px rgba(35,26,16,.2);transition:transform .3s,background .3s;pointer-events:none;z-index:2;}
+.fbv-slide:hover .fb-play{transform:scale(1.15);background:#fff;}
+.fb-vi{padding:20px 22px 22px;}
+.fb-vn{font-weight:700;font-size:.95rem;color:var(--ink);margin-bottom:4px;}
+.fb-vr{font-size:.78rem;color:var(--dim);}
+.fb-vo{font-size:.84rem;color:var(--mid);margin-top:8px;line-height:1.5;font-weight:300;font-style:italic;}
+
+/* Video slider controls */
+.fbv-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:24px;}
+.fbv-nav{display:flex;gap:10px;}
+.fbv-nav-btn{width:40px;height:40px;border-radius:50%;background:var(--cream);border:1px solid var(--lw);color:var(--mid);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .25s;}
+.fbv-nav-btn:hover{background:var(--lgold);border-color:var(--gold);color:var(--dw);}
+.fbv-dots{display:flex;gap:6px;align-items:center;}
+.fbv-dot{width:8px;height:8px;border-radius:50%;background:var(--lw);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.fbv-dot.on{background:var(--gold);width:22px;border-radius:4px;}
+/* Admin add video review */
+.fbv-add-btn{display:none;padding:9px 20px;background:linear-gradient(135deg,var(--dw),var(--gold));color:#fff;border:none;border-radius:12px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+body.admin-mode .fbv-add-btn{display:flex;align-items:center;gap:6px;}
+
+/* Written feedback slider */
+.fbq-slider-wrap{position:relative;overflow:hidden;margin-top:48px;}
+.fbq-slides{display:flex;transition:transform .65s cubic-bezier(.77,0,.175,1);}
+.fbq-slide{min-width:calc(33.333% - 16px);margin-right:16px;background:var(--cream);border-radius:22px;padding:36px 30px;border:1px solid var(--lw);transition:all .4s;position:relative;overflow:hidden;flex-shrink:0;}
+.fbq-slide:hover{transform:translateY(-8px);box-shadow:0 24px 56px var(--sh);border-color:var(--mw);}
+.fbq-slide::before{content:'\201C';font-family:'Cormorant Garamond',serif;font-size:6rem;color:var(--lw);position:absolute;top:8px;right:20px;line-height:1;}
+.fb-stars{color:var(--gold);letter-spacing:3px;font-size:.95rem;margin-bottom:14px;}
+.fbq-slide p{font-size:.95rem;color:var(--mid);line-height:1.8;font-weight:300;margin-bottom:22px;font-style:italic;}
+.fb-auth{display:flex;align-items:center;gap:12px;}
+.fb-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--mw),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;flex-shrink:0;}
+.fb-an .nm{font-weight:700;font-size:.88rem;color:var(--ink);}
+.fb-an .rl{font-size:.76rem;color:var(--dim);}
+
+/* Quote slider controls */
+.fbq-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:24px;}
+.fbq-nav{display:flex;gap:10px;}
+.fbq-nav-btn{width:40px;height:40px;border-radius:50%;background:var(--cream);border:1px solid var(--lw);color:var(--mid);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .25s;}
+.fbq-nav-btn:hover{background:var(--lgold);border-color:var(--gold);color:var(--dw);}
+.fbq-dots{display:flex;gap:6px;align-items:center;}
+.fbq-dot{width:8px;height:8px;border-radius:50%;background:var(--lw);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.fbq-dot.on{background:var(--gold);width:22px;border-radius:4px;}
+
+/* Submit panel */
+.fb-sw{margin-top:56px;background:linear-gradient(135deg,var(--cream),var(--lgold));border:1px solid rgba(200,146,10,.2);border-radius:28px;padding:56px;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;}
+.fb-sl h3{font-family:'Cormorant Garamond',serif;font-size:2.3rem;color:var(--ink);margin-bottom:14px;font-weight:600;}
+.fb-sl p{color:var(--mid);line-height:1.75;font-size:.97rem;font-weight:300;}
+.fb-f{display:flex;flex-direction:column;gap:14px;}
+.fb-inp{width:100%;padding:13px 18px;border:1.5px solid var(--lw);border-radius:14px;font-family:'Outfit',sans-serif;font-size:.93rem;color:var(--ink);background:var(--w);transition:border-color .25s,box-shadow .25s;}
+.fb-inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,10,.12);}
+.fb-ta{resize:none;height:110px;}
+.stars-row{display:flex;align-items:center;gap:6px;}
+.stars-row span{font-size:.82rem;color:var(--mid);margin-right:4px;}
+.sbtn{background:none;border:none;cursor:pointer;font-size:1.7rem;color:var(--lw);transition:color .2s,transform .2s;}
+.sbtn:hover,.sbtn.on{color:var(--gold);}
+.sbtn:hover{transform:scale(1.2);}
+.fb-sub{padding:14px 32px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:14px;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;transition:all .35s;align-self:flex-start;box-shadow:0 6px 20px rgba(200,146,10,.28);}
+.fb-sub:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(200,146,10,.38);}
+.fb-ok{display:none;background:var(--w);border-radius:18px;padding:32px;text-align:center;border:1px solid rgba(200,146,10,.2);}
+.fb-ok.show{display:block;animation:fu .5s both;}
+.fb-ok .tick{font-size:2.8rem;margin-bottom:12px;}
+.fb-ok h4{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--ink);margin-bottom:8px;}
+.fb-ok p{font-size:.9rem;color:var(--mid);}
+
+/* ═══════════════════════════════════════
+   TEAM - with Add button
+═══════════════════════════════════════ */
+.team{padding:120px 60px;background:var(--cream);}
+.team-in{max-width:1440px;margin:0 auto;}
+.team-g{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:64px;}
+.t-card{background:var(--w);border-radius:28px;overflow:hidden;border:1px solid var(--lw);transition:all .45s;position:relative;}
+.t-card:hover{transform:translateY(-12px);box-shadow:0 32px 72px var(--shd);}
+.t-ph{height:320px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--lw),var(--mw));}
+.t-ph img{width:100%;height:100%;object-fit:cover;transition:transform .55s;}
+.t-card:hover .t-ph img{transform:scale(1.08);}
+.t-ph-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.t-ph-bg svg{opacity:.4;}
+.t-info{padding:28px 26px;}
+.t-nm{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.t-rl{font-size:.72rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.t-bio{font-size:.87rem;color:var(--mid);line-height:1.65;font-weight:300;}
+/* Add team member card */
+.t-add-card{display:none;background:var(--w);border-radius:28px;border:2px dashed var(--mw);transition:all .45s;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:12px;min-height:380px;color:var(--dw);}
+body.admin-mode .t-add-card{display:flex;}
+.t-add-card:hover{background:var(--cream);border-color:var(--gold);transform:translateY(-8px);}
+.t-add-ico{font-size:2.5rem;}
+.t-add-txt{font-size:.9rem;font-weight:600;}
+
+/* Team admin action bar — shown only in admin mode */
+.t-admin-bar{display:none;position:absolute;top:12px;right:12px;z-index:60;gap:6px;}
+body.admin-mode .t-card .t-admin-bar{display:flex;}
+.t-admin-btn{padding:6px 13px;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:.73rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.t-admin-btn.edit{background:rgba(200,146,10,.92);color:#fff;}
+.t-admin-btn.edit:hover{background:var(--gold);transform:translateY(-1px);}
+.t-admin-btn.del{background:rgba(192,57,43,.88);color:#fff;}
+.t-admin-btn.del:hover{background:#c0392b;transform:translateY(-1px);}
+
+/* Delete confirm overlay */
+.t-del-confirm{display:none;position:absolute;inset:0;z-index:70;background:rgba(35,26,16,.82);border-radius:28px;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;text-align:center;}
+.t-del-confirm.show{display:flex;}
+.t-del-confirm p{color:#fff;font-size:.95rem;font-weight:600;line-height:1.5;}
+.t-del-confirm p span{color:var(--gold);}
+.t-del-btns{display:flex;gap:10px;}
+.t-del-yes{padding:10px 24px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
+.t-del-no{padding:10px 24px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;}
+
+/* CONTACT */
+.ct{padding:120px 60px;background:var(--ink);position:relative;overflow:hidden;}
+.ct-in{max-width:1440px;margin:0 auto;position:relative;}
+.ct .lbl{color:var(--gold);}
+.ct .ttl{color:var(--w);}
+.ct-g{display:grid;grid-template-columns:1fr 1.4fr;gap:60px;margin-top:60px;}
+.ct-cards{display:flex;flex-direction:column;gap:16px;}
+.ct-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px 30px;display:flex;gap:18px;align-items:flex-start;transition:all .35s;}
+.ct-card:hover{background:rgba(255,255,255,.08);border-color:rgba(200,146,10,.2);}
+.ct-ico{width:46px;height:46px;flex-shrink:0;border-radius:14px;background:linear-gradient(135deg,var(--dw),var(--gold));display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.ct-txt h4{font-size:.78rem;font-weight:700;color:var(--mw);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;}
+.ct-txt p,.ct-txt a{font-size:.93rem;color:rgba(253,252,250,.65);text-decoration:none;line-height:1.6;}
+.ct-txt a:hover{color:var(--gold);}
+.ct-fw{background:var(--w);border-radius:28px;padding:52px;}
+.ct-fw h3{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--ink);margin-bottom:6px;font-weight:600;}
+.ct-fw .sub{font-size:.9rem;color:var(--mid);margin-bottom:36px;}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.cf-fld{display:flex;flex-direction:column;gap:5px;}
+.cf-fld label{font-size:.78rem;font-weight:600;color:var(--mid);}
+.cf-inp{padding:13px 16px;border:1.5px solid var(--lw);border-radius:14px;font-family:'Outfit',sans-serif;font-size:.93rem;color:var(--ink);background:var(--w);transition:border-color .25s,box-shadow .25s;width:100%;}
+.cf-inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,10,.12);}
+.cf-ta{resize:vertical;min-height:120px;}
+.cf-btn{margin-top:10px;padding:15px 40px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:14px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .35s;box-shadow:0 6px 22px rgba(200,146,10,.28);}
+.cf-btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(200,146,10,.38);}
+
+/* FAB */
+.fab{position:fixed;bottom:32px;right:32px;z-index:400;display:flex;align-items:center;gap:10px;padding:14px 28px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:100px;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;box-shadow:0 8px 32px rgba(200,146,10,.4);transition:all .35s;}
+.fab:hover{transform:translateY(-4px) scale(1.04);box-shadow:0 14px 44px rgba(200,146,10,.5);}
+.fab .fd{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.8;animation:gp 2s infinite;}
+
+/* BOOK MODAL */
+.mbg{position:fixed;inset:0;z-index:700;background:rgba(35,26,16,.65);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px;}
+.mbg.open{display:flex;animation:fu .3s both;}
+.mbox{background:var(--w);border-radius:28px;max-width:560px;width:100%;padding:44px;position:relative;box-shadow:0 40px 100px rgba(35,26,16,.5);}
+.mx{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;background:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);font-size:1rem;font-weight:600;transition:background .25s;}
+.mx:hover{background:var(--lw);}
+.mbox h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.mbox .sub{font-size:.88rem;color:var(--mid);margin-bottom:32px;}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
+.mg .fw{grid-column:1/-1;}
+.mlbl{display:block;font-size:.78rem;font-weight:600;color:var(--mid);margin-bottom:4px;}
+.minp{width:100%;padding:11px 14px;border:1.5px solid var(--lw);border-radius:12px;font-family:'Outfit',sans-serif;font-size:.92rem;color:var(--ink);background:var(--w);transition:border-color .25s,box-shadow .25s;}
+.minp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,10,.12);}
+.macts{grid-column:1/-1;margin-top:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.mwp{padding:12px 26px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;transition:all .3s;}
+.mwp:hover{transform:translateY(-2px);}
+.mem{padding:12px 26px;border:1.5px solid var(--mw);border-radius:12px;background:none;color:var(--dw);cursor:pointer;font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;transition:all .3s;}
+.mem:hover{background:var(--cream);}
+.msep{font-size:.82rem;color:var(--dim);}
+
+/* FOOTER */
+footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.05);padding:72px 60px 36px;}
+.ft-g{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:2.4fr 1fr 1fr 1fr;gap:50px;margin-bottom:50px;}
+.ft-brand .logo{font-size:1.7rem;}
+.ft-brand p{font-size:.88rem;color:rgba(253,252,250,.5);line-height:1.75;margin-top:14px;max-width:280px;}
+.ft-col h4{font-size:.72rem;font-weight:700;color:rgba(253,252,250,.35);text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;}
+.ft-col ul{list-style:none;}
+.ft-col ul li{margin-bottom:10px;}
+.ft-col ul li a{color:rgba(253,252,250,.6);text-decoration:none;font-size:.88rem;transition:color .25s;}
+.ft-col ul li a:hover{color:var(--gold);}
+.ft-bt{max-width:1440px;margin:0 auto;border-top:1px solid rgba(255,255,255,.06);padding-top:28px;display:flex;justify-content:space-between;align-items:center;}
+.ft-bt p{font-size:.78rem;color:rgba(253,252,250,.3);}
+
+/* ═══════════════════════════════════════════════
+   ADMIN MEDIA UPLOAD SYSTEM
+═══════════════════════════════════════════════ */
+#admin-trig{position:fixed;bottom:8px;left:12px;width:16px;height:16px;border-radius:50%;background:rgba(155,123,78,.15);border:none;cursor:pointer;z-index:600;transition:all .4s;}
+#admin-trig:hover{background:rgba(200,146,10,.4);transform:scale(1.5);}
+
+.pw-bg{position:fixed;inset:0;z-index:9100;background:rgba(35,26,16,.72);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px;}
+.pw-bg.open{display:flex;animation:fu .3s both;}
+.pw-box{background:var(--w);border-radius:28px;padding:52px 48px;max-width:420px;width:100%;box-shadow:0 40px 100px rgba(35,26,16,.55);text-align:center;}
+.pw-box .ico{font-size:2.5rem;margin-bottom:16px;}
+.pw-box h3{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--ink);margin-bottom:8px;}
+.pw-box p{font-size:.88rem;color:var(--mid);margin-bottom:28px;}
+.pw-inp{width:100%;padding:14px 18px;border:1.5px solid var(--lw);border-radius:14px;font-family:'Outfit',sans-serif;font-size:1.1rem;color:var(--ink);text-align:center;letter-spacing:6px;margin-bottom:14px;transition:border-color .25s,box-shadow .25s;}
+.pw-inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,10,.12);}
+.pw-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:14px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .3s;margin-bottom:12px;}
+.pw-btn:hover{transform:translateY(-2px);}
+.pw-err{color:#c0392b;font-size:.82rem;margin-bottom:10px;display:none;}
+.pw-err.show{display:block;}
+.pw-cancel{background:none;border:none;color:var(--mid);font-size:.85rem;cursor:pointer;text-decoration:underline;font-family:'Outfit',sans-serif;}
+
+#admin-bar{position:fixed;top:0;left:0;right:0;z-index:9050;background:linear-gradient(135deg,#2C1810,#7A5E38);padding:0;display:none;}
+#admin-bar.on{display:block;}
+.ab-inner{display:flex;justify-content:space-between;align-items:center;padding:10px 28px;}
+.ab-left{display:flex;align-items:center;gap:12px;font-size:.82rem;font-weight:600;color:#fff;letter-spacing:.4px;}
+.ab-pulse{width:8px;height:8px;border-radius:50%;background:#F59E0B;animation:gp 1.5s infinite;}
+.ab-right{display:flex;gap:10px;}
+.ab-exit-btn{padding:7px 20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .25s;}
+.ab-exit-btn:hover{background:rgba(255,255,255,.2);}
+.ab-save-btn{padding:7px 20px;background:linear-gradient(135deg,var(--gold),#F59E0B);border:none;color:#fff;border-radius:8px;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .3s;}
+.ab-save-btn:hover{transform:translateY(-1px);}
+.ab-count{padding:4px 10px;background:rgba(255,255,255,.15);border-radius:100px;font-size:.75rem;color:rgba(255,255,255,.8);font-weight:600;}
+
+body.admin-mode .uploadable{position:relative !important;cursor:pointer !important;outline:2px dashed rgba(200,146,10,.3) !important;outline-offset:3px !important;transition:outline-color .25s;}
+body.admin-mode .uploadable:hover{outline-color:var(--gold) !important;}
+.upload-overlay{position:absolute;inset:0;background:rgba(200,146,10,.0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:50;border-radius:inherit;transition:background .25s;pointer-events:none;}
+body.admin-mode .uploadable:hover .upload-overlay{background:rgba(200,146,10,.82);}
+.upload-overlay .up-ico{font-size:2rem;opacity:0;transform:translateY(6px);transition:all .25s;}
+.upload-overlay .up-txt{font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;color:#fff;opacity:0;transform:translateY(6px);transition:all .25s .05s;letter-spacing:.3px;}
+.upload-overlay .up-sub{font-family:'Outfit',sans-serif;font-size:.75rem;color:rgba(255,255,255,.8);opacity:0;transform:translateY(6px);transition:all .25s .1s;}
+body.admin-mode .uploadable:hover .up-ico,
+body.admin-mode .uploadable:hover .up-txt,
+body.admin-mode .uploadable:hover .up-sub{opacity:1;transform:translateY(0);}
+
+#changes-sidebar{position:fixed;right:-290px;top:50px;width:270px;z-index:9040;background:var(--w);border-radius:0 0 0 20px;border-left:1px solid var(--lw);border-bottom:1px solid var(--lw);padding:20px;transition:right .35s cubic-bezier(.23,1,.32,1);max-height:calc(100vh - 60px);overflow-y:auto;}
+#changes-sidebar.open{right:0;}
+#changes-sidebar h4{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--ink);margin-bottom:14px;font-weight:600;}
+.ch-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--lw);font-size:.78rem;color:var(--mid);}
+.ch-item:last-child{border-bottom:none;}
+.ch-dot{width:6px;height:6px;border-radius:50%;background:#22C55E;flex-shrink:0;}
+.ch-empty{font-size:.8rem;color:var(--dim);font-style:italic;}
+
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:14px;padding:13px 28px;font-size:.88rem;font-weight:600;z-index:9200;display:none;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(35,26,16,.4);white-space:nowrap;font-family:'Outfit',sans-serif;}
+#toast.show{display:flex;animation:fu .3s both;}
+.toast-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--gold);border-radius:50%;animation:tspin .7s linear infinite;flex-shrink:0;}
+@keyframes tspin{to{transform:rotate(360deg);}}
+
+.type-badge{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;z-index:51;display:none;}
+body.admin-mode .uploadable .type-badge{display:block;}
+.type-badge.img-badge{background:rgba(200,146,10,.9);color:#fff;}
+.type-badge.vid-badge{background:rgba(35,26,16,.9);color:var(--gold);}
+
+/* ═══ MEDIA URL MODAL ═══ */
+.murl-bg{position:fixed;inset:0;z-index:9300;background:rgba(35,26,16,.75);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px;}
+.murl-bg.open{display:flex;animation:fu .3s both;}
+.murl-box{background:var(--w);border-radius:24px;max-width:500px;width:100%;padding:40px;position:relative;box-shadow:0 40px 100px rgba(35,26,16,.5);}
+.murl-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);font-size:1rem;font-weight:700;}
+.murl-box h3{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.murl-box p{font-size:.85rem;color:var(--mid);margin-bottom:28px;}
+.murl-tabs{display:flex;gap:0;border-bottom:2px solid var(--lw);margin-bottom:24px;}
+.murl-tab{padding:10px 22px;background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.83rem;font-weight:600;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.murl-tab.on{color:var(--dw);border-bottom-color:var(--gold);}
+.murl-pane{display:none;}
+.murl-pane.on{display:block;}
+.murl-inp{width:100%;padding:13px 16px;border:1.5px solid var(--lw);border-radius:12px;font-family:'Outfit',sans-serif;font-size:.92rem;color:var(--ink);margin-bottom:14px;transition:border-color .25s;}
+.murl-inp:focus{outline:none;border-color:var(--gold);}
+.murl-up-area{border:2px dashed var(--mw);border-radius:16px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:14px;}
+.murl-up-area:hover{border-color:var(--gold);background:var(--lgold);}
+.murl-up-ico{font-size:2.2rem;margin-bottom:8px;}
+.murl-up-txt{font-size:.88rem;font-weight:600;color:var(--dw);}
+.murl-up-sub{font-size:.78rem;color:var(--dim);margin-top:4px;}
+.murl-apply-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;transition:all .3s;}
+.murl-apply-btn:hover{transform:translateY(-2px);}
+
+/* ═══ ADD TEAM MODAL ═══ */
+.mteam-bg{position:fixed;inset:0;z-index:9300;background:rgba(35,26,16,.75);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px;}
+.mteam-bg.open{display:flex;animation:fu .3s both;}
+.mteam-box{background:var(--w);border-radius:24px;max-width:480px;width:100%;padding:40px;position:relative;box-shadow:0 40px 100px rgba(35,26,16,.5);}
+.mteam-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);font-size:1rem;font-weight:700;}
+.mteam-box h3{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--ink);margin-bottom:24px;}
+.mteam-f{display:flex;flex-direction:column;gap:12px;}
+.mteam-inp{width:100%;padding:12px 16px;border:1.5px solid var(--lw);border-radius:12px;font-family:'Outfit',sans-serif;font-size:.92rem;color:var(--ink);transition:border-color .25s;}
+.mteam-inp:focus{outline:none;border-color:var(--gold);}
+.mteam-add-btn{padding:14px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;transition:all .3s;}
+.mteam-add-btn:hover{transform:translateY(-2px);}
+.mteam-ph-preview{width:100%;height:150px;border-radius:12px;background:var(--cream);border:1.5px dashed var(--mw);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;}
+.mteam-ph-preview img{width:100%;height:100%;object-fit:cover;}
+.mteam-ph-preview span{font-size:.85rem;color:var(--dim);}
+
+/* ═══════════════════════════════════════
+   EVENTS & ANNOUNCEMENTS
+═══════════════════════════════════════ */
+.events{padding:120px 60px;background:var(--w);}
+.events-in{max-width:1440px;margin:0 auto;}
+.events-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:64px;flex-wrap:wrap;gap:20px;}
+.events-top .desc{margin-bottom:0;}
+.ev-add-btn{display:none;padding:12px 26px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;gap:7px;align-items:center;box-shadow:0 4px 16px rgba(200,146,10,.25);transition:all .3s;}
+.ev-add-btn:hover{transform:translateY(-2px);}
+body.admin-mode .ev-add-btn{display:flex;}
+
+/* Event cards grid */
+.ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:72px;}
+.ev-card{background:var(--w);border-radius:24px;border:1px solid var(--lw);overflow:hidden;transition:all .4s;position:relative;}
+.ev-card:hover{transform:translateY(-8px);box-shadow:0 28px 64px var(--sh);border-color:var(--mw);}
+.ev-card-img{height:190px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--lw),var(--mw));}
+.ev-card-img img,.ev-card-img video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s;}
+.ev-card:hover .ev-card-img img,.ev-card:hover .ev-card-img video{transform:scale(1.06);}
+.ev-card-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+.ev-date-badge{position:absolute;top:14px;left:14px;background:var(--gold);color:#fff;border-radius:10px;padding:6px 13px;font-size:.72rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;}
+.ev-body{padding:24px 22px 22px;}
+.ev-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+.ev-loc{font-size:.78rem;color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.ev-desc{font-size:.87rem;color:var(--mid);line-height:1.65;font-weight:300;}
+/* Admin actions on ev-card */
+.ev-admin-bar{display:none;position:absolute;top:10px;right:10px;z-index:20;gap:5px;}
+body.admin-mode .ev-card .ev-admin-bar{display:flex;}
+.ev-ab-btn{padding:5px 11px;border:none;border-radius:7px;font-family:'Outfit',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.ev-ab-btn.edit{background:rgba(200,146,10,.9);color:#fff;}
+.ev-ab-btn.del{background:rgba(192,57,43,.85);color:#fff;}
+.ev-del-confirm{display:none;position:absolute;inset:0;z-index:30;background:rgba(35,26,16,.82);border-radius:24px;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;}
+.ev-del-confirm.show{display:flex;}
+.ev-del-confirm p{color:#fff;font-size:.9rem;font-weight:600;}
+.ev-del-confirm p span{color:var(--gold);}
+.ev-del-btns{display:flex;gap:8px;}
+.ev-del-yes{padding:9px 20px;background:#c0392b;color:#fff;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;}
+.ev-del-no{padding:9px 20px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:9px;font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;}
+
+/* Announcements */
+.ann-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px;}
+.ann-hd-left{display:flex;align-items:center;gap:12px;}
+.ann-hd-left h3{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--ink);}
+.ann-hd-left .lbl{margin-bottom:0;}
+.ann-add-btn{display:none;padding:9px 20px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;gap:6px;align-items:center;}
+body.admin-mode .ann-add-btn{display:flex;}
+.ann-list{display:flex;flex-direction:column;gap:14px;}
+.ann-item{background:var(--cream);border-radius:18px;padding:22px 24px;border:1px solid var(--lw);display:flex;gap:16px;align-items:flex-start;transition:all .35s;position:relative;}
+.ann-item:hover{box-shadow:0 8px 28px var(--sh);border-color:var(--mw);}
+.ann-ico{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+.ann-content{flex:1;}
+.ann-date{font-size:.72rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.ann-title{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:5px;font-family:'Cormorant Garamond',serif;}
+.ann-text{font-size:.88rem;color:var(--mid);line-height:1.6;font-weight:300;}
+.ann-admin-bar{display:none;gap:5px;flex-shrink:0;}
+body.admin-mode .ann-item .ann-admin-bar{display:flex;}
+.ann-ab-btn{padding:5px 10px;border:none;border-radius:7px;font-family:'Outfit',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.ann-ab-btn.edit{background:rgba(200,146,10,.9);color:#fff;}
+.ann-ab-btn.del{background:rgba(192,57,43,.85);color:#fff;}
+
+/* ═══════════════════════════════════════
+   PARTNERS
+═══════════════════════════════════════ */
+.partners{padding:100px 60px;background:var(--cream);}
+.partners-in{max-width:1440px;margin:0 auto;}
+.partners-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;flex-wrap:wrap;gap:20px;}
+.pt-add-btn{display:none;padding:11px 24px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.84rem;font-weight:700;cursor:pointer;gap:7px;align-items:center;box-shadow:0 4px 16px rgba(200,146,10,.25);transition:all .3s;}
+.pt-add-btn:hover{transform:translateY(-2px);}
+body.admin-mode .pt-add-btn{display:flex;}
+.pt-slider-wrap{overflow:hidden;position:relative;}
+.pt-slides{display:flex;gap:20px;transition:transform .65s cubic-bezier(.77,0,.175,1);}
+.pt-card{min-width:calc(25% - 15px);background:var(--w);border-radius:20px;border:1px solid var(--lw);padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;transition:all .4s;position:relative;flex-shrink:0;}
+.pt-card:hover{transform:translateY(-6px);box-shadow:0 20px 52px var(--sh);border-color:var(--mw);}
+.pt-logo{width:80px;height:80px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,var(--cream),var(--lw));display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;position:relative;}
+.pt-logo img{width:100%;height:100%;object-fit:contain;}
+.pt-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--ink);}
+.pt-type{font-size:.72rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;}
+.pt-desc{font-size:.83rem;color:var(--mid);line-height:1.55;font-weight:300;}
+.pt-admin-bar{display:none;position:absolute;top:8px;right:8px;gap:4px;}
+body.admin-mode .pt-card .pt-admin-bar{display:flex;}
+.pt-ab-btn{padding:4px 9px;border:none;border-radius:6px;font-family:'Outfit',sans-serif;font-size:.68rem;font-weight:700;cursor:pointer;}
+.pt-ab-btn.edit{background:rgba(200,146,10,.9);color:#fff;}
+.pt-ab-btn.del{background:rgba(192,57,43,.85);color:#fff;}
+.pt-ctrl{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:28px;}
+.pt-nav-btn{width:40px;height:40px;border-radius:50%;background:var(--w);border:1px solid var(--lw);color:var(--mid);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .25s;}
+.pt-nav-btn:hover{background:var(--lgold);border-color:var(--gold);color:var(--dw);}
+.pt-dots{display:flex;gap:6px;}
+.pt-dot{width:8px;height:8px;border-radius:50%;background:var(--lw);border:none;cursor:pointer;transition:all .25s;padding:0;}
+.pt-dot.on{background:var(--gold);width:20px;border-radius:4px;}
+
+/* ═══════════════════════════════════════
+   SOCIAL MEDIA
+═══════════════════════════════════════ */
+.social-sec{padding:100px 60px;background:var(--ink);}
+.social-in{max-width:1440px;margin:0 auto;}
+.social-sec .lbl{color:var(--gold);}
+.social-sec .ttl{color:var(--w);}
+.social-sec .desc{color:rgba(201,169,122,.75);}
+/* Social links row */
+.social-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:52px;margin-bottom:64px;}
+.soc-link{display:flex;align-items:center;gap:12px;padding:14px 26px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:rgba(253,252,250,.85);text-decoration:none;font-size:.9rem;font-weight:600;transition:all .35s;position:relative;}
+.soc-link:hover{background:rgba(200,146,10,.2);border-color:var(--gold);color:#fff;transform:translateY(-3px);}
+.soc-link .soc-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.soc-link.yt .soc-ico{background:#FF0000;}
+.soc-link.fb .soc-ico{background:#1877F2;}
+.soc-link.ig .soc-ico{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);}
+.soc-link.tw .soc-ico{background:#000;}
+.soc-link.li .soc-ico{background:#0A66C2;}
+.soc-link.wa .soc-ico{background:#25D366;}
+.soc-link.tk .soc-ico{background:#000;}
+.soc-edit-btn{display:none;position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:.7rem;align-items:center;justify-content:center;color:#fff;}
+body.admin-mode .soc-link .soc-edit-btn{display:flex;}
+.soc-add-btn{display:none;padding:14px 26px;background:rgba(255,255,255,.07);border:1.5px dashed rgba(200,146,10,.4);border-radius:100px;color:rgba(200,146,10,.8);font-size:.88rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .3s;}
+.soc-add-btn:hover{background:rgba(200,146,10,.15);border-color:var(--gold);color:var(--gold);}
+body.admin-mode .soc-add-btn{display:flex;align-items:center;gap:8px;}
+/* Social embed area */
+.social-embed-wrap{border-top:1px solid rgba(255,255,255,.07);padding-top:56px;}
+.social-embed-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:14px;}
+.social-embed-hd h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--w);}
+.soc-embed-edit{display:none;padding:8px 18px;background:rgba(200,146,10,.2);border:1px solid var(--gold);border-radius:9px;color:var(--gold);font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;}
+body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
+.soc-embed-edit:hover{background:rgba(200,146,10,.35);}
+.social-embed-area{border-radius:20px;overflow:hidden;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);min-height:200px;display:flex;align-items:center;justify-content:center;}
+.social-embed-area iframe{width:100%;min-height:420px;border:none;display:block;}
+.soc-embed-ph{padding:60px 40px;text-align:center;color:rgba(200,146,10,.4);}
+.soc-embed-ph .ph-ico{font-size:3rem;margin-bottom:14px;}
+.soc-embed-ph p{font-size:.9rem;font-weight:500;}
+
+/* ═══ GENERIC ADMIN MODAL (events, partners, social, announcements) ═══ */
+.gadmin-bg{position:fixed;inset:0;z-index:9400;background:rgba(35,26,16,.78);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.gadmin-bg.open{display:flex;animation:fu .3s both;}
+.gadmin-box{background:var(--w);border-radius:24px;max-width:520px;width:100%;padding:44px;position:relative;box-shadow:0 40px 100px rgba(35,26,16,.5);margin:auto;}
+.gadmin-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);font-size:1rem;font-weight:700;}
+.gadmin-box h3{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:600;color:var(--ink);margin-bottom:22px;}
+.gadmin-f{display:flex;flex-direction:column;gap:12px;}
+.gadmin-inp{width:100%;padding:12px 16px;border:1.5px solid var(--lw);border-radius:12px;font-family:'Outfit',sans-serif;font-size:.92rem;color:var(--ink);transition:border-color .25s;background:var(--w);}
+.gadmin-inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,10,.1);}
+.gadmin-ta{resize:vertical;min-height:90px;}
+.gadmin-lbl{font-size:.78rem;font-weight:600;color:var(--mid);margin-bottom:-6px;}
+.gadmin-ph-preview{width:100%;height:140px;border-radius:12px;background:var(--cream);border:1.5px dashed var(--mw);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color .3s;}
+.gadmin-ph-preview:hover{border-color:var(--gold);}
+.gadmin-ph-preview img{width:100%;height:100%;object-fit:cover;}
+.gadmin-ph-preview span{font-size:.85rem;color:var(--dim);}
+.gadmin-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.gadmin-save-btn{padding:14px;background:linear-gradient(135deg,var(--xw),var(--gold));color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;transition:all .3s;margin-top:4px;}
+.gadmin-save-btn:hover{transform:translateY(-2px);}
+
+/* Responsive additions */
+@media(max-width:1100px){
+  .ev-grid{grid-template-columns:repeat(2,1fr);}
+  .pt-card{min-width:calc(50% - 10px);}
+  .social-links{gap:10px;}
+  .hero{grid-template-columns:1fr;}
+  .hero-r{padding:0 40px 60px;}
+  .about-g,.ct-g{grid-template-columns:1fr;}
+  .stats-g{grid-template-columns:repeat(2,1fr);}
+  .gal-slide{min-width:calc(50% - 10px);}
+  .fbv-slide{min-width:calc(50% - 12px);}
+  .fbq-slide{min-width:calc(50% - 12px);}
+  .team-g{grid-template-columns:repeat(2,1fr);}
+  .uc-g{grid-template-columns:repeat(2,1fr);}
+  .stats-g .st:nth-child(2){border-right:none;}
+  .stats-g .st:nth-child(3){border-right:1px solid var(--lw);}
+  .ft-g{grid-template-columns:1fr 1fr;}
+  .fb-sw{grid-template-columns:1fr;}
+  .about-photos{grid-template-columns:1fr 1fr 1fr;}
+}
+@media(max-width:768px){
+  .nav-links,.nav-cta{display:none;}
+  .hero-l{padding-left:24px;padding-right:24px;padding-top:120px;}
+  .stats,.about,.story-hd,.hiw,.uc,.gal,.fb,.team,.ct,footer{padding-left:24px;padding-right:24px;}
+  .gal-slide{min-width:calc(100% - 0px);}
+  .fbv-slide{min-width:calc(100%);}
+  .fbq-slide{min-width:calc(100%);}
+  .team-g{grid-template-columns:1fr;}
+  .uc-g{grid-template-columns:1fr;}
+  .cf-row,.mg{grid-template-columns:1fr;}
+  .stats-g{grid-template-columns:1fr 1fr;}
+  .fb-sw{padding:32px 24px;}
+  .ct-fw{padding:32px 24px;}
+  .ft-g{grid-template-columns:1fr;}
+  .ft-bt{flex-direction:column;gap:8px;text-align:center;}
+  .fab span{display:none;}
+  .about-photos{grid-template-columns:1fr 1fr;}
+  .ev-grid{grid-template-columns:1fr;}
+  .pt-card{min-width:calc(100%);}
+  .events,.partners,.social-sec{padding-left:24px;padding-right:24px;}
+  .gadmin-box{padding:28px 20px;}
+  .gadmin-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="crsr"></div>
+<div id="crsr2"></div>
+
+<button id="admin-trig" title=""></button>
+
+<!-- PASSWORD GATE -->
+<div class="pw-bg" id="pw-modal">
+  <div class="pw-box">
+    <div class="ico">🔐</div>
+    <h3>Admin Access</h3>
+    <p>Enter your admin password to unlock media upload mode across the entire website.</p>
+    <input class="pw-inp" type="password" id="pw-field" placeholder="••••••••" maxlength="40">
+    <p class="pw-err" id="pw-err">❌ Incorrect password. Please try again.</p>
+    <button class="pw-btn" id="pw-go">Unlock Admin Mode →</button>
+    <button class="pw-cancel" id="pw-close">Cancel</button>
+  </div>
+</div>
+
+<!-- ADMIN TOP BAR -->
+<div id="admin-bar">
+  <div class="ab-inner">
+    <div class="ab-left">
+      <div class="ab-pulse"></div>
+      Admin Mode Active — Click any image or video to replace it
+      <span class="ab-count" id="change-count">0 changes</span>
+    </div>
+    <div class="ab-right">
+      <button class="ab-exit-btn" id="admin-exit">✕ Exit</button>
+      <button class="ab-save-btn" id="admin-save">💾 Save &amp; Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGES SIDEBAR -->
+<div id="changes-sidebar">
+  <h4>📋 Changes</h4>
+  <div id="changes-list"><p class="ch-empty">No changes yet</p></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-spin" id="toast-spin"></div><span id="toast-msg">Processing…</span></div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="file-inp" style="display:none" accept="image/*,video/*">
+<input type="file" id="file-inp-modal" style="display:none" accept="image/*,video/*">
+<input type="file" id="team-photo-inp" style="display:none" accept="image/*">
+
+<!-- ═══ MEDIA URL/UPLOAD MODAL ═══ -->
+<div class="murl-bg" id="murl-modal">
+  <div class="murl-box">
+    <button class="murl-close" id="murl-close">✕</button>
+    <h3>Replace Media</h3>
+    <p id="murl-subtitle">Upload a file or paste a URL</p>
+    <div class="murl-tabs">
+      <button class="murl-tab on" data-t="upload">📁 Upload File</button>
+      <button class="murl-tab" data-t="url">🔗 Paste URL</button>
+    </div>
+    <div class="murl-pane on" id="murl-pane-upload">
+      <div class="murl-up-area" id="murl-drop">
+        <div class="murl-up-ico">📂</div>
+        <div class="murl-up-txt">Click or drag &amp; drop</div>
+        <div class="murl-up-sub" id="murl-accept-hint">Images &amp; Videos supported</div>
+      </div>
+    </div>
+    <div class="murl-pane" id="murl-pane-url">
+      <input class="murl-inp" type="url" id="murl-url-inp" placeholder="https://example.com/your-image.jpg">
+      <button class="murl-apply-btn" id="murl-url-apply">Apply URL →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADD / EDIT TEAM MEMBER MODAL ═══ -->
+<div class="mteam-bg" id="mteam-modal">
+  <div class="mteam-box">
+    <button class="mteam-close" id="mteam-close">✕</button>
+    <h3 id="mteam-title">Add Team Member</h3>
+    <div class="mteam-f">
+      <div class="mteam-ph-preview" id="mteam-preview">
+        <span>Click to upload photo</span>
+      </div>
+      <input class="mteam-inp" type="text" id="mteam-name" placeholder="Full Name" required>
+      <input class="mteam-inp" type="text" id="mteam-role" placeholder="Role / Title" required>
+      <textarea class="mteam-inp" id="mteam-bio" placeholder="Short bio…" rows="3" style="resize:none;"></textarea>
+      <button class="mteam-add-btn" id="mteam-add-btn">Add Team Member →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="open-book">
+  <span class="fd"></span>
+  <span>Book a Meeting</span>
+</button>
+
+<!-- BOOK MEETING MODAL -->
+<div class="mbg" id="book-modal">
+  <div class="mbox">
+    <button class="mx" id="close-book">✕</button>
+    <h2>Book a Meeting</h2>
+    <p class="sub">Pick a time and we'll confirm via WhatsApp or email.</p>
+    <form id="book-form" class="mg">
+      <div><label class="mlbl">Date</label><input class="minp" type="date" id="m-date" required></div>
+      <div><label class="mlbl">Time</label><input class="minp" type="time" id="m-time" required></div>
+      <div class="fw"><label class="mlbl">Full name</label><input class="minp" type="text" id="m-name" placeholder="Your full name" required></div>
+      <div><label class="mlbl">Country</label><input class="minp" type="text" id="m-country" placeholder="Country" required></div>
+      <div><label class="mlbl">Email</label><input class="minp" type="email" id="m-email" placeholder="you@example.com" required></div>
+      <div class="macts fw">
+        <button type="button" class="mem" id="m-email-btn">✉ Email</button>
+        <span class="msep">or</span>
+        <button type="button" class="mwp" id="m-wa-btn">💬 WhatsApp</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-i">
+    <div class="logo">AiDoBot</div>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#features">How It Works</a></li>
+      <li><a href="#usecases">Use Cases</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#feedback">Reviews</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#partners">Partners</a></li>
+      <li><a href="#team">Team</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Contact Us</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="home" class="hero">
+  <div class="hr"></div><div class="hr"></div><div class="hr"></div>
+  <div class="hero-l">
+    <div class="hero-tag"><span class="dot"></span>Next-Generation Healthcare</div>
+    <h1>
+      <div class="ln"><span>Healthcare</span></div>
+      <div class="ln"><span>that comes</span></div>
+      <div class="ln"><span>to <em>you.</em></span></div>
+    </h1>
+    <p class="hero-sub">AiDoBot is an AI-powered medical robot that checks your vitals, speaks your language, connects you with a doctor, and arranges your medicine — anywhere in the world.</p>
+    <div class="hero-acts">
+      <a href="#features" class="btn-a">See How It Works →</a>
+      <a href="#contact" class="btn-b">Request a Demo</a>
+    </div>
+    <div class="vitals">
+      <div class="vc"><span class="vd"></span><span>Heart Rate: 72 bpm</span></div>
+      <div class="vc"><span class="vd"></span><span>SpO₂: 98%</span></div>
+      <div class="vc"><span class="vd"></span><span>Temp: 36.7°C</span></div>
+      <div class="vc"><span class="vd"></span><span>BP: 118/76</span></div>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div class="hero-slider-wrap" id="hero-slider-wrap">
+      <!-- Add slide button (admin only) -->
+      <button class="hero-add-slide" id="hero-add-slide">➕ Add Slide</button>
+      <div class="hero-slides" id="hero-slides">
+        <!-- Slide 1: default video -->
+        <div class="hero-slide" data-slide-id="hero-slide-0">
+          <div class="uploadable" data-id="hero-slide-0" data-type="video" style="position:relative;min-height:380px;">
+            <div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Click to replace</div><div class="up-sub">Image or Video</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <video autoplay muted loop playsinline style="width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);">
+              <source src="Healthcare_Robot_Medical_Check_Video.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <button class="slider-btn prev" id="hero-prev">‹</button>
+      <button class="slider-btn next" id="hero-next">›</button>
+      <div class="slider-dots" id="hero-dots">
+        <button class="slider-dot on" data-i="0"></button>
+      </div>
+      <div class="hero-badge"><div class="hb-dot"></div>Live screening in progress</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq"><div class="mqt" id="mqt"></div></div>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-g">
+    <div class="st reveal"><span class="st-n" data-v="98">0</span><span class="st-l">% Accuracy Rate</span></div>
+    <div class="st reveal d1"><span class="st-n">24/7</span><span class="st-l">Availability</span></div>
+    <div class="st reveal d2"><span class="st-n" data-v="50">0</span><span class="st-l">% Time Saved per Patient</span></div>
+    <div class="st reveal d3"><span class="st-n" data-v="100">0</span><span class="st-l">+ Daily Screenings</span></div>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="about">
+  <div class="about-g">
+    <div class="about-photos reveal" id="about-photos" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+      <div class="aph uploadable" data-id="about-img-1" data-type="image" style="position:relative;min-height:500px;">
+        <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload</div><div class="up-sub">Image or URL</div></div>
+        <span class="type-badge img-badge">IMAGE</span>
+        <img id="about-img-1" src="WhatsApp Image 2026-02-04 at 11.53.03 AM.jpeg" alt="AiDoBot in action" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;" onerror="this.parentElement.style.background='linear-gradient(135deg,#EAD9C2,#C9A97A)';">
+      </div>
+      <div class="aph uploadable" data-id="about-img-2" data-type="image" style="position:relative;min-height:500px;">
+        <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload</div><div class="up-sub">Image or URL</div></div>
+        <span class="type-badge img-badge">IMAGE</span>
+        <img id="about-img-2" src="bodytem on forhead.jpeg" alt="Temperature check" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;" onerror="this.parentElement.style.background='linear-gradient(135deg,#EAD9C2,#C9A97A)';">
+      </div>
+      <div class="aph uploadable" data-id="about-img-3" data-type="image" style="position:relative;min-height:500px;">
+        <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload</div><div class="up-sub">Image or URL</div></div>
+        <span class="type-badge img-badge">IMAGE</span>
+        <img id="about-img-3" src="standind on the robot.jpeg" alt="Weight measurement" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;" onerror="this.parentElement.style.background='linear-gradient(135deg,#EAD9C2,#C9A97A)';">
+      </div>
+    </div>
+    <div class="about-right reveal d2">
+      <div class="lbl">About AiDoBot</div>
+      <h2 class="ttl">Revolutionising<br><em>Healthcare Access</em></h2>
+      <p class="desc">AiDoBot is a modular, AI-powered medical robot designed to automate patient screening, reduce workload on medical professionals, and bring quality healthcare to everyone — in hospitals, clinics, homes, and communities worldwide.</p>
+      <ul class="check-l">
+        <li><span class="ck">✓</span>Real-time vitals — heart rate, oxygen, temperature, blood pressure, weight &amp; height</li>
+        <li><span class="ck">✓</span>Speaks multiple languages including local and regional languages</li>
+        <li><span class="ck">✓</span>AI face analysis — emotion, pallor, fatigue detection</li>
+        <li><span class="ck">✓</span>Live video consultation with verified doctors worldwide</li>
+        <li><span class="ck">✓</span>Digital prescriptions and medicine home delivery</li>
+      </ul>
+      <a href="#contact" class="btn-a">Request a Demo →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STORY SCROLL -->
+<section class="story" id="features">
+  <div class="story-hd reveal">
+    <div class="lbl">What It Does</div>
+    <h2 class="ttl" style="color:var(--w)">Everything a <em>clinic</em><br>does. Anywhere.</h2>
+    <p class="desc" style="color:rgba(201,169,122,.75)">Drag through the steps to understand AiDoBot's complete journey — from greeting to medicine delivery.</p>
+  </div>
+  <div class="story-row" id="srow">
+    <div class="sc"><div class="sc-n">01</div><div class="sc-ico">👋</div><h3>Greets You in Your Language</h3><p>AiDoBot greets you by voice in your preferred language and begins your health conversation naturally — no buttons needed.</p></div>
+    <div class="sc"><div class="sc-n">02</div><div class="sc-ico">❤️</div><h3>Measures Your Vital Signs</h3><p>Heart rate, blood oxygen, temperature, weight, height, blood pressure, and BMI — all measured automatically in minutes.</p></div>
+    <div class="sc"><div class="sc-n">03</div><div class="sc-ico">🧠</div><h3>Reads Your Face for Signs of Illness</h3><p>AI camera detects pallor, eye fatigue, emotional stress, and more — giving your doctor a full visual picture before the call.</p></div>
+    <div class="sc"><div class="sc-n">04</div><div class="sc-ico">🎙️</div><h3>Asks You Health Questions</h3><p>Conducts a structured health interview by voice — about chest pain, breathing, fever, fatigue — and builds a full symptom report.</p></div>
+    <div class="sc"><div class="sc-n">05</div><div class="sc-ico">⚠️</div><h3>Calculates Your Risk Level</h3><p>All data is analysed by AI to determine Low, Moderate, or High risk. Alerts you immediately if anything is concerning.</p></div>
+    <div class="sc"><div class="sc-n">06</div><div class="sc-ico">📞</div><h3>Connects You with a Doctor</h3><p>Live video call with a verified doctor. The doctor sees your complete vitals report before the call — no time wasted explaining everything.</p></div>
+    <div class="sc"><div class="sc-n">07</div><div class="sc-ico">💊</div><h3>Doctor Issues a Prescription</h3><p>The doctor writes your prescription digitally. It is saved to your personal health account and sent to the pharmacy simultaneously.</p></div>
+    <div class="sc"><div class="sc-n">08</div><div class="sc-ico">🚚</div><h3>Medicine Delivered to Your Home</h3><p>Tell the robot: "Please order my medicine." The pharmacy delivers to your door — you never need to travel.</p></div>
+    <div class="sc"><div class="sc-n">09</div><div class="sc-ico">📋</div><h3>Your Health History, Always</h3><p>Every visit is stored securely. You and your doctor can review your complete health history from any phone, anytime.</p></div>
+  </div>
+  <p class="drag-hint">← Drag to explore all 9 steps →</p>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="hiw">
+  <div class="hiw-in">
+    <div class="lbl">The Journey</div>
+    <h2 class="ttl">From greeting<br>to <em>recovery.</em></h2>
+    <p class="desc">Watch AiDoBot in action at every stage of the patient journey.</p>
+    <div class="tl">
+      <div class="tl-row reveal">
+        <div class="tl-num">1</div>
+        <div class="tl-body">
+          <h3>Patient interaction &amp; face detection</h3>
+          <p>AiDoBot greets the patient, detects their face, and begins a natural voice conversation in their preferred language.</p>
+          <div class="tl-vid uploadable" data-id="tl-video-1" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <video id="tl-video-1" controls style="width:100%;display:block;min-height:180px;background:linear-gradient(135deg,#F6F0E8,#EAD9C2);"><source src="Q & A.mp4" type="video/mp4"></video>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row reveal d1">
+        <div class="tl-num">2</div>
+        <div class="tl-body">
+          <h3>Health data collection</h3>
+          <p>The robot guides the patient through each measurement — weight, temperature, blood oxygen, heart rate, and blood pressure.</p>
+          <div class="tl-vid uploadable" data-id="tl-video-2" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <video id="tl-video-2" controls style="width:100%;display:block;min-height:180px;background:linear-gradient(135deg,#F6F0E8,#EAD9C2);"><source src="Healthcare_Robot_Medical_Check_Video.mp4" type="video/mp4"></video>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row reveal">
+        <div class="tl-num">3</div>
+        <div class="tl-body">
+          <h3>AI face analysis</h3>
+          <p>The camera captures the patient's face. AI analyses emotion, pallor, fatigue, and age — all added automatically to the patient report.</p>
+          <div class="tl-vid uploadable" data-id="tl-video-3" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <video id="tl-video-3" controls style="width:100%;display:block;min-height:180px;background:linear-gradient(135deg,#F6F0E8,#EAD9C2);"><source src="facenalisis.mp4" type="video/mp4"></video>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row reveal d1">
+        <div class="tl-num">4</div>
+        <div class="tl-body">
+          <h3>Doctor consultation</h3>
+          <p>Live video call with a verified doctor. The doctor reviews the robot-generated report before speaking — making every consultation faster and more precise.</p>
+          <div class="tl-vid uploadable" data-id="tl-video-4" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <video id="tl-video-4" controls style="width:100%;display:block;min-height:180px;background:linear-gradient(135deg,#F6F0E8,#EAD9C2);"><source src="facetraking.mp4" type="video/mp4"></video>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row reveal">
+        <div class="tl-num">5</div>
+        <div class="tl-body">
+          <h3>Digital prescription &amp; medicine delivery</h3>
+          <p>The doctor issues a digital prescription. Patient orders medicine by voice — delivered to their home.</p>
+          <div class="tl-vid-ph uploadable" data-id="tl-video-5" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="play-c">▶</div><span>Prescription &amp; Pharmacy Video</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row reveal d1">
+        <div class="tl-num">6</div>
+        <div class="tl-body">
+          <h3>Lifetime health record</h3>
+          <p>Every visit is stored securely. Patients access their full health history and prescriptions from any phone, at any time.</p>
+          <div class="tl-vid-ph uploadable" data-id="tl-video-6" data-type="video" style="position:relative;">
+            <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+            <span class="type-badge vid-badge">VIDEO</span>
+            <div class="play-c">▶</div><span>Patient App Demo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases" class="uc">
+  <div class="uc-in">
+    <div class="lbl">Where It Works</div>
+    <h2 class="ttl">Anywhere people<br><em>need care.</em></h2>
+    <p class="desc">AiDoBot is built for multi-sector deployment — from busy hospitals to remote communities worldwide.</p>
+    <div class="uc-g">
+      <div class="uc-c reveal"><div class="uc-ico">🏥</div><h3>Hospitals &amp; Clinics</h3><p>Automated triage. Doctors receive a full patient report before the consultation — cutting waiting times dramatically.</p><span class="uc-tag">High Impact</span></div>
+      <div class="uc-c reveal d1"><div class="uc-ico">🏘️</div><h3>Remote Communities</h3><p>No health post nearby? One robot in a community centre gives an entire area access to screening and live doctor consultations.</p><span class="uc-tag">Underserved Areas</span></div>
+      <div class="uc-c reveal d2"><div class="uc-ico">🏠</div><h3>Homes &amp; Families</h3><p>Checks vitals daily, speaks your language, calls a doctor at 2am when an elder has chest pain — from the comfort of home.</p><span class="uc-tag">24/7 Care</span></div>
+      <div class="uc-c reveal"><div class="uc-ico">🏫</div><h3>Schools &amp; Universities</h3><p>Quick student health checks. Fever, low oxygen, or heart irregularities are caught immediately — before they become serious.</p><span class="uc-tag">Prevention</span></div>
+      <div class="uc-c reveal d1"><div class="uc-ico">💊</div><h3>Pharmacies</h3><p>Customers screen before buying medicine. If a concern is detected, connected to a doctor instantly — preventing dangerous self-medication.</p><span class="uc-tag">Safe Dispensing</span></div>
+      <div class="uc-c reveal d2"><div class="uc-ico">🏛️</div><h3>Government &amp; Offices</h3><p>Employee health monitoring at work. Early detection of conditions, reduced sick days — all from one device.</p><span class="uc-tag">Workforce Health</span></div>
+      <div class="uc-c reveal"><div class="uc-ico">🛒</div><h3>Markets &amp; Public Spaces</h3><p>Free screening points in busy markets, stations, and public gatherings — healthcare where the people already are.</p><span class="uc-tag">Community</span></div>
+      <div class="uc-c reveal d1"><div class="uc-ico">🏨</div><h3>Hotels &amp; Tourism</h3><p>Visitors feel unwell? The robot speaks their language and connects them to a doctor — no navigating a foreign health system.</p><span class="uc-tag">Global Access</span></div>
+      <div class="uc-c reveal d2"><div class="uc-ico">🎖️</div><h3>Military &amp; Security</h3><p>Routine health monitoring for officers. Fit-for-duty checks, injury assessment, and stress monitoring.</p><span class="uc-tag">Operational Health</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GALLERY - SLIDER ═══ -->
+<section id="gallery" class="gal">
+  <div class="gal-in">
+    <div class="lbl">Gallery</div>
+    <h2 class="ttl" style="color:var(--w)">See AiDoBot<br><em>in action.</em></h2>
+    <div class="gal-slider-wrap">
+      <div class="gal-slides" id="gal-slides">
+        <div class="gal-slide uploadable" data-id="gal-img-1" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to replace</div><div class="up-sub">Image, Video or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <img src="bodytem on forhead.jpeg" alt="Temperature check" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.style.background='linear-gradient(135deg,#9B7B4E,#7A5E38)';">
+          <div class="gal-cap"><span>Body Temperature Measurement</span></div>
+        </div>
+        <div class="gal-slide uploadable" data-id="gal-img-2" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to replace</div><div class="up-sub">Image, Video or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <img src="putting bhm spo2 mmhg on finger.jpeg" alt="SpO2 reading" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.style.background='linear-gradient(135deg,#EAD9C2,#C9A97A)';">
+          <div class="gal-cap"><span>Blood Oxygen &amp; Heart Rate</span></div>
+        </div>
+        <div class="gal-slide uploadable" data-id="gal-img-3" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to replace</div><div class="up-sub">Image, Video or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <img src="standind on the robot.jpeg" alt="Weight measurement" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.style.background='linear-gradient(135deg,#C9A97A,#7A5E38)';">
+          <div class="gal-cap"><span>Weight &amp; Height Measurement</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="gal-ctrl">
+      <div class="gal-nav-btns">
+        <button class="gal-nav-btn" id="gal-prev">‹</button>
+        <button class="gal-nav-btn" id="gal-next">›</button>
+      </div>
+      <div class="gal-dots-row" id="gal-dots">
+        <button class="gal-dot on" data-i="0"></button>
+        <button class="gal-dot" data-i="1"></button>
+        <button class="gal-dot" data-i="2"></button>
+      </div>
+      <button class="gal-add-btn" id="gal-add">➕ Add Photo/Video</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEEDBACK ═══ -->
+<section id="feedback" class="fb">
+  <div class="fb-in">
+    <div class="lbl">Feedback &amp; Reviews</div>
+    <h2 class="ttl">What people<br>are <em>saying.</em></h2>
+    <p class="desc">Real experiences from patients, healthcare professionals, and community members worldwide.</p>
+    <div class="fb-tabs">
+      <button class="fb-tab on" data-t="v">📹 Video Reviews</button>
+      <button class="fb-tab" data-t="q">💬 Written Feedback</button>
+      <button class="fb-tab" data-t="s">✍️ Share Your Experience</button>
+    </div>
+
+    <!-- VIDEO PANEL -->
+    <div class="fb-panel on" id="pv">
+      <div class="fbv-slider-wrap">
+        <div class="fbv-slides" id="fbv-slides">
+          <div class="fbv-slide">
+            <div class="fb-vth uploadable" data-id="fb-video-1" data-type="video" style="position:relative;">
+              <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+              <span class="type-badge vid-badge">VIDEO</span>
+              <video preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"><source src="feedback1.mp4" type="video/mp4"></video>
+              <div class="fb-play">▶</div>
+            </div>
+            <div class="fb-vi"><div class="fb-vn">Patient Review</div><div class="fb-vr">First-time user experience</div><div class="fb-vo">"The robot spoke to me in my own language, checked my vitals, and connected me to a doctor in minutes."</div></div>
+          </div>
+          <div class="fbv-slide">
+            <div class="fb-vth uploadable" data-id="fb-video-2" data-type="video" style="position:relative;">
+              <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+              <span class="type-badge vid-badge">VIDEO</span>
+              <video preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"><source src="feedback2.mp4" type="video/mp4"></video>
+              <div class="fb-play">▶</div>
+            </div>
+            <div class="fb-vi"><div class="fb-vn">Doctor Review</div><div class="fb-vr">Medical professional perspective</div><div class="fb-vo">"Receiving a full patient report before the video call means I can focus entirely on diagnosis and treatment."</div></div>
+          </div>
+          <div class="fbv-slide">
+            <div class="fb-vth uploadable" data-id="fb-video-3" data-type="video" style="position:relative;">
+              <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+              <span class="type-badge vid-badge">VIDEO</span>
+              <video preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"><source src="feedback3.mp4" type="video/mp4"></video>
+              <div class="fb-play">▶</div>
+            </div>
+            <div class="fb-vi"><div class="fb-vn">Community Leader Review</div><div class="fb-vr">Community impact</div><div class="fb-vo">"Our community had no health post. Now we have AiDoBot. Everything changed for our people."</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="fbv-ctrl">
+        <div class="fbv-nav">
+          <button class="fbv-nav-btn" id="fbv-prev">‹</button>
+          <button class="fbv-nav-btn" id="fbv-next">›</button>
+        </div>
+        <div class="fbv-dots" id="fbv-dots">
+          <button class="fbv-dot on" data-i="0"></button>
+          <button class="fbv-dot" data-i="1"></button>
+          <button class="fbv-dot" data-i="2"></button>
+        </div>
+        <button class="fbv-add-btn" id="fbv-add">➕ Add Video Review</button>
+      </div>
+    </div>
+
+    <!-- QUOTES PANEL -->
+    <div class="fb-panel" id="pq">
+      <div class="fbq-slider-wrap">
+        <div class="fbq-slides" id="fbq-slides">
+          <div class="fbq-slide"><div class="fb-stars">★★★★★</div><p>"I stood in front of the robot, it spoke to me in my language, checked my heart and blood pressure, and connected me to a doctor — all in about 10 minutes. No long queue at all."</p><div class="fb-auth"><div class="fb-av">F</div><div class="fb-an"><div class="nm">Fatou D.</div><div class="rl">Patient</div></div></div></div>
+          <div class="fbq-slide"><div class="fb-stars">★★★★★</div><p>"As a doctor, receiving a full patient report — vitals, symptoms, risk level, face analysis — before the video call is transformational. This is the future of healthcare delivery."</p><div class="fb-auth"><div class="fb-av">D</div><div class="fb-an"><div class="nm">Dr. Amadou K.</div><div class="rl">General Physician</div></div></div></div>
+          <div class="fbq-slide"><div class="fb-stars">★★★★★</div><p>"We placed this robot in our school. Within the first week it caught two students with fever and elevated heart rate that would have gone unnoticed all day."</p><div class="fb-auth"><div class="fb-av">M</div><div class="fb-an"><div class="nm">Mariama J.</div><div class="rl">School Principal</div></div></div></div>
+        </div>
+      </div>
+      <div class="fbq-ctrl">
+        <div class="fbq-nav">
+          <button class="fbq-nav-btn" id="fbq-prev">‹</button>
+          <button class="fbq-nav-btn" id="fbq-next">›</button>
+        </div>
+        <div class="fbq-dots" id="fbq-dots">
+          <button class="fbq-dot on" data-i="0"></button>
+          <button class="fbq-dot" data-i="1"></button>
+          <button class="fbq-dot" data-i="2"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT PANEL -->
+    <div class="fb-panel" id="ps">
+      <div class="fb-sw">
+        <div class="fb-sl">
+          <h3>Share your experience</h3>
+          <p>Used AiDoBot? Your feedback helps us improve and helps others trust the technology. Fill in the form — we may feature your review on this page.</p>
+        </div>
+        <div>
+          <form class="fb-f" id="fb-form">
+            <input class="fb-inp" type="text" placeholder="Your name" required>
+            <input class="fb-inp" type="text" placeholder="Your role (Patient, Doctor, Administrator…)">
+            <div class="stars-row">
+              <span>Rating:</span>
+              <button type="button" class="sbtn" data-v="1">★</button>
+              <button type="button" class="sbtn" data-v="2">★</button>
+              <button type="button" class="sbtn" data-v="3">★</button>
+              <button type="button" class="sbtn" data-v="4">★</button>
+              <button type="button" class="sbtn" data-v="5">★</button>
+            </div>
+            <textarea class="fb-inp fb-ta" placeholder="Tell us about your experience with AiDoBot…" required></textarea>
+            <button type="submit" class="fb-sub">Submit Feedback →</button>
+          </form>
+          <div class="fb-ok" id="fb-ok">
+            <div class="tick">🎉</div>
+            <h4>Thank you for your feedback!</h4>
+            <p>Your experience helps AiDoBot reach more people who need quality healthcare.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TEAM ═══ -->
+<section id="team" class="team">
+  <div class="team-in">
+    <div class="lbl">The Team</div>
+    <h2 class="ttl">The minds<br>behind <em>AiDoBot.</em></h2>
+    <div class="team-g" id="team-grid">
+      <div class="t-card reveal">
+        <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+        <div class="t-del-confirm"><p>Delete <span>Abdoukadir Jabbi</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+        <div class="t-ph uploadable" data-id="team-photo-1" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">PHOTO</span>
+          <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+        </div>
+        <div class="t-info"><div class="t-nm">Abdoukadir Jabbi</div><div class="t-rl">Inventor &amp; Lead Developer</div><div class="t-bio">B.Sc. Computer Science. Technical lead responsible for system architecture, AI integration, and hardware design of AiDoBot.</div></div>
+      </div>
+      <div class="t-card reveal d1">
+        <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+        <div class="t-del-confirm"><p>Delete <span>Anushka</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+        <div class="t-ph uploadable" data-id="team-photo-2" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">PHOTO</span>
+          <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+        </div>
+        <div class="t-info"><div class="t-nm">Anushka</div><div class="t-rl">AI &amp; Systems Design</div><div class="t-bio">Leads AI modelling and intelligent interaction design, ensuring AiDoBot responds naturally and accurately in every situation.</div></div>
+      </div>
+      <div class="t-card reveal d2">
+        <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+        <div class="t-del-confirm"><p>Delete <span>Isatou I Jallow</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+        <div class="t-ph uploadable" data-id="team-photo-3" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">PHOTO</span>
+          <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+        </div>
+        <div class="t-info"><div class="t-nm">Isatou I Jallow</div><div class="t-rl">Accountant &amp; Finance</div><div class="t-bio">Manages financial planning, budgeting, and compliance for sustainable and responsible growth.</div></div>
+      </div>
+      <div class="t-card reveal">
+        <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+        <div class="t-del-confirm"><p>Delete <span>Nuna</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+        <div class="t-ph uploadable" data-id="team-photo-4" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">PHOTO</span>
+          <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+        </div>
+        <div class="t-info"><div class="t-nm">Nuna</div><div class="t-rl">Social Media &amp; Communications</div><div class="t-bio">Oversees brand communication, digital presence, and strategic messaging to share AiDoBot's mission worldwide.</div></div>
+      </div>
+      <div class="t-card reveal d1">
+        <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+        <div class="t-del-confirm"><p>Delete <span>Dr. Shiv Kumar Verma</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+        <div class="t-ph uploadable" data-id="team-photo-5" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">PHOTO</span>
+          <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+        </div>
+        <div class="t-info"><div class="t-nm">Dr. Shiv Kumar Verma</div><div class="t-rl">Mentor &amp; Advisor</div><div class="t-bio">Professor providing expert guidance on AI development, system architecture, and academic rigor behind AiDoBot's intelligence.</div></div>
+      </div>
+      <div class="t-card reveal d2">
+        <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+        <div class="t-del-confirm"><p>Delete <span>Dr. Sanjay Kumar</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+        <div class="t-ph uploadable" data-id="team-photo-6" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">PHOTO</span>
+          <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+        </div>
+        <div class="t-info"><div class="t-nm">Dr. Sanjay Kumar</div><div class="t-rl">Mentor &amp; Advisor</div><div class="t-bio">Associate Professor advising on medical applications, healthcare integration, and clinical accuracy of the robot's assessments.</div></div>
+      </div>
+      <!-- ADD MEMBER CARD (admin only) -->
+      <div class="t-add-card" id="t-add-card">
+        <div class="t-add-ico">➕</div>
+        <div class="t-add-txt">Add Team Member</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GENERIC ADMIN MODAL ═══ -->
+<div class="gadmin-bg" id="gadmin-modal">
+  <div class="gadmin-box">
+    <button class="gadmin-close" id="gadmin-close">✕</button>
+    <h3 id="gadmin-title">Add Item</h3>
+    <div class="gadmin-f" id="gadmin-form-body">
+      <!-- dynamic fields injected by JS -->
+    </div>
+  </div>
+</div>
+<input type="file" id="gadmin-img-inp" style="display:none" accept="image/*">
+
+<!-- ═══ EVENTS & ANNOUNCEMENTS ═══ -->
+<section id="events" class="events">
+  <div class="events-in">
+    <div class="events-top">
+      <div>
+        <div class="lbl">Events</div>
+        <h2 class="ttl">Upcoming <em>Events.</em></h2>
+        <p class="desc">Conferences, demos, community screenings, and launches — find AiDoBot near you.</p>
+      </div>
+      <button class="ev-add-btn" id="ev-add-btn">➕ Add Event</button>
+    </div>
+    <div class="ev-grid reveal" id="ev-grid">
+      <!-- Sample events -->
+      <div class="ev-card">
+        <div class="ev-admin-bar"><button class="ev-ab-btn edit">✏️</button><button class="ev-ab-btn del">🗑</button></div>
+        <div class="ev-del-confirm"><p>Delete <span>this event</span>?</p><div class="ev-del-btns"><button class="ev-del-yes">Delete</button><button class="ev-del-no">Cancel</button></div></div>
+        <div class="ev-card-img uploadable" data-id="ev-img-1" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace image</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <div class="ev-card-img-ph">🏥</div>
+          <div class="ev-date-badge">Mar 2026</div>
+        </div>
+        <div class="ev-body">
+          <div class="ev-title">Healthcare Innovation Summit</div>
+          <div class="ev-loc">📍 Banjul, The Gambia</div>
+          <div class="ev-desc">AiDoBot will be demonstrating live patient screening and telemedicine capabilities at the region's largest annual health innovation summit.</div>
+        </div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-admin-bar"><button class="ev-ab-btn edit">✏️</button><button class="ev-ab-btn del">🗑</button></div>
+        <div class="ev-del-confirm"><p>Delete <span>this event</span>?</p><div class="ev-del-btns"><button class="ev-del-yes">Delete</button><button class="ev-del-no">Cancel</button></div></div>
+        <div class="ev-card-img uploadable" data-id="ev-img-2" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace image</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <div class="ev-card-img-ph">🏫</div>
+          <div class="ev-date-badge">Apr 2026</div>
+        </div>
+        <div class="ev-body">
+          <div class="ev-title">University Tech Expo</div>
+          <div class="ev-loc">📍 New Delhi, India</div>
+          <div class="ev-desc">Join us at the national university technology fair where AiDoBot will showcase AI face analysis and multilingual health screening for students.</div>
+        </div>
+      </div>
+      <div class="ev-card">
+        <div class="ev-admin-bar"><button class="ev-ab-btn edit">✏️</button><button class="ev-ab-btn del">🗑</button></div>
+        <div class="ev-del-confirm"><p>Delete <span>this event</span>?</p><div class="ev-del-btns"><button class="ev-del-yes">Delete</button><button class="ev-del-no">Cancel</button></div></div>
+        <div class="ev-card-img uploadable" data-id="ev-img-3" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace image</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <div class="ev-card-img-ph">🌍</div>
+          <div class="ev-date-badge">May 2026</div>
+        </div>
+        <div class="ev-body">
+          <div class="ev-title">Community Health Outreach</div>
+          <div class="ev-loc">📍 Rural Communities, West Africa</div>
+          <div class="ev-desc">Free health screening drive — bringing AiDoBot directly to underserved rural communities for vital sign checks and doctor consultations.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div style="margin-top:72px;">
+      <div class="ann-hd">
+        <div class="ann-hd-left">
+          <div class="lbl" style="margin-bottom:0;">Latest</div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--ink);margin-left:8px;">Announcements</h3>
+        </div>
+        <button class="ann-add-btn" id="ann-add-btn">📢 Post Announcement</button>
+      </div>
+      <div class="ann-list reveal" id="ann-list">
+        <div class="ann-item">
+          <div class="ann-admin-bar"><button class="ann-ab-btn edit">✏️</button><button class="ann-ab-btn del">🗑</button></div>
+          <div class="ann-ico">🚀</div>
+          <div class="ann-content">
+            <div class="ann-date">Feb 28, 2026</div>
+            <div class="ann-title">AiDoBot Version 2.0 Launched</div>
+            <div class="ann-text">We are proud to announce the launch of AiDoBot Version 2.0 — featuring enhanced AI face analysis, improved multilingual support for 12 new languages, and a faster screening process now completing in under 4 minutes.</div>
+          </div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-admin-bar"><button class="ann-ab-btn edit">✏️</button><button class="ann-ab-btn del">🗑</button></div>
+          <div class="ann-ico">🤝</div>
+          <div class="ann-content">
+            <div class="ann-date">Feb 15, 2026</div>
+            <div class="ann-title">New Partnership with Regional Health Ministry</div>
+            <div class="ann-text">AiDoBot has entered a formal partnership agreement to deploy robots across 20 public health centres. Rollout begins in March 2026.</div>
+          </div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-admin-bar"><button class="ann-ab-btn edit">✏️</button><button class="ann-ab-btn del">🗑</button></div>
+          <div class="ann-ico">🏆</div>
+          <div class="ann-content">
+            <div class="ann-date">Jan 30, 2026</div>
+            <div class="ann-title">AiDoBot Wins Best Health Innovation Award</div>
+            <div class="ann-text">We are honoured to have received the Best Health Innovation Award at the Africa Tech Summit 2026. Thank you to our team, mentors, and everyone who believed in this vision.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PARTNERS ═══ -->
+<section id="partners" class="partners">
+  <div class="partners-in">
+    <div class="partners-top">
+      <div>
+        <div class="lbl">Our Network</div>
+        <h2 class="ttl">Partners &amp; <em>Supporters.</em></h2>
+        <p class="desc">Hospitals, ministries, universities, and organisations that believe in AiDoBot's mission.</p>
+      </div>
+      <button class="pt-add-btn" id="pt-add-btn">➕ Add Partner</button>
+    </div>
+    <div class="pt-slider-wrap">
+      <div class="pt-slides" id="pt-slides">
+        <div class="pt-card reveal">
+          <div class="pt-admin-bar"><button class="pt-ab-btn edit">✏️</button><button class="pt-ab-btn del">🗑</button></div>
+          <div class="pt-logo uploadable" data-id="pt-logo-1" data-type="image" style="position:relative;">
+            <div class="upload-overlay" style="border-radius:16px;"><div class="up-ico" style="font-size:1.2rem;">🖼️</div></div>
+            <span style="font-size:1.8rem;">🏥</span>
+          </div>
+          <div class="pt-name">Regional Health Ministry</div>
+          <div class="pt-type">Government</div>
+          <div class="pt-desc">Official ministry partner supporting nationwide deployment of AiDoBot.</div>
+        </div>
+        <div class="pt-card reveal d1">
+          <div class="pt-admin-bar"><button class="pt-ab-btn edit">✏️</button><button class="pt-ab-btn del">🗑</button></div>
+          <div class="pt-logo uploadable" data-id="pt-logo-2" data-type="image" style="position:relative;">
+            <div class="upload-overlay" style="border-radius:16px;"><div class="up-ico" style="font-size:1.2rem;">🖼️</div></div>
+            <span style="font-size:1.8rem;">🎓</span>
+          </div>
+          <div class="pt-name">University Research Lab</div>
+          <div class="pt-type">Academic</div>
+          <div class="pt-desc">Research partnership advancing AI diagnostic capabilities and clinical validation.</div>
+        </div>
+        <div class="pt-card reveal d2">
+          <div class="pt-admin-bar"><button class="pt-ab-btn edit">✏️</button><button class="pt-ab-btn del">🗑</button></div>
+          <div class="pt-logo uploadable" data-id="pt-logo-3" data-type="image" style="position:relative;">
+            <div class="upload-overlay" style="border-radius:16px;"><div class="up-ico" style="font-size:1.2rem;">🖼️</div></div>
+            <span style="font-size:1.8rem;">🌐</span>
+          </div>
+          <div class="pt-name">Global Health NGO</div>
+          <div class="pt-type">NGO</div>
+          <div class="pt-desc">Funding and deploying AiDoBot in underserved communities across three continents.</div>
+        </div>
+        <div class="pt-card reveal d3">
+          <div class="pt-admin-bar"><button class="pt-ab-btn edit">✏️</button><button class="pt-ab-btn del">🗑</button></div>
+          <div class="pt-logo uploadable" data-id="pt-logo-4" data-type="image" style="position:relative;">
+            <div class="upload-overlay" style="border-radius:16px;"><div class="up-ico" style="font-size:1.2rem;">🖼️</div></div>
+            <span style="font-size:1.8rem;">💊</span>
+          </div>
+          <div class="pt-name">PharmaCare Network</div>
+          <div class="pt-type">Healthcare</div>
+          <div class="pt-desc">Pharmacy network partner enabling home medicine delivery after AiDoBot consultations.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pt-ctrl">
+      <button class="pt-nav-btn" id="pt-prev">‹</button>
+      <div class="pt-dots" id="pt-dots">
+        <button class="pt-dot on" data-i="0"></button>
+      </div>
+      <button class="pt-nav-btn" id="pt-next">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SOCIAL MEDIA ═══ -->
+<section id="social" class="social-sec">
+  <div class="social-in">
+    <div class="lbl">Follow Us</div>
+    <h2 class="ttl">Stay <em>Connected.</em></h2>
+    <p class="desc">Follow AiDoBot on social media for updates, patient stories, live demos, and behind-the-scenes footage.</p>
+
+    <div class="social-links" id="social-links">
+      <a href="#" class="soc-link yt" data-platform="YouTube" id="soc-yt">
+        <div class="soc-ico">▶</div>
+        <span>YouTube</span>
+        <button class="soc-edit-btn" title="Edit link">✏</button>
+      </a>
+      <a href="#" class="soc-link fb" data-platform="Facebook" id="soc-fb">
+        <div class="soc-ico">f</div>
+        <span>Facebook</span>
+        <button class="soc-edit-btn" title="Edit link">✏</button>
+      </a>
+      <a href="#" class="soc-link ig" data-platform="Instagram" id="soc-ig">
+        <div class="soc-ico">📷</div>
+        <span>Instagram</span>
+        <button class="soc-edit-btn" title="Edit link">✏</button>
+      </a>
+      <a href="#" class="soc-link wa" data-platform="WhatsApp" id="soc-wa">
+        <div class="soc-ico">💬</div>
+        <span>WhatsApp</span>
+        <button class="soc-edit-btn" title="Edit link">✏</button>
+      </a>
+      <button class="soc-add-btn" id="soc-add-btn">➕ Add Social Page</button>
+    </div>
+
+    <div class="social-embed-wrap">
+      <div class="social-embed-hd">
+        <h3>Latest Video</h3>
+        <button class="soc-embed-edit" id="soc-embed-edit">🔗 Set Embed URL</button>
+      </div>
+      <div class="social-embed-area" id="social-embed-area">
+        <div class="soc-embed-ph">
+          <div class="ph-ico">📺</div>
+          <p>Paste a YouTube URL in admin mode to embed your latest video here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="ct">
+  <div class="ct-in">
+    <div class="lbl">Get In Touch</div>
+    <h2 class="ttl" style="color:var(--w)">Ready to bring<br><em>AiDoBot</em> to you?</h2>
+    <div class="ct-g">
+      <div class="ct-cards reveal">
+        <div class="ct-card"><div class="ct-ico">📧</div><div class="ct-txt"><h4>Email Us</h4><p><a href="mailto:abdoukadrjabbi1@gmail.com">abdoukadrjabbi1@gmail.com</a><br><a href="mailto:support@aidobot.com">support@aidobot.com</a></p></div></div>
+        <div class="ct-card"><div class="ct-ico">💬</div><div class="ct-txt"><h4>WhatsApp</h4><p><a href="https://wa.me/918800510790" target="_blank">+91 8800 510 790</a><br>Mon–Fri, 9am–6pm</p></div></div>
+        <div class="ct-card"><div class="ct-ico">🌍</div><div class="ct-txt"><h4>Global Deployment</h4><p>Available for deployment worldwide — hospitals, clinics, communities, and homes.</p></div></div>
+        <div class="ct-card"><div class="ct-ico">🤝</div><div class="ct-txt"><h4>Partnerships</h4><p>Ministries of Health, hospitals, NGOs, government bodies — let's build together.</p></div></div>
+      </div>
+      <div class="ct-fw reveal d2">
+        <h3>Send us a message</h3>
+        <p class="sub">We respond within 24 hours.</p>
+        <form id="ct-form">
+          <div class="cf-row">
+            <div class="cf-fld"><label>First name</label><input class="cf-inp" type="text" placeholder="First name" required></div>
+            <div class="cf-fld"><label>Last name</label><input class="cf-inp" type="text" placeholder="Last name"></div>
+          </div>
+          <div class="cf-fld" style="margin-bottom:14px;"><label>Email</label><input class="cf-inp" type="email" placeholder="your@email.com" required></div>
+          <div class="cf-fld" style="margin-bottom:14px;"><label>Organisation / Hospital / Ministry</label><input class="cf-inp" type="text" placeholder="Where are you from?"></div>
+          <div class="cf-fld" style="margin-bottom:20px;"><label>Message</label><textarea class="cf-inp cf-ta" placeholder="Tell us about your interest in AiDoBot…" required></textarea></div>
+          <button type="submit" class="cf-btn">Send Message →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-g">
+    <div class="ft-brand">
+      <div class="logo">AiDoBot</div>
+      <p>AI-powered healthcare that reaches everyone — hospitals, communities, homes, and public spaces. Speaking your language. Saving lives.</p>
+      <p style="margin-top:14px;font-size:.76rem;color:rgba(253,252,250,.25);">© 2026 AiDoBot. All rights reserved.</p>
+    </div>
+    <div class="ft-col"><h4>Product</h4><ul><li><a href="#features">How It Works</a></li><li><a href="#usecases">Use Cases</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#events">Events</a></li></ul></div>
+    <div class="ft-col"><h4>Company</h4><ul><li><a href="#about">About Us</a></li><li><a href="#team">Our Team</a></li><li><a href="#partners">Partners</a></li><li><a href="#feedback">Reviews</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    <div class="ft-col"><h4>Follow Us</h4><ul><li><a href="#social">YouTube</a></li><li><a href="#social">Facebook</a></li><li><a href="#social">Instagram</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+  </div>
+  <div class="ft-bt">
+    <p>Designed for the world.</p>
+    <p>AiDoBot Technologies</p>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════════ */
+const cr=document.getElementById('crsr'),cr2=document.getElementById('crsr2');
+let _mx=0,_my=0,_rx=0,_ry=0;
+document.addEventListener('mousemove',e=>{_mx=e.clientX;_my=e.clientY;cr.style.left=_mx+'px';cr.style.top=_my+'px';});
+(function t(){_rx+=(_mx-_rx)*.08;_ry+=(_my-_ry)*.08;cr2.style.left=_rx+'px';cr2.style.top=_ry+'px';requestAnimationFrame(t);})();
+document.querySelectorAll('a,button,.uc-c,.sc,.t-card,.fbq-slide,.gal-slide').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+});
+
+/* ═══ NAV ═══ */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('sol',scrollY>60));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-76,behavior:'smooth'});}
+  });
+});
+
+/* ═══ MARQUEE ═══ */
+const words=['Heart Rate Monitoring','Blood Oxygen Detection','Temperature Measurement','Face Analysis AI','Blood Pressure','Weight & Height','Video Doctor Call','Digital Prescription','Home Medicine Delivery','Multi-Language Support','24/7 Availability','AI Risk Assessment'];
+const mt=document.getElementById('mqt');
+const full=[...words,...words].map(w=>`<span>${w}</span><span class="sep">✦</span>`).join('');
+mt.innerHTML=full+full;
+
+/* ═══ COUNTER ═══ */
+function doCount(el){
+  const t=+el.dataset.v,dur=1600,step=16;let c=0;
+  const r=setInterval(()=>{c=Math.min(c+t/(dur/step),t);el.textContent=Math.round(c);if(c>=t)clearInterval(r);},step);
+}
+
+/* ═══ REVEAL ═══ */
+const ro=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}});
+},{threshold:.12,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+document.querySelectorAll('.st-n[data-v]').forEach(el=>{
+  const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){doCount(el);o.unobserve(el);}},{threshold:.5});
+  o.observe(el);
+});
+
+/* ═══ DRAG STORY ═══ */
+const sr=document.getElementById('srow');
+let dn=false,sdx,ssl;
+sr.addEventListener('mousedown',e=>{dn=true;sdx=e.pageX-sr.offsetLeft;ssl=sr.scrollLeft;sr.style.cursor='grabbing';});
+sr.addEventListener('mouseleave',()=>{dn=false;sr.style.cursor='grab';});
+sr.addEventListener('mouseup',()=>{dn=false;sr.style.cursor='grab';});
+sr.addEventListener('mousemove',e=>{if(!dn)return;e.preventDefault();sr.scrollLeft=ssl-(e.pageX-sr.offsetLeft-sdx)*1.5;});
+
+/* ═══════════════════════════════════════════════
+   GENERIC SLIDER FACTORY
+═══════════════════════════════════════════════ */
+function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
+  // visCount = how many slides visible at once
+  let current = 0;
+  function getTotal(){ return slidesEl.children.length; }
+  function getMax(){
+    const total = getTotal();
+    return Math.max(0, total - visCount);
+  }
+  function go(n){
+    const max = getMax();
+    current = Math.max(0, Math.min(n, max));
+    const pct = current * (100 / visCount);
+    slidesEl.style.transform = `translateX(-${pct}%)`;
+    // dots
+    if(dotsEl){
+      // rebuild dots if count changed
+      const total = getTotal();
+      const needed = Math.max(1, total - visCount + 1);
+      while(dotsEl.children.length < needed){
+        const d = document.createElement('button');
+        d.dataset.i = dotsEl.children.length;
+        d.className = 'slider-dot';
+        if(dotsEl.className.includes('gal-dot')) d.className = 'gal-dot';
+        if(dotsEl.className.includes('fbv-dot')) d.className = 'fbv-dot';
+        if(dotsEl.className.includes('fbq-dot')) d.className = 'fbq-dot';
+        dotsEl.appendChild(d);
+        d.addEventListener('click', ()=>go(+d.dataset.i));
+      }
+      while(dotsEl.children.length > needed) dotsEl.removeChild(dotsEl.lastChild);
+      [...dotsEl.children].forEach((d,i)=>d.classList.toggle('on', i===current));
+    }
+  }
+  if(prevBtn) prevBtn.addEventListener('click',()=>go(current-1));
+  if(nextBtn) nextBtn.addEventListener('click',()=>go(current+1));
+  if(dotsEl){
+    [...dotsEl.children].forEach(d=>d.addEventListener('click',()=>go(+d.dataset.i)));
+  }
+  go(0);
+  return {go, getCurrent:()=>current, getTotal};
+}
+
+/* ═══ HERO SLIDER ═══ */
+let heroIdx = 0;
+const heroSlides = document.getElementById('hero-slides');
+const heroDots   = document.getElementById('hero-dots');
+const heroPrev   = document.getElementById('hero-prev');
+const heroNext   = document.getElementById('hero-next');
+
+function heroGo(n){
+  const total = heroSlides.children.length;
+  heroIdx = ((n % total) + total) % total;
+  heroSlides.style.transform = `translateX(-${heroIdx * 100}%)`;
+  [...heroDots.children].forEach((d,i)=>d.classList.toggle('on', i===heroIdx));
+}
+heroPrev.addEventListener('click',()=>heroGo(heroIdx-1));
+heroNext.addEventListener('click',()=>heroGo(heroIdx+1));
+[...heroDots.children].forEach(d=>d.addEventListener('click',()=>heroGo(+d.dataset.i)));
+// Auto-advance hero slider
+setInterval(()=>{if(heroSlides.children.length>1)heroGo(heroIdx+1);}, 5000);
+
+function heroRebuildDots(){
+  const total = heroSlides.children.length;
+  heroDots.innerHTML = '';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('button');
+    d.className='slider-dot'+(i===heroIdx?' on':'');
+    d.dataset.i=i;
+    d.addEventListener('click',()=>heroGo(i));
+    heroDots.appendChild(d);
+  }
+}
+
+/* Gallery slider */
+const galSlides = document.getElementById('gal-slides');
+const galDots   = document.getElementById('gal-dots');
+let galSlider = makeSlider(galSlides, galDots,
+  document.getElementById('gal-prev'),
+  document.getElementById('gal-next'), 3);
+
+/* Video review slider */
+const fbvSlides = document.getElementById('fbv-slides');
+const fbvDots   = document.getElementById('fbv-dots');
+let fbvSlider = makeSlider(fbvSlides, fbvDots,
+  document.getElementById('fbv-prev'),
+  document.getElementById('fbv-next'), 3);
+
+/* Quote slider */
+const fbqSlides = document.getElementById('fbq-slides');
+const fbqDots   = document.getElementById('fbq-dots');
+let fbqSlider = makeSlider(fbqSlides, fbqDots,
+  document.getElementById('fbq-prev'),
+  document.getElementById('fbq-next'), 3);
+
+/* Responsive slider - update visible count on resize */
+function updateSliderVis(){
+  const w = window.innerWidth;
+  // gallery
+  const galV = w<768?1:w<1100?2:3;
+  galSlider = makeSlider(galSlides, galDots, document.getElementById('gal-prev'), document.getElementById('gal-next'), galV);
+  const fbvV = w<768?1:w<1100?2:3;
+  fbvSlider = makeSlider(fbvSlides, fbvDots, document.getElementById('fbv-prev'), document.getElementById('fbv-next'), fbvV);
+  const fbqV = w<768?1:w<1100?2:3;
+  fbqSlider = makeSlider(fbqSlides, fbqDots, document.getElementById('fbq-prev'), document.getElementById('fbq-next'), fbqV);
+}
+window.addEventListener('resize', updateSliderVis);
+
+/* ═══ FEEDBACK TABS ═══ */
+document.querySelectorAll('.fb-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.fb-tab').forEach(t=>t.classList.remove('on'));
+    document.querySelectorAll('.fb-panel').forEach(p=>p.classList.remove('on'));
+    tab.classList.add('on');
+    document.getElementById('p'+tab.dataset.t).classList.add('on');
+  });
+});
+
+/* ═══ STAR RATING ═══ */
+let rating=0;
+document.querySelectorAll('.sbtn').forEach(b=>{
+  b.addEventListener('click',()=>{rating=+b.dataset.v;updStars();});
+  b.addEventListener('mouseenter',()=>{document.querySelectorAll('.sbtn').forEach(x=>x.style.color=+x.dataset.v<=+b.dataset.v?'var(--gold)':'var(--lw)');});
+  b.addEventListener('mouseleave',updStars);
+});
+function updStars(){document.querySelectorAll('.sbtn').forEach(x=>x.style.color=+x.dataset.v<=rating?'var(--gold)':'var(--lw)');}
+
+/* ═══ FORMS ═══ */
+document.getElementById('fb-form')?.addEventListener('submit',e=>{
+  e.preventDefault();
+  document.getElementById('fb-form').style.display='none';
+  document.getElementById('fb-ok').classList.add('show');
+});
+document.getElementById('ct-form')?.addEventListener('submit',e=>{
+  e.preventDefault();
+  const b=e.target.querySelector('.cf-btn');
+  b.textContent='Sent ✓';b.style.background='linear-gradient(135deg,#1A7A4A,#2ECC71)';
+  setTimeout(()=>{e.target.reset();b.textContent='Send Message →';b.style.background='';},3000);
+});
+
+/* ═══ BOOK MODAL ═══ */
+const bmod=document.getElementById('book-modal');
+document.getElementById('open-book').onclick=()=>bmod.classList.add('open');
+document.getElementById('close-book').onclick=()=>bmod.classList.remove('open');
+bmod.addEventListener('click',e=>{if(e.target===bmod)bmod.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){bmod.classList.remove('open');}});
+const WA='918800510790',EM='abdoukadrjabbi1@gmail.com';
+function getBD(){return{date:document.getElementById('m-date').value,time:document.getElementById('m-time').value,name:document.getElementById('m-name').value,country:document.getElementById('m-country').value,email:document.getElementById('m-email').value};}
+function bMsg(d){return `New AiDoBot Meeting Request:\n\nName: ${d.name}\nCountry: ${d.country}\nEmail: ${d.email}\nDate: ${d.date}\nTime: ${d.time}`;}
+document.getElementById('m-wa-btn').onclick=()=>{
+  if(!document.getElementById('book-form').reportValidity())return;
+  const d=getBD();window.open(`https://wa.me/${WA}?text=${encodeURIComponent(bMsg(d))}`, '_blank');
+  bmod.classList.remove('open');document.getElementById('book-form').reset();
+};
+document.getElementById('m-email-btn').onclick=()=>{
+  if(!document.getElementById('book-form').reportValidity())return;
+  const d=getBD();window.location.href=`mailto:${EM}?subject=${encodeURIComponent('AiDoBot Meeting Request')}&body=${encodeURIComponent(bMsg(d))}`;
+  bmod.classList.remove('open');document.getElementById('book-form').reset();
+};
+
+/* ═══════════════════════════════════════════════
+   ADMIN SYSTEM
+   Password: aidobot2026
+═══════════════════════════════════════════════ */
+(function(){
+  const PASS = 'aidobot2026';
+  let adminOn = false;
+  let activeTarget = null;
+  let activeCallback = null;
+  let changes = {};
+  let teamPhotoSrc = null;
+
+  const trig      = document.getElementById('admin-trig');
+  const pwModal   = document.getElementById('pw-modal');
+  const pwField   = document.getElementById('pw-field');
+  const pwGo      = document.getElementById('pw-go');
+  const pwClose   = document.getElementById('pw-close');
+  const pwErr     = document.getElementById('pw-err');
+  const adminBar  = document.getElementById('admin-bar');
+  const exitBtn   = document.getElementById('admin-exit');
+  const saveBtn   = document.getElementById('admin-save');
+  const fileInp   = document.getElementById('file-inp');
+  const sidebar   = document.getElementById('changes-sidebar');
+  const chList    = document.getElementById('changes-list');
+  const toast     = document.getElementById('toast');
+  const toastMsg  = document.getElementById('toast-msg');
+  const toastSpin = document.getElementById('toast-spin');
+  const cntBadge  = document.getElementById('change-count');
+
+  // Media URL modal
+  const murlModal  = document.getElementById('murl-modal');
+  const murlClose  = document.getElementById('murl-close');
+  const murlDrop   = document.getElementById('murl-drop');
+  const murlUrlInp = document.getElementById('murl-url-inp');
+  const murlApply  = document.getElementById('murl-url-apply');
+  const murlSub    = document.getElementById('murl-subtitle');
+  const murlHint   = document.getElementById('murl-accept-hint');
+  // Media URL modal tabs
+  document.querySelectorAll('.murl-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.murl-tab').forEach(t=>t.classList.remove('on'));
+      document.querySelectorAll('.murl-pane').forEach(p=>p.classList.remove('on'));
+      tab.classList.add('on');
+      document.getElementById('murl-pane-'+tab.dataset.t).classList.add('on');
+    });
+  });
+
+  // Team modal
+  const mteamModal  = document.getElementById('mteam-modal');
+  const mteamClose  = document.getElementById('mteam-close');
+  const mteamPreview= document.getElementById('mteam-preview');
+  const mteamName   = document.getElementById('mteam-name');
+  const mteamRole   = document.getElementById('mteam-role');
+  const mteamBio    = document.getElementById('mteam-bio');
+  const mteamAddBtn = document.getElementById('mteam-add-btn');
+  const teamPhotoInp= document.getElementById('team-photo-inp');
+  const tAddCard    = document.getElementById('t-add-card');
+
+  // ── Password ──
+  trig.addEventListener('click',()=>{pwModal.classList.add('open');setTimeout(()=>pwField.focus(),120);});
+  pwClose.addEventListener('click',closeModal);
+  pwModal.addEventListener('click',e=>{if(e.target===pwModal)closeModal();});
+  function closeModal(){pwModal.classList.remove('open');pwField.value='';pwErr.classList.remove('show');}
+  function tryPass(){
+    if(pwField.value===PASS){closeModal();enableAdmin();}
+    else{pwErr.classList.add('show');pwField.value='';pwField.focus();}
+  }
+  pwGo.addEventListener('click',tryPass);
+  pwField.addEventListener('keydown',e=>{if(e.key==='Enter')tryPass();});
+
+  // ── Enable admin ──
+  function enableAdmin(){
+    adminOn=true;
+    document.body.classList.add('admin-mode');
+    adminBar.classList.add('on');
+    sidebar.classList.add('open');
+    nav.style.top='44px';
+    attachListeners();
+    showToast('Admin mode active — click any image or video to replace it',3000,false);
+  }
+
+  // ── Exit admin ──
+  exitBtn.addEventListener('click',()=>{
+    adminOn=false;
+    document.body.classList.remove('admin-mode');
+    adminBar.classList.remove('on');
+    sidebar.classList.remove('open');
+    nav.style.top='';
+    hideToast();
+  });
+
+  // ── Attach listeners to all .uploadable elements ──
+  function attachListeners(){
+    document.querySelectorAll('.uploadable').forEach(el=>{
+      if(el._adminBound)return;
+      el._adminBound=true;
+      el.addEventListener('click',function(e){
+        if(!adminOn)return;
+        e.preventDefault();e.stopPropagation();
+        openMediaModal(el);
+      },true);
+    });
+  }
+
+  // ── Open media upload/URL modal ──
+  function openMediaModal(target){
+    activeTarget = target;
+    const isVid = (target.dataset.type==='video');
+    murlSub.textContent = isVid ? 'Upload a video file or paste a video URL' : 'Upload an image or paste a URL';
+    murlHint.textContent = isVid ? 'YouTube URL, MP4, MOV, WEBM supported' : 'JPG, PNG, WEBP supported';
+    murlUrlInp.placeholder = isVid ? 'https://youtube.com/watch?v=... or direct video URL' : 'https://example.com/image.jpg';
+    murlUrlInp.value = '';
+    murlModal.classList.add('open');
+  }
+
+  murlClose.addEventListener('click',()=>murlModal.classList.remove('open'));
+  murlModal.addEventListener('click',e=>{if(e.target===murlModal)murlModal.classList.remove('open');});
+
+  // Drop area click → file input
+  murlDrop.addEventListener('click',()=>{
+    if(!activeTarget)return;
+    const isVid = (activeTarget.dataset.type==='video');
+    fileInp.accept = isVid ? 'video/*' : 'image/*,video/*';
+    fileInp.value='';
+    fileInp.click();
+  });
+
+  // Drag & drop
+  murlDrop.addEventListener('dragover',e=>{e.preventDefault();murlDrop.style.borderColor='var(--gold)';});
+  murlDrop.addEventListener('dragleave',()=>murlDrop.style.borderColor='');
+  murlDrop.addEventListener('drop',e=>{
+    e.preventDefault();murlDrop.style.borderColor='';
+    const file=e.dataTransfer.files[0];
+    if(file&&activeTarget){processFile(file,activeTarget);}
+    murlModal.classList.remove('open');
+  });
+
+  // Apply URL
+  murlApply.addEventListener('click',()=>{
+    const url=murlUrlInp.value.trim();
+    if(!url||!activeTarget)return;
+    applyMedia(activeTarget,url,null);
+    murlModal.classList.remove('open');
+  });
+
+  // File chosen via input
+  fileInp.addEventListener('change',()=>{
+    const file=fileInp.files[0];
+    if(file&&activeTarget){
+      murlModal.classList.remove('open');
+      processFile(file,activeTarget);
+    }
+  });
+
+  function processFile(file, target){
+    showToast('Reading '+shortName(file.name)+'…',0,true);
+    const reader=new FileReader();
+    reader.onload=ev=>{ applyMedia(target, ev.target.result, file.name); hideToast(); };
+    reader.readAsDataURL(file);
+  }
+
+  // ── YouTube URL converter ──
+  function getYouTubeEmbed(url){
+    // Match youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID, youtube.com/embed/ID
+    const patterns=[
+      /(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/
+    ];
+    for(const p of patterns){
+      const m=url.match(p);
+      if(m)return 'https://www.youtube.com/embed/'+m[1]+'?autoplay=0&rel=0&modestbranding=1';
+    }
+    return null;
+  }
+
+  function applyMedia(target, src, fileName){
+    const id = target.dataset.id;
+    const ytEmbed = getYouTubeEmbed(src);
+    const isYT = !!ytEmbed;
+    const isVid = isYT || src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+
+    if(isYT){
+      // Remove existing media
+      [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge'))ch.remove();});
+      // Remove old iframe if any
+      const oldIframe=target.querySelector('iframe');if(oldIframe)oldIframe.remove();
+      const iframe=document.createElement('iframe');
+      iframe.src=ytEmbed;
+      iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen=true;
+      iframe.style.cssText='width:100%;aspect-ratio:16/9;display:block;border:none;min-height:180px;';
+      // Remove play-c placeholder text if any
+      target.appendChild(iframe);
+      if(target.classList.contains('tl-vid-ph')){target.classList.remove('tl-vid-ph');target.classList.add('tl-vid');}
+    } else if(isVid){
+      let vid=target.querySelector('video');
+      if(!vid){
+        vid=document.createElement('video');
+        vid.controls=true;
+        vid.style.cssText='width:100%;display:block;min-height:180px;max-height:520px;object-fit:cover;';
+        [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge'))ch.remove();});
+        target.appendChild(vid);
+        if(target.classList.contains('tl-vid-ph')){target.classList.remove('tl-vid-ph');target.classList.add('tl-vid');}
+      }
+      vid.src=src; vid.load();
+      if(target.closest('.hero-slide')){vid.autoplay=true;vid.muted=true;vid.loop=true;vid.removeAttribute('controls');}
+    } else {
+      // image
+      let img=target.querySelector('img');
+      if(!img){
+        img=document.createElement('img');
+        img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+        const svgWrap=target.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
+        [...target.children].forEach(ch=>{if(!ch.classList.contains('upload-overlay')&&!ch.classList.contains('type-badge')&&ch.tagName!=='SPAN')ch.remove();});
+        target.appendChild(img);
+      }
+      img.src=src;
+    }
+
+    changes[id]={name:fileName||src.slice(0,60),type:isVid?'video':'image',src};
+    renderChanges();
+    showToast(isYT?'✓ YouTube video embedded!':'✓ Media updated!',2200,false);
+    activeTarget=null;
+  }
+
+  // ── HERO: Add new slide ──
+  document.getElementById('hero-add-slide').addEventListener('click',e=>{
+    e.stopPropagation();
+    // open media modal but for new slide
+    activeTarget = null;
+    const isVid = true; // default assume video, will be detected
+    murlSub.textContent = 'Upload image or video for new hero slide';
+    murlHint.textContent = 'Image, Video or YouTube URL';
+    murlUrlInp.placeholder = 'https://youtube.com/watch?v=... or image/video URL';
+    murlUrlInp.value='';
+    // override apply to add new slide
+    activeCallback = (src, fname)=>{
+      addHeroSlide(src, fname);
+    };
+    murlModal.classList.add('open');
+    // Override file input too
+    fileInp.accept='image/*,video/*';
+  });
+
+  // override file chosen when activeCallback set
+  const origFileChange = fileInp.onchange;
+  fileInp.addEventListener('change',()=>{
+    if(!activeCallback)return;
+    const file=fileInp.files[0];if(!file)return;
+    showToast('Reading '+shortName(file.name)+'…',0,true);
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      murlModal.classList.remove('open');
+      activeCallback(ev.target.result, file.name);
+      activeCallback=null;
+      hideToast();
+    };
+    reader.readAsDataURL(file);
+  });
+  murlApply.addEventListener('click',()=>{
+    if(!activeCallback)return;
+    const url=murlUrlInp.value.trim();if(!url)return;
+    murlModal.classList.remove('open');
+    activeCallback(url, url);
+    activeCallback=null;
+  });
+
+  function addHeroSlide(src, fname){
+    const idx = heroSlides.children.length;
+    const slideId = 'hero-slide-'+idx;
+    const ytEmbed = getYouTubeEmbed(src);
+    const isVid = !!ytEmbed || src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    const isImg = !isVid;
+    const slide=document.createElement('div');
+    slide.className='hero-slide';
+    slide.dataset.slideId=slideId;
+    const inner=document.createElement('div');
+    inner.className='uploadable';
+    inner.dataset.id=slideId;
+    inner.dataset.type=isVid?'video':'image';
+    inner.style.cssText='position:relative;min-height:380px;';
+    inner.innerHTML=`
+      <div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Click to replace</div><div class="up-sub">Image, Video or YouTube URL</div></div>
+      <span class="type-badge ${isVid?'vid-badge':'img-badge'}">${ytEmbed?'YOUTUBE':isVid?'VIDEO':'IMAGE'}</span>
+    `;
+    if(ytEmbed){
+      const iframe=document.createElement('iframe');
+      iframe.src=ytEmbed;
+      iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen=true;
+      iframe.style.cssText='width:100%;aspect-ratio:16/9;display:block;border:none;min-height:380px;';
+      inner.appendChild(iframe);
+    } else if(isVid){
+      const v=document.createElement('video');
+      v.src=src;v.autoplay=true;v.muted=true;v.loop=true;v.setAttribute('playsinline','');
+      v.style.cssText='width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);';
+      inner.appendChild(v);
+    } else {
+      const i=document.createElement('img');
+      i.src=src;i.style.cssText='width:100%;display:block;min-height:380px;max-height:520px;object-fit:cover;background:linear-gradient(135deg,#EAD9C2,#C9A97A);';
+      inner.appendChild(i);
+    }
+    slide.appendChild(inner);
+    heroSlides.appendChild(slide);
+    heroRebuildDots();
+    heroGo(idx);
+    inner._adminBound=false;
+    if(adminOn) attachListeners();
+    changes[slideId]={name:fname,type:isVid?'video':'image',src};
+    renderChanges();
+    showToast(ytEmbed?'✓ YouTube slide added!':'✓ New hero slide added!',2200,false);
+  }
+
+  // ── GALLERY: Add new slide ──
+  document.getElementById('gal-add').addEventListener('click',e=>{
+    e.stopPropagation();
+    activeCallback=(src,fname)=>{
+      addGalSlide(src,fname);
+    };
+    murlSub.textContent='Upload image or video for gallery';
+    murlHint.textContent='Image, Video or YouTube URL';
+    murlUrlInp.placeholder='https://youtube.com/watch?v=... or image URL';
+    murlUrlInp.value='';
+    murlModal.classList.add('open');
+    fileInp.accept='image/*,video/*';
+  });
+
+  function addGalSlide(src,fname){
+    const idx = galSlides.children.length;
+    const id='gal-media-'+idx;
+    const isVid=src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    const slide=document.createElement('div');
+    slide.className='gal-slide uploadable';
+    slide.dataset.id=id;slide.dataset.type=isVid?'video':'image';
+    slide.style.cssText='position:relative;';
+    slide.innerHTML=`
+      <div class="upload-overlay"><div class="up-ico">${isVid?'🎬':'🖼️'}</div><div class="up-txt">Click to replace</div><div class="up-sub">Image, Video or URL</div></div>
+      <span class="type-badge ${isVid?'vid-badge':'img-badge'}">${isVid?'VIDEO':'IMAGE'}</span>
+      <div class="gal-cap"><span>New Gallery Item</span></div>
+    `;
+    if(isVid){
+      const v=document.createElement('video');v.src=src;v.autoplay=true;v.muted=true;v.loop=true;
+      v.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      slide.insertBefore(v, slide.querySelector('.gal-cap'));
+    } else {
+      const i=document.createElement('img');i.src=src;
+      i.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      slide.insertBefore(i, slide.querySelector('.gal-cap'));
+    }
+    galSlides.appendChild(slide);
+    updateSliderVis();
+    slide._adminBound=false;
+    if(adminOn) attachListeners();
+    changes[id]={name:fname,type:isVid?'video':'image',src};
+    renderChanges();
+    showToast('✓ Gallery item added!',2200,false);
+  }
+
+  // ── VIDEO REVIEW: Add new ──
+  document.getElementById('fbv-add').addEventListener('click',e=>{
+    e.stopPropagation();
+    activeCallback=(src,fname)=>{addFbvSlide(src,fname);};
+    murlSub.textContent='Upload new video review';
+    murlHint.textContent='YouTube URL or video file (MP4, MOV, WEBM)';
+    murlUrlInp.placeholder='https://youtube.com/watch?v=...';
+    murlUrlInp.value='';
+    murlModal.classList.add('open');
+    fileInp.accept='video/*,image/*';
+  });
+
+  function addFbvSlide(src,fname){
+    const idx=fbvSlides.children.length;
+    const id='fb-video-'+(idx+1);
+    const isVid=src.startsWith('data:video')||/\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    const slide=document.createElement('div');
+    slide.className='fbv-slide';
+    slide.innerHTML=`
+      <div class="fb-vth uploadable" data-id="${id}" data-type="${isVid?'video':'image'}" style="position:relative;">
+        <div class="upload-overlay"><div class="up-ico">🎬</div><div class="up-txt">Click to upload</div><div class="up-sub">Video or URL</div></div>
+        <span class="type-badge ${isVid?'vid-badge':'img-badge'}">${isVid?'VIDEO':'IMAGE'}</span>
+        <div class="fb-play">▶</div>
+      </div>
+      <div class="fb-vi"><div class="fb-vn">New Review</div><div class="fb-vr">User experience</div><div class="fb-vo">"Tap to edit review details."</div></div>
+    `;
+    if(isVid){
+      const v=document.createElement('video');v.src=src;v.preload='metadata';
+      v.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      const th=slide.querySelector('.fb-vth');
+      th.insertBefore(v,th.querySelector('.fb-play'));
+    } else {
+      const i=document.createElement('img');i.src=src;
+      i.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      const th=slide.querySelector('.fb-vth');
+      th.insertBefore(i,th.querySelector('.fb-play'));
+    }
+    fbvSlides.appendChild(slide);
+    updateSliderVis();
+    slide.querySelector('.fb-vth')._adminBound=false;
+    if(adminOn) attachListeners();
+    changes[id]={name:fname,type:'video',src};
+    renderChanges();
+    showToast('✓ Video review added!',2200,false);
+  }
+
+  // ── TEAM: shared modal state ──
+  let editingCard = null; // null = add mode, element = edit mode
+
+  function openTeamModal(card){
+    editingCard = card || null;
+    const isEdit = !!card;
+    document.getElementById('mteam-title').textContent = isEdit ? 'Edit Team Member' : 'Add Team Member';
+    document.getElementById('mteam-add-btn').textContent = isEdit ? 'Save Changes →' : 'Add Team Member →';
+    teamPhotoSrc = null;
+
+    if(isEdit){
+      const nm = card.querySelector('.t-nm')?.textContent||'';
+      const rl = card.querySelector('.t-rl')?.textContent||'';
+      const bio = card.querySelector('.t-bio')?.textContent||'';
+      mteamName.value = nm;
+      mteamRole.value = rl;
+      mteamBio.value = bio;
+      // Show existing photo in preview
+      const existImg = card.querySelector('.t-ph img');
+      mteamPreview.innerHTML='';
+      if(existImg){
+        const pv=document.createElement('img');pv.src=existImg.src;
+        mteamPreview.appendChild(pv);
+        teamPhotoSrc = existImg.src; // keep existing if not changed
+      } else {
+        mteamPreview.innerHTML='<span>Click to upload photo</span>';
+      }
+    } else {
+      mteamPreview.innerHTML='<span>Click to upload photo</span>';
+      mteamName.value='';mteamRole.value='';mteamBio.value='';
+    }
+    mteamModal.classList.add('open');
+  }
+
+  // ── Add card button ──
+  tAddCard.addEventListener('click',()=>{if(!adminOn)return;openTeamModal(null);});
+
+  mteamPreview.addEventListener('click',()=>{teamPhotoInp.value='';teamPhotoInp.click();});
+  teamPhotoInp.addEventListener('change',()=>{
+    const file=teamPhotoInp.files[0];if(!file)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      teamPhotoSrc=ev.target.result;
+      mteamPreview.innerHTML='';
+      const i=document.createElement('img');i.src=teamPhotoSrc;
+      mteamPreview.appendChild(i);
+    };
+    r.readAsDataURL(file);
+  });
+
+  mteamClose.addEventListener('click',()=>{mteamModal.classList.remove('open');editingCard=null;});
+  mteamModal.addEventListener('click',e=>{if(e.target===mteamModal){mteamModal.classList.remove('open');editingCard=null;}});
+
+  mteamAddBtn.addEventListener('click',()=>{
+    const name=mteamName.value.trim()||'Team Member';
+    const role=mteamRole.value.trim()||'Role';
+    const bio=mteamBio.value.trim()||'';
+
+    if(editingCard){
+      // ── EDIT existing card ──
+      const nm=editingCard.querySelector('.t-nm');if(nm)nm.textContent=name;
+      const rl=editingCard.querySelector('.t-rl');if(rl)rl.textContent=role;
+      const bc=editingCard.querySelector('.t-bio');if(bc)bc.textContent=bio;
+      // Update delete confirm name
+      const dspan=editingCard.querySelector('.t-del-confirm span');if(dspan)dspan.textContent=name;
+      // Update photo if changed
+      if(teamPhotoSrc){
+        const ph=editingCard.querySelector('.t-ph');
+        let img=ph.querySelector('img');
+        if(!img){
+          const svgWrap=ph.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
+          img=document.createElement('img');
+          img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+          ph.appendChild(img);
+        }
+        img.src=teamPhotoSrc;
+      }
+      mteamModal.classList.remove('open');
+      editingCard=null;
+      showToast('✓ '+name+' updated!',2500,false);
+    } else {
+      // ── ADD new card ──
+      addTeamCard(name,role,bio,teamPhotoSrc);
+      mteamModal.classList.remove('open');
+      showToast('✓ '+name+' added to the team!',2500,false);
+    }
+  });
+
+  function addTeamCard(name,role,bio,photoSrc){
+    const idx=document.querySelectorAll('.t-card').length+1;
+    const phId='team-photo-'+idx;
+    const card=document.createElement('div');
+    card.className='t-card';
+    card.innerHTML=`
+      <div class="t-admin-bar"><button class="t-admin-btn edit">✏️ Edit</button><button class="t-admin-btn del">🗑 Delete</button></div>
+      <div class="t-del-confirm"><p>Delete <span>${name}</span>?</p><div class="t-del-btns"><button class="t-del-yes">Yes, delete</button><button class="t-del-no">Cancel</button></div></div>
+      <div class="t-ph uploadable" data-id="${phId}" data-type="image" style="position:relative;height:320px;background:linear-gradient(135deg,var(--lw),var(--mw));">
+        <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Click to upload photo</div><div class="up-sub">Image or URL</div></div>
+        <span class="type-badge img-badge">PHOTO</span>
+        <div class="t-ph-bg"><svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="rgba(255,255,255,.55)"/><ellipse cx="50" cy="84" rx="32" ry="28" fill="rgba(255,255,255,.55)"/></svg></div>
+      </div>
+      <div class="t-info">
+        <div class="t-nm">${name}</div>
+        <div class="t-rl">${role}</div>
+        <div class="t-bio">${bio}</div>
+      </div>
+    `;
+    if(photoSrc){
+      const ph=card.querySelector('.t-ph');
+      const svgWrap=ph.querySelector('.t-ph-bg');if(svgWrap)svgWrap.remove();
+      const i=document.createElement('img');
+      i.src=photoSrc;i.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      ph.appendChild(i);
+    }
+    const teamGrid=document.getElementById('team-grid');
+    teamGrid.insertBefore(card, tAddCard);
+    card.querySelector('.t-ph')._adminBound=false;
+    attachTeamCardActions(card);
+    if(adminOn) attachListeners();
+  }
+
+  // ── Attach edit/delete to a card ──
+  function attachTeamCardActions(card){
+    const editBtn=card.querySelector('.t-admin-btn.edit');
+    const delBtn=card.querySelector('.t-admin-btn.del');
+    const delConfirm=card.querySelector('.t-del-confirm');
+    const delYes=card.querySelector('.t-del-yes');
+    const delNo=card.querySelector('.t-del-no');
+
+    if(editBtn) editBtn.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!adminOn)return;
+      openTeamModal(card);
+    });
+    if(delBtn) delBtn.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!adminOn)return;
+      delConfirm.classList.add('show');
+    });
+    if(delYes) delYes.addEventListener('click',e=>{
+      e.stopPropagation();
+      const name=card.querySelector('.t-nm')?.textContent||'member';
+      card.style.transition='all .35s';
+      card.style.opacity='0';card.style.transform='scale(.9)';
+      setTimeout(()=>{card.remove();showToast('🗑 '+name+' removed.',2000,false);},350);
+    });
+    if(delNo) delNo.addEventListener('click',e=>{
+      e.stopPropagation();
+      delConfirm.classList.remove('show');
+    });
+  }
+
+  // Attach to all existing cards on load
+  document.querySelectorAll('.t-card').forEach(card=>attachTeamCardActions(card));
+
+  // ── Changes list ──
+  function renderChanges(){
+    const keys=Object.keys(changes);
+    cntBadge.textContent=keys.length+' change'+(keys.length!==1?'s':'');
+    if(keys.length===0){chList.innerHTML='<p class="ch-empty">No changes yet</p>';return;}
+    chList.innerHTML='';
+    keys.forEach(id=>{
+      const c=changes[id];
+      const d=document.createElement('div');
+      d.className='ch-item';
+      d.innerHTML=`<span class="ch-dot"></span><span><strong>${c.type==='video'?'🎬':'🖼️'} ${id}</strong><br>${shortName(c.name||id)}</span>`;
+      chList.appendChild(d);
+    });
+  }
+
+  // ── SAVE ──
+  saveBtn.addEventListener('click',()=>{
+    showToast('Generating updated website file…',0,true);
+    setTimeout(()=>{
+      try{
+        const html=document.documentElement.outerHTML;
+        const full='<!DOCTYPE html>\n'+html;
+        const blob=new Blob([full],{type:'text/html;charset=utf-8'});
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download='aidobot_updated.html';
+        document.body.appendChild(a);a.click();
+        document.body.removeChild(a);URL.revokeObjectURL(a.href);
+        hideToast();
+        showToast('✅ Saved! Open aidobot_updated.html to see your changes.',4000,false);
+      }catch(err){
+        hideToast();
+        showToast('❌ Error saving. Try a different browser.',3000,false);
+      }
+    },300);
+  });
+
+  // ── Toast ──
+  let toastTimer=null;
+  function showToast(msg,autoMs,spin){
+    toastMsg.textContent=msg;
+    toastSpin.style.display=spin?'block':'none';
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    if(autoMs>0)toastTimer=setTimeout(hideToast,autoMs);
+  }
+  function hideToast(){toast.classList.remove('show');clearTimeout(toastTimer);}
+  function shortName(n){n=String(n);return n.length>28?n.slice(0,25)+'…':n;}
+
+})();
+
+/* ═══════════════════════════════════════════════
+   EVENTS, ANNOUNCEMENTS, PARTNERS, SOCIAL MEDIA
+═══════════════════════════════════════════════ */
+(function(){
+
+  /* ── Generic admin modal system ── */
+  const gadminModal = document.getElementById('gadmin-modal');
+  const gadminTitle = document.getElementById('gadmin-title');
+  const gadminBody  = document.getElementById('gadmin-form-body');
+  const gadminClose = document.getElementById('gadmin-close');
+  const gadminImgInp= document.getElementById('gadmin-img-inp');
+  let gadminCallback = null;
+  let gadminImgCallback = null;
+  let gadminEditTarget = null;
+
+  gadminClose.addEventListener('click',()=>closeGadmin());
+  gadminModal.addEventListener('click',e=>{if(e.target===gadminModal)closeGadmin();});
+  function closeGadmin(){gadminModal.classList.remove('open');gadminCallback=null;gadminEditTarget=null;}
+
+  gadminImgInp.addEventListener('change',()=>{
+    const f=gadminImgInp.files[0];if(!f||!gadminImgCallback)return;
+    const r=new FileReader();r.onload=ev=>{gadminImgCallback(ev.target.result);};r.readAsDataURL(f);
+  });
+
+  function openGadmin(title, fields, onSave){
+    gadminTitle.textContent=title;
+    gadminBody.innerHTML='';
+    gadminCallback=onSave;
+    // Build fields
+    fields.forEach(f=>{
+      if(f.type==='photo'){
+        const lbl=document.createElement('span');lbl.className='gadmin-lbl';lbl.textContent=f.label||'Photo';
+        const prev=document.createElement('div');prev.className='gadmin-ph-preview';prev.id='gadmin-ph-prev';
+        if(f.value){const i=document.createElement('img');i.src=f.value;prev.appendChild(i);}
+        else{const s=document.createElement('span');s.textContent='Click to upload photo';prev.appendChild(s);}
+        prev.dataset.src=f.value||'';
+        prev.addEventListener('click',()=>{
+          gadminImgCallback=(src)=>{
+            prev.innerHTML='';const i=document.createElement('img');i.src=src;prev.appendChild(i);
+            prev.dataset.src=src;
+          };
+          gadminImgInp.value='';gadminImgInp.click();
+        });
+        gadminBody.appendChild(lbl);gadminBody.appendChild(prev);
+      } else if(f.type==='row'){
+        const row=document.createElement('div');row.className='gadmin-row';
+        f.fields.forEach(sf=>{
+          const inp=document.createElement('input');
+          inp.className='gadmin-inp';inp.type=sf.inputType||'text';
+          inp.placeholder=sf.placeholder||'';inp.id='gadmin-'+sf.key;
+          if(sf.value)inp.value=sf.value;
+          row.appendChild(inp);
+        });
+        gadminBody.appendChild(row);
+      } else {
+        const lbl=document.createElement('span');lbl.className='gadmin-lbl';lbl.textContent=f.label||'';
+        const inp=f.type==='textarea'
+          ?Object.assign(document.createElement('textarea'),{className:'gadmin-inp gadmin-ta',rows:3,id:'gadmin-'+f.key,placeholder:f.placeholder||''})
+          :Object.assign(document.createElement('input'),{className:'gadmin-inp',type:f.inputType||'text',id:'gadmin-'+f.key,placeholder:f.placeholder||''});
+        if(f.value)inp.value=f.value;
+        if(f.label)gadminBody.appendChild(lbl);
+        gadminBody.appendChild(inp);
+      }
+    });
+    const btn=document.createElement('button');btn.className='gadmin-save-btn';btn.textContent='Save →';
+    btn.addEventListener('click',()=>{
+      const vals={};
+      fields.forEach(f=>{
+        if(f.type==='photo'){vals[f.key]=document.getElementById('gadmin-ph-prev')?.dataset.src||'';}
+        else if(f.type==='row'){f.fields.forEach(sf=>{vals[sf.key]=(document.getElementById('gadmin-'+sf.key)||{}).value||'';});}
+        else{vals[f.key]=(document.getElementById('gadmin-'+f.key)||{}).value||'';}
+      });
+      onSave(vals);
+      closeGadmin();
+    });
+    gadminBody.appendChild(btn);
+    gadminModal.classList.add('open');
+  }
+
+  /* ════════════════════════════════
+     EVENTS
+  ════════════════════════════════ */
+  const evGrid=document.getElementById('ev-grid');
+
+  function bindEvCard(card){
+    const editBtn=card.querySelector('.ev-ab-btn.edit');
+    const delBtn=card.querySelector('.ev-ab-btn.del');
+    const delConfirm=card.querySelector('.ev-del-confirm');
+    const delYes=card.querySelector('.ev-del-yes');
+    const delNo=card.querySelector('.ev-del-no');
+
+    editBtn?.addEventListener('click',e=>{
+      e.stopPropagation();
+      const title=card.querySelector('.ev-title')?.textContent||'';
+      const loc=card.querySelector('.ev-loc')?.textContent.replace('📍 ','')||'';
+      const desc=card.querySelector('.ev-desc')?.textContent||'';
+      const date=card.querySelector('.ev-date-badge')?.textContent||'';
+      openGadmin('Edit Event',[
+        {type:'row',fields:[{key:'date',placeholder:'Date e.g. Mar 2026',value:date},{key:'loc',placeholder:'Location',value:loc}]},
+        {key:'title',placeholder:'Event title',value:title,label:'Title'},
+        {key:'desc',type:'textarea',placeholder:'Description…',value:desc,label:'Description'},
+      ],(vals)=>{
+        if(vals.title)card.querySelector('.ev-title').textContent=vals.title;
+        if(vals.loc)card.querySelector('.ev-loc').textContent='📍 '+vals.loc;
+        if(vals.desc)card.querySelector('.ev-desc').textContent=vals.desc;
+        if(vals.date)card.querySelector('.ev-date-badge').textContent=vals.date;
+        const span=card.querySelector('.ev-del-confirm span');if(span)span.textContent=vals.title||'this event';
+        showAdminToast('✓ Event updated!');
+      });
+    });
+    delBtn?.addEventListener('click',e=>{e.stopPropagation();delConfirm.classList.add('show');});
+    delYes?.addEventListener('click',e=>{e.stopPropagation();card.style.opacity='0';card.style.transform='scale(.9)';setTimeout(()=>card.remove(),350);showAdminToast('🗑 Event removed.');});
+    delNo?.addEventListener('click',e=>{e.stopPropagation();delConfirm.classList.remove('show');});
+  }
+  document.querySelectorAll('.ev-card').forEach(c=>bindEvCard(c));
+
+  document.getElementById('ev-add-btn')?.addEventListener('click',()=>{
+    openGadmin('Add Event',[
+      {type:'row',fields:[{key:'date',placeholder:'Date e.g. Apr 2026'},{key:'loc',placeholder:'Location'}]},
+      {key:'title',placeholder:'Event title',label:'Title'},
+      {key:'desc',type:'textarea',placeholder:'Description…',label:'Description'},
+    ],(vals)=>{
+      const card=document.createElement('div');card.className='ev-card';
+      card.style.opacity='0';card.style.transition='opacity .4s,transform .4s';card.style.transform='translateY(20px)';
+      card.innerHTML=`
+        <div class="ev-admin-bar"><button class="ev-ab-btn edit">✏️</button><button class="ev-ab-btn del">🗑</button></div>
+        <div class="ev-del-confirm"><p>Delete <span>${vals.title||'this event'}</span>?</p><div class="ev-del-btns"><button class="ev-del-yes">Delete</button><button class="ev-del-no">Cancel</button></div></div>
+        <div class="ev-card-img uploadable" data-id="ev-img-${Date.now()}" data-type="image" style="position:relative;">
+          <div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Add image</div><div class="up-sub">Image or URL</div></div>
+          <span class="type-badge img-badge">IMAGE</span>
+          <div class="ev-card-img-ph">📅</div>
+          <div class="ev-date-badge">${vals.date||''}</div>
+        </div>
+        <div class="ev-body">
+          <div class="ev-title">${vals.title||'New Event'}</div>
+          <div class="ev-loc">📍 ${vals.loc||'Location TBA'}</div>
+          <div class="ev-desc">${vals.desc||''}</div>
+        </div>`;
+      evGrid.appendChild(card);
+      setTimeout(()=>{card.style.opacity='1';card.style.transform='translateY(0)';},50);
+      bindEvCard(card);
+      if(document.body.classList.contains('admin-mode')){
+        card.querySelector('.ev-card-img')._adminBound=false;
+        // re-attach upload listeners
+        document.querySelectorAll('.uploadable').forEach(el=>{
+          if(el._adminBound)return;el._adminBound=true;
+          el.addEventListener('click',function(ev){
+            if(!document.body.classList.contains('admin-mode'))return;
+            ev.preventDefault();ev.stopPropagation();
+            window._adminOpenMedia&&window._adminOpenMedia(el);
+          },true);
+        });
+      }
+      showAdminToast('✓ Event added!');
+    });
+  });
+
+  /* ════════════════════════════════
+     ANNOUNCEMENTS
+  ════════════════════════════════ */
+  const annList=document.getElementById('ann-list');
+
+  function bindAnnItem(item){
+    item.querySelector('.ann-ab-btn.edit')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      const title=item.querySelector('.ann-title')?.textContent||'';
+      const date=item.querySelector('.ann-date')?.textContent||'';
+      const text=item.querySelector('.ann-text')?.textContent||'';
+      const ico=item.querySelector('.ann-ico')?.textContent||'📢';
+      openGadmin('Edit Announcement',[
+        {type:'row',fields:[{key:'ico',placeholder:'Emoji icon e.g. 🚀',value:ico},{key:'date',placeholder:'Date e.g. Mar 1, 2026',value:date}]},
+        {key:'title',placeholder:'Announcement title',label:'Title',value:title},
+        {key:'text',type:'textarea',placeholder:'Full announcement text…',label:'Text',value:text},
+      ],(vals)=>{
+        if(vals.ico)item.querySelector('.ann-ico').textContent=vals.ico;
+        if(vals.title)item.querySelector('.ann-title').textContent=vals.title;
+        if(vals.date)item.querySelector('.ann-date').textContent=vals.date;
+        if(vals.text)item.querySelector('.ann-text').textContent=vals.text;
+        showAdminToast('✓ Announcement updated!');
+      });
+    });
+    item.querySelector('.ann-ab-btn.del')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(confirm('Delete this announcement?')){
+        item.style.opacity='0';item.style.transform='translateX(-20px)';item.style.transition='all .35s';
+        setTimeout(()=>item.remove(),350);showAdminToast('🗑 Announcement removed.');
+      }
+    });
+  }
+  document.querySelectorAll('.ann-item').forEach(i=>bindAnnItem(i));
+
+  document.getElementById('ann-add-btn')?.addEventListener('click',()=>{
+    openGadmin('Post Announcement',[
+      {type:'row',fields:[{key:'ico',placeholder:'Emoji icon e.g. 📢',value:'📢'},{key:'date',placeholder:'Date e.g. Mar 1, 2026'}]},
+      {key:'title',placeholder:'Announcement title',label:'Title'},
+      {key:'text',type:'textarea',placeholder:'Full announcement text…',label:'Text'},
+    ],(vals)=>{
+      const item=document.createElement('div');item.className='ann-item';
+      item.style.opacity='0';item.style.transition='opacity .4s,transform .4s';item.style.transform='translateY(12px)';
+      item.innerHTML=`
+        <div class="ann-admin-bar"><button class="ann-ab-btn edit">✏️</button><button class="ann-ab-btn del">🗑</button></div>
+        <div class="ann-ico">${vals.ico||'📢'}</div>
+        <div class="ann-content">
+          <div class="ann-date">${vals.date||''}</div>
+          <div class="ann-title">${vals.title||'New Announcement'}</div>
+          <div class="ann-text">${vals.text||''}</div>
+        </div>`;
+      annList.insertBefore(item,annList.firstChild);
+      setTimeout(()=>{item.style.opacity='1';item.style.transform='translateY(0)';},50);
+      bindAnnItem(item);
+      showAdminToast('✓ Announcement posted!');
+    });
+  });
+
+  /* ════════════════════════════════
+     PARTNERS SLIDER
+  ════════════════════════════════ */
+  const ptSlides=document.getElementById('pt-slides');
+  const ptDots=document.getElementById('pt-dots');
+  let ptIdx=0;
+
+  function ptGo(n){
+    const total=ptSlides.children.length;
+    const vis=window.innerWidth<768?1:window.innerWidth<1100?2:4;
+    const max=Math.max(0,total-vis);
+    ptIdx=Math.max(0,Math.min(n,max));
+    const pct=ptIdx*(100/vis);
+    ptSlides.style.transform=`translateX(-${pct}%)`;
+    // rebuild dots
+    const needed=Math.max(1,total-vis+1);
+    while(ptDots.children.length<needed){const d=document.createElement('button');d.className='pt-dot';d.dataset.i=ptDots.children.length;d.addEventListener('click',()=>ptGo(+d.dataset.i));ptDots.appendChild(d);}
+    while(ptDots.children.length>needed)ptDots.removeChild(ptDots.lastChild);
+    [...ptDots.children].forEach((d,i)=>d.classList.toggle('on',i===ptIdx));
+  }
+  document.getElementById('pt-prev')?.addEventListener('click',()=>ptGo(ptIdx-1));
+  document.getElementById('pt-next')?.addEventListener('click',()=>ptGo(ptIdx+1));
+  ptGo(0);
+  window.addEventListener('resize',()=>ptGo(ptIdx));
+
+  function bindPtCard(card){
+    card.querySelector('.pt-ab-btn.edit')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      const name=card.querySelector('.pt-name')?.textContent||'';
+      const type=card.querySelector('.pt-type')?.textContent||'';
+      const desc=card.querySelector('.pt-desc')?.textContent||'';
+      openGadmin('Edit Partner',[
+        {key:'name',placeholder:'Partner / Organisation name',label:'Name',value:name},
+        {key:'type',placeholder:'Type e.g. Government, NGO, Academic',label:'Type',value:type},
+        {key:'desc',type:'textarea',placeholder:'Short description…',label:'Description',value:desc},
+      ],(vals)=>{
+        if(vals.name)card.querySelector('.pt-name').textContent=vals.name;
+        if(vals.type)card.querySelector('.pt-type').textContent=vals.type;
+        if(vals.desc)card.querySelector('.pt-desc').textContent=vals.desc;
+        showAdminToast('✓ Partner updated!');
+      });
+    });
+    card.querySelector('.pt-ab-btn.del')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(confirm('Remove this partner?')){card.style.opacity='0';card.style.transition='all .35s';setTimeout(()=>{card.remove();ptGo(0);showAdminToast('🗑 Partner removed.');},350);}
+    });
+  }
+  document.querySelectorAll('.pt-card').forEach(c=>bindPtCard(c));
+
+  document.getElementById('pt-add-btn')?.addEventListener('click',()=>{
+    openGadmin('Add Partner',[
+      {key:'name',placeholder:'Partner / Organisation name',label:'Name'},
+      {key:'type',placeholder:'Type e.g. Government, NGO, Hospital',label:'Type'},
+      {key:'desc',type:'textarea',placeholder:'Short description…',label:'Description'},
+      {key:'ico',placeholder:'Emoji icon e.g. 🏥',label:'Icon Emoji'},
+    ],(vals)=>{
+      const card=document.createElement('div');card.className='pt-card';
+      card.innerHTML=`
+        <div class="pt-admin-bar"><button class="pt-ab-btn edit">✏️</button><button class="pt-ab-btn del">🗑</button></div>
+        <div class="pt-logo" style="font-size:1.8rem;">${vals.ico||'🤝'}</div>
+        <div class="pt-name">${vals.name||'New Partner'}</div>
+        <div class="pt-type">${vals.type||'Partner'}</div>
+        <div class="pt-desc">${vals.desc||''}</div>`;
+      ptSlides.appendChild(card);
+      ptGo(ptSlides.children.length-1);
+      bindPtCard(card);
+      showAdminToast('✓ Partner added!');
+    });
+  });
+
+  /* ════════════════════════════════
+     SOCIAL MEDIA
+  ════════════════════════════════ */
+  // Edit existing social links
+  document.querySelectorAll('.soc-edit-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.preventDefault();e.stopPropagation();
+      const link=btn.closest('.soc-link');
+      const platform=link.dataset.platform||'';
+      openGadmin('Edit '+platform+' Link',[
+        {key:'url',placeholder:'https://...',label:'URL',value:link.href==='#'||link.href===window.location.href?'':link.href},
+        {key:'label',placeholder:'Display name',label:'Label',value:link.querySelector('span')?.textContent||platform},
+      ],(vals)=>{
+        if(vals.url)link.href=vals.url;
+        if(vals.label)link.querySelector('span').textContent=vals.label;
+        showAdminToast('✓ '+platform+' link updated!');
+      });
+    });
+  });
+
+  // Add social page
+  document.getElementById('soc-add-btn')?.addEventListener('click',()=>{
+    openGadmin('Add Social Page',[
+      {key:'label',placeholder:'Platform name e.g. TikTok',label:'Platform Name'},
+      {key:'url',placeholder:'https://...',label:'URL'},
+      {key:'ico',placeholder:'Emoji icon e.g. 🎵',label:'Icon Emoji'},
+    ],(vals)=>{
+      const link=document.createElement('a');
+      link.href=vals.url||'#';link.className='soc-link';link.dataset.platform=vals.label||'Social';
+      link.style.cssText='position:relative;';
+      link.innerHTML=`
+        <div class="soc-ico" style="background:rgba(255,255,255,.15);">${vals.ico||'🔗'}</div>
+        <span>${vals.label||'Social'}</span>
+        <button class="soc-edit-btn" title="Edit link">✏</button>`;
+      const addBtn=document.getElementById('soc-add-btn');
+      document.getElementById('social-links').insertBefore(link,addBtn);
+      link.querySelector('.soc-edit-btn').addEventListener('click',e=>{
+        e.preventDefault();e.stopPropagation();
+        openGadmin('Edit '+vals.label+' Link',[
+          {key:'url',placeholder:'https://...',label:'URL',value:link.href},
+          {key:'label',placeholder:'Display name',label:'Label',value:link.querySelector('span')?.textContent||''},
+        ],(v)=>{if(v.url)link.href=v.url;if(v.label)link.querySelector('span').textContent=v.label;showAdminToast('✓ Updated!');});
+      });
+      showAdminToast('✓ Social page added!');
+    });
+  });
+
+  // Social embed URL
+  document.getElementById('soc-embed-edit')?.addEventListener('click',()=>{
+    const area=document.getElementById('social-embed-area');
+    const curSrc=area.querySelector('iframe')?.src||'';
+    openGadmin('Set Embed Video',[
+      {key:'url',placeholder:'https://youtube.com/watch?v=... or embed URL',label:'YouTube or Embed URL',value:curSrc},
+    ],(vals)=>{
+      if(!vals.url)return;
+      const ytEmbed=getYtEmbed(vals.url);
+      const embedSrc=ytEmbed||vals.url;
+      area.innerHTML='';
+      const iframe=document.createElement('iframe');
+      iframe.src=embedSrc;
+      iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen=true;
+      iframe.style.cssText='width:100%;min-height:420px;border:none;display:block;';
+      area.appendChild(iframe);
+      showAdminToast('✓ Video embedded!');
+    });
+  });
+
+  function getYtEmbed(url){
+    const m=url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+    return m?'https://www.youtube.com/embed/'+m[1]+'?rel=0&modestbranding=1':null;
+  }
+
+  // Toast helper (uses existing admin toast)
+  function showAdminToast(msg){
+    const t=document.getElementById('toast');
+    const tm=document.getElementById('toast-msg');
+    const ts=document.getElementById('toast-spin');
+    if(!t)return;
+    tm.textContent=msg;ts.style.display='none';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  }
+
+  // Expose admin open media for dynamically added uploadable elements
+  window._adminOpenMedia=function(el){
+    // find the admin openMediaModal function if available — fallback: just file pick
+    if(window._adminOpenMediaFn){window._adminOpenMediaFn(el);return;}
+    const fi=document.getElementById('file-inp');
+    if(!fi)return;
+    fi.accept=el.dataset.type==='video'?'video/*':'image/*,video/*';
+    fi.value='';
+    // temporarily store target
+    window._tempAdminTarget=el;
+    fi.click();
+  };
+
+})();
+</script>
+</body>
+</html>
