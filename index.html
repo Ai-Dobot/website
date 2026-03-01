@@ -537,15 +537,17 @@
   .partner-chip {
     background: rgba(255,255,255,0.07);
     border: 1px solid rgba(196,149,85,0.25);
-    border-radius: 14px; padding: 20px 28px;
-    display: flex; align-items: center; gap: 14px;
+    border-radius: 14px; padding: 18px 24px;
+    display: flex; align-items: center; gap: 16px;
     color: var(--wood-200); transition: var(--transition);
     cursor: default;
   }
   .partner-chip:hover { background: rgba(196,149,85,0.12); border-color: var(--wood-400); }
-  .partner-chip .icon { font-size: 1.6rem; }
+  .partner-chip .icon { font-size: 1.6rem; flex-shrink:0; }
+  .partner-chip .partner-logo { width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:rgba(255,255,255,0.08);padding:4px; }
   .partner-chip .pname { font-weight: 600; font-size: 0.95rem; }
   .partner-chip .ptype { font-size: 0.72rem; font-family: 'Space Mono',monospace; color: var(--wood-400); }
+  .partner-chip .pdesc { font-size: 0.78rem; color:var(--text-light); margin-top:3px; line-height:1.4; }
 
   /* ── SOCIAL / YOUTUBE ───────────────────────────── */
   #social { background: var(--wood-50); }
@@ -1046,7 +1048,7 @@
         <div class="contact-info">
           <div class="contact-item">
             <div class="contact-item-icon">📧</div>
-            <div><div class="contact-item-label">Email</div><div class="contact-item-val" id="ci-email1"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6cec3cacac9e6c7cfc2c9e4c9d288c5c9cb">[email&#160;protected]</a></div></div>
+            <div><div class="contact-item-label">Email</div><div class="contact-item-val" id="ci-email1">hello@aidoBot.com</div></div>
           </div>
           <div class="contact-item">
             <div class="contact-item-icon">💬</div>
@@ -1101,7 +1103,7 @@
       </div>
       <div class="footer-col">
         <h4>Contact</h4>
-        <a href="/cdn-cgi/l/email-protection#650d0009090a25040c010a270a114b060a08"><span class="__cf_email__" data-cfemail="69010c0505062908000d062b061d470a0604">[email&#160;protected]</span></a>
+        <a href="mailto:hello@aidoBot.com">hello@aidoBot.com</a>
         <a href="#">Privacy Policy</a>
         <a href="#">Terms of Service</a>
       </div>
@@ -1331,6 +1333,7 @@
         <div class="admin-tab" data-tab="events" onclick="switchTab('events')">📅 Events</div>
         <div class="admin-tab" data-tab="social" onclick="switchTab('social')">📲 Social</div>
         <div class="admin-tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</div>
+        <div class="admin-tab" data-tab="partners-admin" onclick="switchTab('partners-admin')">🤝 Partners</div>
         <div class="admin-tab" data-tab="inbox" onclick="switchTab('inbox')">📩 Inbox</div>
         <div class="admin-tab" data-tab="contact-info" onclick="switchTab('contact-info')">📞 Contact Info</div>
         <div class="admin-tab" data-tab="aibot" onclick="switchTab('aibot')">🤖 AI Robot Popup</div>
@@ -1552,6 +1555,54 @@
           </div>
         </div>
 
+        <!-- PARTNERS ADMIN TAB -->
+        <div class="admin-section" id="tab-partners-admin">
+          <h3>🤝 Partners & Network</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:20px">Add, edit, and remove partners shown on your website. Each partner can have a logo image, emoji icon, name, type, and description.</p>
+
+          <!-- Add new partner form -->
+          <div style="background:var(--wood-100);border-radius:14px;padding:18px;margin-bottom:20px;border:1px solid var(--wood-200)">
+            <div class="admin-label" style="margin-bottom:12px;font-size:0.9rem;color:var(--wood-700)">➕ Add New Partner</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+              <div>
+                <label class="admin-label">Partner Name</label>
+                <input class="admin-input" id="new-partner-name" placeholder="e.g. Regional Health Ministry" style="margin:0"/>
+              </div>
+              <div>
+                <label class="admin-label">Type / Category</label>
+                <input class="admin-input" id="new-partner-type" placeholder="e.g. Government, NGO, Academic" style="margin:0"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:80px 1fr;gap:10px;margin-bottom:10px">
+              <div>
+                <label class="admin-label">Emoji Icon</label>
+                <input class="admin-input" id="new-partner-icon" placeholder="🏥" style="margin:0;text-align:center;font-size:1.3rem"/>
+              </div>
+              <div>
+                <label class="admin-label">Description</label>
+                <input class="admin-input" id="new-partner-desc" placeholder="Short description of the partnership" style="margin:0"/>
+              </div>
+            </div>
+            <div style="margin-bottom:12px">
+              <label class="admin-label">Partner Logo (optional — replaces emoji on card)</label>
+              <div class="upload-zone" style="padding:12px;margin:0">
+                <input type="file" accept="image/*" id="new-partner-logo-input" onchange="previewPartnerLogo(this)"/>
+                <div class="upload-icon" style="font-size:1.4rem">🖼️</div>
+                <p style="font-size:0.75rem">Upload partner logo (PNG/JPG, transparent works great)</p>
+              </div>
+              <div id="new-partner-logo-preview" style="margin-top:8px"></div>
+            </div>
+            <div class="progress-bar" id="pb-partner-logo"><div class="fill"></div></div>
+            <button class="admin-save" onclick="addPartner()" style="margin-top:8px;width:100%">➕ Add Partner</button>
+            <div class="admin-msg" id="msg-partner-add">✓ Partner added!</div>
+          </div>
+
+          <!-- Partners list -->
+          <div class="admin-label" style="margin-bottom:10px">All Partners <span id="partners-count" style="color:var(--wood-500);font-weight:normal"></span></div>
+          <div id="partners-admin-list" style="display:flex;flex-direction:column;gap:10px"></div>
+          <div class="admin-msg" id="msg-partner-delete">✓ Partner removed!</div>
+        </div>
+
         <!-- CONTACT INFO TAB -->
         <div class="admin-section" id="tab-contact-info">
           <h3>📞 Contact Information</h3>
@@ -1656,7 +1707,7 @@ Add more details here..."></textarea>
 </div>
 
 <!-- ── SCRIPTS ─────────────────────────────────────── -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ─── CONFIG ─────────────────────────────────────────
 // ✅ Points to your live Render backend
 const API = 'https://webback-end.onrender.com';
@@ -2042,8 +2093,14 @@ function renderPartners() {
   const partners = siteData.partners || DEFAULT.partners;
   c.innerHTML = partners.map(p => `
     <div class="partner-chip reveal">
-      <div class="icon">${p.icon}</div>
-      <div><div class="pname">${p.name}</div><div class="ptype">${p.type}</div></div>
+      ${p.logo
+        ? `<img src="${p.logo}" class="partner-logo" alt="${p.name}"/>`
+        : `<div class="icon">${p.icon||'🤝'}</div>`}
+      <div>
+        <div class="pname">${p.name}</div>
+        <div class="ptype">${p.type}</div>
+        ${p.desc ? `<div class="pdesc">${p.desc}</div>` : ''}
+      </div>
     </div>`).join('');
 }
 
@@ -2241,6 +2298,7 @@ function buildAdminForms() {
   fillContactInputs();
   refreshAboutAdminGrid();
   refreshShortsList();
+  refreshPartnersAdminList();
 }
 
 function buildJourneyInputs() {
@@ -2768,6 +2826,109 @@ async function uploadToCloudinary(file, section, resourceType) {
 }
 
 // ─── SAVE SECTION TO NEON DB VIA BACKEND ─────────────
+// ════════════════════════════════════════════════════
+// ─── PARTNERS ADMIN ──────────────────────────────────
+// ════════════════════════════════════════════════════
+
+let pendingPartnerLogoFile = null;
+
+function previewPartnerLogo(input) {
+  const file = input.files[0];
+  if(!file) return;
+  pendingPartnerLogoFile = file;
+  const prev = document.getElementById('new-partner-logo-preview');
+  if(prev) {
+    const url = URL.createObjectURL(file);
+    prev.innerHTML = `<img src="${url}" style="height:60px;border-radius:8px;border:1px solid var(--wood-200);padding:4px;background:rgba(255,255,255,0.05)"/>`;
+  }
+}
+
+async function addPartner() {
+  const name = document.getElementById('new-partner-name')?.value.trim();
+  const type = document.getElementById('new-partner-type')?.value.trim();
+  const icon = document.getElementById('new-partner-icon')?.value.trim() || '🤝';
+  const desc = document.getElementById('new-partner-desc')?.value.trim() || '';
+
+  if(!name) { alert('Please enter a partner name.'); return; }
+
+  let logo = '';
+  if(pendingPartnerLogoFile) {
+    showProgress('pb-partner-logo');
+    try {
+      logo = await uploadToCloudinary(pendingPartnerLogoFile, 'partners', 'image');
+    } catch(e) {
+      showAdminStatus('Logo upload failed: ' + e.message, true);
+    }
+    hideProgress('pb-partner-logo');
+    pendingPartnerLogoFile = null;
+  }
+
+  siteData.partners = siteData.partners || [];
+  siteData.partners.push({ name, type, icon, desc, logo });
+
+  const saved = await apiSave('partners', siteData.partners);
+  if(saved) {
+    renderPartners();
+    refreshPartnersAdminList();
+    showMsg('msg-partner-add');
+    // Clear form
+    ['new-partner-name','new-partner-type','new-partner-icon','new-partner-desc'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.value = '';
+    });
+    const prev = document.getElementById('new-partner-logo-preview');
+    if(prev) prev.innerHTML = '';
+    const inp = document.getElementById('new-partner-logo-input');
+    if(inp) inp.value = '';
+  }
+}
+
+async function deletePartner(idx) {
+  if(!confirm('Remove this partner?')) return;
+  siteData.partners = siteData.partners || [];
+  siteData.partners.splice(idx, 1);
+  const saved = await apiSave('partners', siteData.partners);
+  if(saved) {
+    renderPartners();
+    refreshPartnersAdminList();
+    showMsg('msg-partner-delete');
+  }
+}
+
+function refreshPartnersAdminList() {
+  const list  = document.getElementById('partners-admin-list');
+  const count = document.getElementById('partners-count');
+  if(!list) return;
+  const partners = siteData.partners || DEFAULT.partners;
+  if(count) count.textContent = partners.length ? `(${partners.length})` : '(none)';
+
+  if(!partners.length) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-light);font-size:0.83rem;background:var(--wood-100);border-radius:10px">No partners yet. Add one above.</div>';
+    return;
+  }
+
+  list.innerHTML = partners.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:12px;background:var(--wood-100);border-radius:12px;padding:12px 14px;border:1px solid var(--wood-200)">
+      <div style="width:48px;height:48px;border-radius:10px;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;">
+        ${p.logo
+          ? `<img src="${p.logo}" style="width:100%;height:100%;object-fit:contain;padding:3px"/>`
+          : `<span style="font-size:1.6rem">${p.icon||'🤝'}</span>`}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.88rem;font-weight:600;color:var(--wood-700)">${p.name}</div>
+        <div style="font-size:0.7rem;font-family:Space Mono,monospace;color:var(--wood-500);margin-top:2px">${p.type}</div>
+        ${p.desc ? `<div style="font-size:0.75rem;color:var(--text-light);margin-top:3px">${p.desc}</div>` : ''}
+      </div>
+      <button onclick="deletePartner(${i})" style="
+        flex-shrink:0;background:rgba(200,50,50,0.12);border:1px solid rgba(200,50,50,0.3);
+        color:#c33;padding:6px 12px;border-radius:8px;cursor:pointer;
+        font-size:0.78rem;font-weight:600;transition:background 0.2s;
+      " onmouseover="this.style.background='rgba(200,50,50,0.25)'" onmouseout="this.style.background='rgba(200,50,50,0.12)'">
+        🗑 Delete
+      </button>
+    </div>`).join('');
+}
+
 async function saveContactInfo() {
   const g = id => document.getElementById(id)?.value.trim() || '';
   const ci = {
@@ -3326,4 +3487,20 @@ async function deleteAboutImage(slot) {
   renderAboutImages();
   refreshAboutAdminGrid();
   refreshShortsList();
+  refreshPartnersAdminList();
 }
+
+// ── Hook AI init into page load ───────────────────────
+function initAIFeatures() {
+  updateChatbotUI();
+  initAIPopup();
+  setTimeout(() => {
+    if(!chatbotOpen) {
+      const u = document.getElementById('chat-unread');
+      if(u) u.style.display = 'block';
+    }
+  }, 8000);
+}
+</script>
+</body>
+</html>
