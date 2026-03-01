@@ -735,10 +735,29 @@
   .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  /* Loader removed — page opens instantly */
+  /* ── PAGE LOADER ────────────────────────────────── */
+  #loader {
+    position: fixed; inset: 0; z-index: 9998;
+    background: var(--wood-dark);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.5s ease;
+    pointer-events: all;
+  }
+  #loader.done { opacity: 0; pointer-events: none; }
+  .loader-logo { font-family: 'Playfair Display',serif; font-size: 2.5rem; color: var(--wood-200); font-weight: 900; margin-bottom: 24px; }
+  .loader-logo span { color: var(--wood-400); }
+  .loader-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+  .loader-fill { height: 100%; background: var(--wood-400); border-radius: 2px; animation: load 1.8s ease forwards; }
+  @keyframes load { 0%{width:0}100%{width:100%} }
 </style>
 </head>
 <body>
+
+<!-- ── PAGE LOADER ────────────────────────────────── -->
+<div id="loader">
+  <div class="loader-logo">Ai<span>Do</span>Bot</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
 
 <!-- ── LIGHTBOX ───────────────────────────────────── -->
 <div id="lightbox">
@@ -1584,9 +1603,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   animateStats();
   initAIFeatures();
 
-  // ── STEP 2: Hide loader instantly — page is ready NOW ──
+  // ── STEP 2: Dismiss loader after bar animation completes (1.8s) ──
+  // Page is ALREADY rendered above — loader is purely cosmetic from this point
   const loader = document.getElementById('loader');
-  if(loader) loader.style.display = 'none';
+  if(loader) {
+    setTimeout(() => {
+      loader.classList.add('done');
+      setTimeout(() => { loader.style.display = 'none'; }, 500);
+    }, 1900); // matches the 1.8s bar animation + tiny buffer
+  }
 
   // ── STEP 3: Fetch real data from backend in background (no blocking) ──
   // Uses a 6-second timeout so slow Render cold-starts don't hang anything
