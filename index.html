@@ -1815,28 +1815,63 @@ window.addEventListener('DOMContentLoaded', () => {
     // Even if JS crashes, loader is gone by 3s via the hard-remove above
   }
 
-  // Fetch live data silently in background
-  const controller = new AbortController();
-  setTimeout(() => controller.abort(), 8000);
+  // ── SMART BACKGROUND FETCH WITH AUTO-RETRY ──────────────
+  // Render free tier sleeps after inactivity and takes ~30-60s to wake up.
+  // We keep retrying every 5s (up to 90s total) until data arrives.
+  // Once data arrives the page auto-updates — no manual refresh needed.
 
-  fetch(`${API}/api/data`, { signal: controller.signal })
-    .then(res => res.ok ? res.json() : null)
-    .then(freshData => {
-      if(freshData && typeof freshData === 'object') {
-        siteData = freshData;
-        mergeDefaults();
-        renderAll();
-        updateChatbotUI();
-        // Reveal all new elements after re-render
-        document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
-      }
-    })
-    .catch(() => {}); // silent fail — page already showing
+  let dataLoaded   = false;
+  let retryCount   = 0;
+  const MAX_RETRY  = 18;   // 18 × 5s = 90 seconds max wait
+  const RETRY_MS   = 5000; // retry every 5 seconds
 
-  // Nuclear fallback: after 4s, force-show everything regardless
+  function fetchSiteData() {
+    if(dataLoaded || retryCount >= MAX_RETRY) return;
+    retryCount++;
+
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 8000); // 8s per attempt
+
+    fetch(`${API}/api/data`, { signal: ctrl.signal })
+      .then(res => res.ok ? res.json() : Promise.reject('bad response'))
+      .then(freshData => {
+        if(freshData && typeof freshData === 'object' && Object.keys(freshData).length > 2) {
+          dataLoaded = true;
+          siteData = freshData;
+          mergeDefaults();
+          renderAll();
+          updateChatbotUI();
+          document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+          console.log('✅ Data loaded from Render after', retryCount, 'attempt(s)');
+        } else {
+          // Got a response but data looks empty — retry
+          setTimeout(fetchSiteData, RETRY_MS);
+        }
+      })
+      .catch(() => {
+        // Render still waking up — retry silently
+        if(retryCount < MAX_RETRY) setTimeout(fetchSiteData, RETRY_MS);
+      });
+  }
+
+  fetchSiteData(); // First attempt immediately
+
+  // Nuclear fallback: always show content visually after 4s
   setTimeout(() => {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
   }, 4000);
+
+  // ── KEEP RENDER AWAKE (ping every 9 minutes) ──────────────
+  // Pings /api/health which returns instantly with NO database call.
+  // This keeps the Flask server alive without touching Neon at all.
+  // Render free tier sleeps after 15 minutes of inactivity.
+  // 9-minute ping = server stays awake indefinitely while page is open.
+
+  setInterval(() => {
+    fetch(`${API}/api/health`, { method:'GET', cache:'no-store' })
+      .then(() => console.log('🟢 Render keepalive ping sent'))
+      .catch(() => {}); // silent — don't disturb user if it fails
+  }, 9 * 60 * 1000); // 9 minutes
 });
 
 function mergeDefaults() {
