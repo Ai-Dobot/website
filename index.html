@@ -1543,7 +1543,7 @@ Add more details here..."></textarea>
 <script>
 // ─── CONFIG ─────────────────────────────────────────
 // ✅ Points to your live Render backend
-const API = ''; // Same domain — frontend served by Flask
+const API = 'https://webback-end.onrender.com';
 let adminToken = localStorage.getItem('aidoAdminToken') || '';
 let siteData = {};
 
@@ -1591,9 +1591,21 @@ const DEFAULT = {
 };
 
 // ─── INIT ────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
 
-  // ── STEP 1: Render immediately with defaults so page is NEVER stuck ──
+  // ── INSTANTLY dismiss loader — page opens immediately, no waiting ──
+  const loader = document.getElementById('loader');
+  if(loader) {
+    // Let the bar animation finish (1.8s CSS), then fade out
+    setTimeout(() => {
+      loader.classList.add('done');           // fade out (0.5s CSS transition)
+      setTimeout(() => {
+        loader.style.display = 'none';        // fully remove from layout
+      }, 500);
+    }, 1900);
+  }
+
+  // ── Render page immediately with default content ──
   siteData = {};
   mergeDefaults();
   renderAll();
@@ -1603,43 +1615,30 @@ window.addEventListener('DOMContentLoaded', async () => {
   animateStats();
   initAIFeatures();
 
-  // ── STEP 2: Dismiss loader after bar animation completes (1.8s) ──
-  // Page is ALREADY rendered above — loader is purely cosmetic from this point
-  const loader = document.getElementById('loader');
-  if(loader) {
-    setTimeout(() => {
-      loader.classList.add('done');
-      setTimeout(() => { loader.style.display = 'none'; }, 500);
-    }, 1900); // matches the 1.8s bar animation + tiny buffer
-  }
+  // ── Fetch live data from Render in background — NEVER blocks the page ──
+  // AbortController gives Render max 8s to wake up from free-tier sleep
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-  // ── STEP 3: Fetch real data from backend in background (no blocking) ──
-  // Uses a 6-second timeout so slow Render cold-starts don't hang anything
-  try {
-    const controller = new AbortController();
-    const timeoutId  = setTimeout(() => controller.abort(), 6000);
-
-    const res = await fetch(`${API}/api/data`, { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    if(res.ok) {
-      const freshData = await res.json();
-      // Only update if we got real data back
+  fetch(`${API}/api/data`, { signal: controller.signal })
+    .then(res => {
+      clearTimeout(timeout);
+      if(!res.ok) throw new Error('Bad response');
+      return res.json();
+    })
+    .then(freshData => {
       if(freshData && typeof freshData === 'object') {
         siteData = freshData;
         mergeDefaults();
-        renderAll();     // Re-render with live data (images, videos, etc.)
+        renderAll();        // silently update page with real images/data
         updateChatbotUI();
       }
-    }
-  } catch(e) {
-    // Render timed out or is offline — page already showing with defaults, no problem
-    if(e.name === 'AbortError') {
-      console.warn('Backend took too long — showing site with defaults. Will retry on next visit.');
-    } else {
-      console.warn('Backend fetch failed:', e.message);
-    }
-  }
+    })
+    .catch(e => {
+      clearTimeout(timeout);
+      // Page already showing — this is silent, visitors see nothing wrong
+      console.warn('Backend not ready yet:', e.message);
+    });
 });
 
 function mergeDefaults() {
