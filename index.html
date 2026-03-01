@@ -1105,61 +1105,96 @@
 </footer>
 
 <!-- ── AI ROBOT POPUP ─────────────────────────────── -->
-<div id="ai-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.5s">
+<!-- ── AI AVATAR POPUP (centered modal, voice chat) ──── -->
+<div id="ai-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0.6);pointer-events:auto;transition:background 0.4s;backdrop-filter:blur(4px)">
   <div id="ai-popup-card" style="
-    position:fixed;bottom:28px;left:28px;
-    background:var(--wood-dark);border:2px solid var(--wood-500);
-    border-radius:20px;padding:0;overflow:hidden;
-    width:300px;box-shadow:0 24px 70px rgba(0,0,0,0.7);
-    transform:translateY(120%);opacity:0;
-    transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);
+    background:#0d0a07;border:1.5px solid var(--wood-600);
+    border-radius:24px;overflow:hidden;
+    width:min(480px,92vw);
+    box-shadow:0 32px 100px rgba(0,0,0,0.85);
+    opacity:0;transition:transform 0.45s cubic-bezier(0.34,1.4,0.64,1),opacity 0.35s ease;
     pointer-events:auto;z-index:9991;
   ">
-    <!-- BIG square video -->
-    <div style="position:relative;background:#000;width:100%;aspect-ratio:1/1;overflow:hidden;">
-      <video id="popup-robot-video" autoplay muted loop playsinline
-        style="width:100%;height:100%;object-fit:cover;">
+    <!-- AVATAR VIDEO AREA -->
+    <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;">
+      <!-- Silent video (idle) -->
+      <video id="avatar-idle" autoplay muted loop playsinline
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 0.3s">
       </video>
-      <div id="popup-video-placeholder" style="
-        position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-        flex-direction:column;gap:10px;color:var(--wood-300);font-size:4rem;background:#111;
-      ">🤖<div style="font-size:0.72rem;font-family:Space Mono,monospace;color:var(--wood-500)">Upload video in admin</div></div>
-      <!-- Speaking bars overlay bottom of video -->
-      <div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:4px;align-items:flex-end;height:20px;">
-        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0s"></span>
-        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.15s"></span>
-        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.3s"></span>
-        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.45s"></span>
-        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.6s"></span>
+      <!-- Talking video (while AI speaks / user speaks) -->
+      <video id="avatar-talk" muted loop playsinline
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.3s">
+      </video>
+      <!-- Placeholder when no videos uploaded -->
+      <div id="avatar-placeholder" style="
+        position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+        justify-content:center;gap:12px;background:#111;color:var(--wood-400);
+      ">
+        <div style="font-size:4rem">🤖</div>
+        <div style="font-size:0.75rem;font-family:Space Mono,monospace">Upload avatar videos in admin</div>
       </div>
-      <!-- Close X on video -->
+      <!-- Live badge -->
+      <div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;
+        background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);padding:5px 10px;border-radius:20px">
+        <div id="avatar-status-dot" style="width:7px;height:7px;border-radius:50%;background:#4ade80"></div>
+        <span style="font-size:0.65rem;font-family:Space Mono,monospace;color:white;letter-spacing:0.05em" id="avatar-status-text">AiDoBot AI</span>
+      </div>
+      <!-- Speaking bars (shown when AI is talking) -->
+      <div id="avatar-speak-bars" style="display:none;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+        gap:4px;align-items:flex-end;height:22px;background:rgba(0,0,0,0.5);
+        padding:4px 10px;border-radius:12px;backdrop-filter:blur(4px);">
+        <span class="speak-bar" style="width:3px;background:var(--wood-300);border-radius:2px;animation:speakBar 0.7s ease-in-out infinite 0s;display:inline-block"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-300);border-radius:2px;animation:speakBar 0.7s ease-in-out infinite 0.12s;display:inline-block"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-300);border-radius:2px;animation:speakBar 0.7s ease-in-out infinite 0.24s;display:inline-block"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-300);border-radius:2px;animation:speakBar 0.7s ease-in-out infinite 0.36s;display:inline-block"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-300);border-radius:2px;animation:speakBar 0.7s ease-in-out infinite 0.48s;display:inline-block"></span>
+      </div>
+      <!-- Close button -->
       <button onclick="dismissAIPopup()" style="
-        position:absolute;top:8px;right:8px;
-        background:rgba(0,0,0,0.6);border:none;color:white;
-        width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.85rem;line-height:1;
-      ">✕</button>
+        position:absolute;top:10px;right:10px;
+        background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.15);
+        color:white;width:30px;height:30px;border-radius:50%;
+        cursor:pointer;font-size:1rem;line-height:1;
+        transition:background 0.2s;
+      " onmouseover="this.style.background='rgba(180,60,60,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.65)'">✕</button>
     </div>
-    <!-- Compact text + buttons -->
-    <div style="padding:12px 14px;">
-      <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
-        <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>
-        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--wood-400);letter-spacing:0.06em">AiDoBot AI • Live</span>
-      </div>
-      <div id="popup-message" style="font-size:0.78rem;color:var(--wood-200);line-height:1.5;margin-bottom:10px;">
-        Hello! I'm AiDoBot. Would you like to learn more?
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="acceptAIPopup()" style="
-          flex:1;background:linear-gradient(135deg,var(--wood-500),var(--wood-300));
-          color:white;border:none;border-radius:10px;padding:8px 10px;
-          font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.75rem;cursor:pointer;
-        ">Yes, tell me! 👍</button>
-        <button onclick="dismissAIPopup()" style="
-          flex:0 0 auto;background:rgba(255,255,255,0.07);
-          color:var(--wood-500);border:1px solid rgba(255,255,255,0.12);
-          border-radius:10px;padding:8px 10px;
-          font-family:'DM Sans',sans-serif;font-size:0.75rem;cursor:pointer;
-        ">No thanks</button>
+
+    <!-- CHAT AREA -->
+    <div style="padding:16px 18px 14px;">
+      <!-- AI text response bubble -->
+      <div id="avatar-response" style="
+        font-size:0.88rem;color:var(--wood-100);line-height:1.6;
+        min-height:44px;margin-bottom:14px;
+        background:rgba(255,255,255,0.05);border-radius:12px;
+        padding:10px 14px;border:1px solid rgba(255,255,255,0.08);
+        font-family:'DM Sans',sans-serif;
+      "></div>
+
+      <!-- Voice + text input row -->
+      <div style="display:flex;gap:8px;align-items:center;">
+        <!-- Mic button -->
+        <button id="avatar-mic-btn" onclick="toggleAvatarMic()" style="
+          width:44px;height:44px;border-radius:50%;flex-shrink:0;
+          background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);
+          color:white;font-size:1.2rem;cursor:pointer;transition:all 0.2s;
+        " title="Hold to speak">🎤</button>
+        <!-- Text input -->
+        <input id="avatar-text-input" type="text" placeholder="Type or speak to AiDoBot…"
+          style="
+            flex:1;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);
+            border-radius:22px;padding:10px 16px;color:white;font-size:0.85rem;
+            font-family:'DM Sans',sans-serif;outline:none;
+          "
+          onkeydown="if(event.key==='Enter') sendAvatarMessage()"
+          onfocus="this.style.borderColor='var(--wood-400)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.15)'"/>
+        <!-- Send button -->
+        <button onclick="sendAvatarMessage()" style="
+          width:44px;height:44px;border-radius:50%;flex-shrink:0;
+          background:linear-gradient(135deg,var(--wood-600),var(--wood-400));
+          border:none;color:white;font-size:1.1rem;cursor:pointer;transition:transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">➤</button>
       </div>
     </div>
   </div>
@@ -1490,24 +1525,33 @@
 
         <!-- AI ROBOT POPUP TAB -->
         <div class="admin-section" id="tab-aibot">
-          <h3>🤖 AI Robot Popup</h3>
-          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Upload the robot talking video clip. It will pop up after 5 seconds on the site and greet visitors with AI voice.</p>
-          <div class="upload-zone">
-            <input type="file" accept="video/*" onchange="uploadRobotVideo(this)"/>
-            <div class="upload-icon">🎬</div>
-            <p>Upload robot talking video (MP4, WebM recommended)</p>
+          <h3>🤖 AI Avatar Popup</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Upload two avatar videos. The <strong>idle</strong> video plays when the robot is waiting/listening. The <strong>talking</strong> video plays while the AI is speaking.</p>
+
+          <label class="admin-label">🔇 Idle Video (robot silent / listening)</label>
+          <div class="upload-zone" style="margin-bottom:8px">
+            <input type="file" accept="video/*" onchange="uploadAvatarVideo(this,'idle')"/>
+            <div class="upload-icon">😶</div>
+            <p>Upload the silent/idle avatar video (MP4 recommended)</p>
           </div>
-          <div class="progress-bar" id="pb-robotvid"><div class="fill"></div></div>
-          <div id="robot-vid-preview" style="margin-top:12px"></div>
-          <div class="admin-msg" id="msg-robotvid">✓ Robot video updated!</div>
+          <div class="progress-bar" id="pb-avatar-idle"><div class="fill"></div></div>
+          <div id="avatar-idle-preview" style="margin-top:8px;margin-bottom:16px"></div>
+
+          <label class="admin-label">🗣 Talking Video (robot speaking)</label>
+          <div class="upload-zone" style="margin-bottom:8px">
+            <input type="file" accept="video/*" onchange="uploadAvatarVideo(this,'talk')"/>
+            <div class="upload-icon">🤖</div>
+            <p>Upload the talking avatar video (MP4 recommended)</p>
+          </div>
+          <div class="progress-bar" id="pb-avatar-talk"><div class="fill"></div></div>
+          <div id="avatar-talk-preview" style="margin-top:8px;margin-bottom:16px"></div>
+          <div class="admin-msg" id="msg-robotvid">✓ Avatar videos updated!</div>
 
           <hr style="border:none;border-top:1px solid var(--wood-200);margin:20px 0"/>
-          <h4 style="color:var(--wood-700);margin-bottom:12px">🎤 Popup AI Greeting Script</h4>
-          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:10px">This is what the AI will say out loud when it pops up.</p>
-          <textarea class="admin-input" id="popup-greeting-script" rows="3" placeholder="Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more about how I can bring quality healthcare to you?"></textarea>
-          <div style="display:flex;gap:10px;margin-top:6px">
-            <button class="admin-save" onclick="savePopupGreeting()">Save Greeting Script</button>
-          </div>
+          <h4 style="color:var(--wood-700);margin-bottom:8px">🎤 AI Opening Greeting</h4>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:10px">What the AI says (and speaks aloud) when the popup first appears.</p>
+          <textarea class="admin-input" id="popup-greeting-script" rows="3" placeholder="Hello! I am AiDoBot, your AI healthcare companion. How can I help you today?"></textarea>
+          <button class="admin-save" onclick="savePopupGreeting()" style="margin-top:6px">Save Greeting</button>
           <div class="admin-msg" id="msg-popup-greeting">✓ Greeting saved!</div>
         </div>
 
@@ -1687,8 +1731,10 @@ function mergeDefaults() {
   if(!siteData.ai_robot_video)    siteData.ai_robot_video = '';
   if(!siteData.chatbot_name)      siteData.chatbot_name = 'AiDoBot Assistant';
   if(!siteData.chatbot_greeting)  siteData.chatbot_greeting = "Hi! I'm AiDoBot's AI assistant. Ask me anything!";
-  if(!siteData.chatbot_emoji)     siteData.chatbot_emoji = '🤖';
-  if(!siteData.contact_info)      siteData.contact_info = DEFAULT.contact_info;
+  if(!siteData.chatbot_emoji)       siteData.chatbot_emoji = '🤖';
+  if(!siteData.contact_info)        siteData.contact_info = DEFAULT.contact_info;
+  if(!siteData.avatar_idle_video)   siteData.avatar_idle_video = '';
+  if(!siteData.avatar_talk_video)   siteData.avatar_talk_video = '';
 }
 
 // ─── RENDER ALL ──────────────────────────────────────
@@ -2679,46 +2725,43 @@ function showMsg(id) {
 }
 
 // ════════════════════════════════════════════════════
-// ─── AI ROBOT POPUP ──────────────────────────────────
+// ─── AI AVATAR POPUP ─────────────────────────────────
 // ════════════════════════════════════════════════════
 
-let popupShown = sessionStorage.getItem('popupShown');
+let avatarOpen     = false;
+let avatarTalking  = false;
+let avatarMicOn    = false;
+let avatarRecog    = null;   // SpeechRecognition instance
+let avatarHistory  = [];     // conversation history
 
+// ── Init: show popup after 5s ────────────────────────
 function initAIPopup() {
-  if(popupShown) return;
-  setTimeout(showAIPopup, 5000); // 5 seconds
+  if(sessionStorage.getItem('avatarShown')) return;
+  setTimeout(showAIPopup, 5000);
 }
 
 function showAIPopup() {
-  if(sessionStorage.getItem('popupShown')) return;
+  if(sessionStorage.getItem('avatarShown')) return;
   const overlay = document.getElementById('ai-popup-overlay');
   const card    = document.getElementById('ai-popup-card');
   if(!overlay || !card) return;
 
+  avatarOpen = true;
   overlay.style.display = 'block';
-  overlay.style.pointerEvents = 'none'; // overlay never blocks clicks
   requestAnimationFrame(() => {
-    card.style.transform = 'translateY(0)';
+    card.style.transform = 'translate(-50%,-50%) scale(1)';
     card.style.opacity   = '1';
   });
 
-  // Load robot video if set
-  const vid = siteData.ai_robot_video || '';
-  const videoEl = document.getElementById('popup-robot-video');
-  const placeholder = document.getElementById('popup-video-placeholder');
-  if(vid && videoEl) {
-    videoEl.src = vid;
-    videoEl.style.display = 'block';
-    if(placeholder) placeholder.style.display = 'none';
-  }
+  // Load avatar videos
+  loadAvatarVideos();
 
-  // Set greeting text
-  const greeting = siteData.popup_greeting || "Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more about how I can bring quality healthcare to you?";
-  const msgEl = document.getElementById('popup-message');
-  if(msgEl) msgEl.textContent = greeting;
-
-  // Speak the greeting with browser TTS
-  speakText(greeting);
+  // Speak opening greeting after short delay
+  setTimeout(() => {
+    const greeting = siteData.popup_greeting || "Hello! I am AiDoBot, your AI healthcare companion. How can I help you today?";
+    setAvatarResponse(greeting);
+    avatarSpeak(greeting);
+  }, 600);
 }
 
 function dismissAIPopup() {
@@ -2726,59 +2769,200 @@ function dismissAIPopup() {
   const card    = document.getElementById('ai-popup-card');
   if(!overlay || !card) return;
   window.speechSynthesis && window.speechSynthesis.cancel();
-  card.style.transform  = 'translateY(120%)';
-  card.style.opacity    = '0';
-  overlay.style.background = 'rgba(0,0,0,0)';
-  overlay.style.pointerEvents = 'none';
-  setTimeout(() => { overlay.style.display = 'none'; }, 600);
-  sessionStorage.setItem('popupShown', '1');
-}
-
-function acceptAIPopup() {
-  dismissAIPopup();
-  // Open chatbot after a short delay
+  stopAvatarMic();
+  card.style.transform = 'translate(-50%,-50%) scale(0.85)';
+  card.style.opacity   = '0';
   setTimeout(() => {
-    const win = document.getElementById('chatbot-window');
-    if(win) {
-      win.style.display = 'flex';
-      // Send first message automatically
-      addChatMessage('bot', siteData.chatbot_greeting || "Great! Ask me anything about AiDoBot — our features, how it works, pricing, team, or anything else you'd like to know!");
-    }
-  }, 800);
+    overlay.style.display = 'none';
+    avatarOpen = false;
+  }, 400);
+  sessionStorage.setItem('avatarShown', '1');
 }
 
-// ── Text-to-Speech ───────────────────────────────────
-function speakText(text) {
+// ── Load the two avatar videos ───────────────────────
+function loadAvatarVideos() {
+  const idleVid  = document.getElementById('avatar-idle');
+  const talkVid  = document.getElementById('avatar-talk');
+  const ph       = document.getElementById('avatar-placeholder');
+
+  const idleSrc  = siteData.avatar_idle_video || '';
+  const talkSrc  = siteData.avatar_talk_video || '';
+
+  if(idleSrc) {
+    idleVid.src = idleSrc;
+    idleVid.style.opacity = '1';
+    idleVid.play().catch(()=>{});
+    if(ph) ph.style.display = 'none';
+  }
+  if(talkSrc) {
+    talkVid.src = talkSrc;
+    talkVid.load();
+  }
+}
+
+// ── Switch between idle ↔ talking video ──────────────
+function setAvatarTalking(isTalking) {
+  avatarTalking = isTalking;
+  const idleVid  = document.getElementById('avatar-idle');
+  const talkVid  = document.getElementById('avatar-talk');
+  const bars     = document.getElementById('avatar-speak-bars');
+  const statusTx = document.getElementById('avatar-status-text');
+
+  if(isTalking && siteData.avatar_talk_video) {
+    idleVid.style.opacity = '0';
+    talkVid.style.opacity = '1';
+    talkVid.play().catch(()=>{});
+    if(bars)     { bars.style.display = 'flex'; }
+    if(statusTx) statusTx.textContent = 'AiDoBot is speaking…';
+  } else {
+    idleVid.style.opacity = '1';
+    talkVid.style.opacity = '0';
+    talkVid.pause();
+    if(bars)     { bars.style.display = 'none'; }
+    if(statusTx) statusTx.textContent = avatarMicOn ? '🎤 Listening…' : 'AiDoBot AI';
+  }
+}
+
+// ── Display text response in bubble ──────────────────
+function setAvatarResponse(text) {
+  const el = document.getElementById('avatar-response');
+  if(el) el.textContent = text;
+}
+
+// ── Speak text with TTS + switch to talking video ────
+function avatarSpeak(text) {
   if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.rate  = 0.92;
-  utt.pitch = 1.05;
-  utt.volume = 0.9;
-  // Try to pick a nice English voice
+
+  const utt    = new SpeechSynthesisUtterance(text);
+  utt.rate     = 0.92;
+  utt.pitch    = 1.05;
+  utt.volume   = 1;
+
+  // Pick a good English voice if available
   const voices = window.speechSynthesis.getVoices();
-  const nice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google')));
+  const nice   = voices.find(v => v.lang.startsWith('en') &&
+    (v.name.includes('Samantha') || v.name.includes('Google UK') || v.name.includes('Female')));
   if(nice) utt.voice = nice;
+
+  utt.onstart = () => setAvatarTalking(true);
+  utt.onend   = () => setAvatarTalking(false);
+  utt.onerror = () => setAvatarTalking(false);
+
   window.speechSynthesis.speak(utt);
 }
 
-// ── Admin: upload robot video ─────────────────────────
-async function uploadRobotVideo(input) {
+// ── Send typed/spoken message to Groq AI ─────────────
+async function sendAvatarMessage() {
+  const input = document.getElementById('avatar-text-input');
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+
+  // Show user's message briefly then clear for AI response
+  setAvatarResponse('You: ' + text);
+  setAvatarTalking(false);
+
+  // Update status
+  const statusEl = document.getElementById('avatar-status-text');
+  if(statusEl) statusEl.textContent = 'Thinking…';
+
+  avatarHistory.push({ role: 'user', content: text });
+  if(avatarHistory.length > 10) avatarHistory = avatarHistory.slice(-10);
+
+  try {
+    const reply = await callGroqAI(text, avatarHistory);
+    avatarHistory.push({ role: 'assistant', content: reply });
+    setAvatarResponse(reply);
+    avatarSpeak(reply);
+  } catch(e) {
+    const errMsg = "Sorry, I had trouble connecting. Please try again!";
+    setAvatarResponse(errMsg);
+    avatarSpeak(errMsg);
+    if(statusEl) statusEl.textContent = 'AiDoBot AI';
+  }
+}
+
+// ── Mic: speech-to-text ───────────────────────────────
+function toggleAvatarMic() {
+  if(avatarMicOn) {
+    stopAvatarMic();
+  } else {
+    startAvatarMic();
+  }
+}
+
+function startAvatarMic() {
+  const SpeechRecog = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecog) {
+    alert('Speech recognition is not supported in your browser. Please use Chrome.');
+    return;
+  }
+
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  setAvatarTalking(false);
+
+  avatarRecog = new SpeechRecog();
+  avatarRecog.lang        = 'en-US';
+  avatarRecog.continuous  = false;
+  avatarRecog.interimResults = false;
+
+  avatarRecog.onstart = () => {
+    avatarMicOn = true;
+    const btn = document.getElementById('avatar-mic-btn');
+    if(btn) { btn.textContent = '🔴'; btn.style.background = 'rgba(220,50,50,0.4)'; btn.style.borderColor = 'rgba(220,50,50,0.8)'; }
+    const statusEl = document.getElementById('avatar-status-text');
+    if(statusEl) statusEl.textContent = '🎤 Listening…';
+  };
+
+  avatarRecog.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    const input = document.getElementById('avatar-text-input');
+    if(input) input.value = transcript;
+    stopAvatarMic();
+    sendAvatarMessage();
+  };
+
+  avatarRecog.onerror = (e) => {
+    console.warn('Mic error:', e.error);
+    stopAvatarMic();
+  };
+
+  avatarRecog.onend = () => stopAvatarMic();
+
+  avatarRecog.start();
+}
+
+function stopAvatarMic() {
+  avatarMicOn = false;
+  if(avatarRecog) { try { avatarRecog.stop(); } catch(e){} avatarRecog = null; }
+  const btn = document.getElementById('avatar-mic-btn');
+  if(btn) { btn.textContent = '🎤'; btn.style.background = 'rgba(255,255,255,0.08)'; btn.style.borderColor = 'rgba(255,255,255,0.2)'; }
+  const statusEl = document.getElementById('avatar-status-text');
+  if(statusEl && !avatarTalking) statusEl.textContent = 'AiDoBot AI';
+}
+
+// ── Admin: upload avatar videos ───────────────────────
+async function uploadAvatarVideo(input, type) {
   const file = input.files[0];
   if(!file) return;
-  showProgress('pb-robotvid');
+  const pbId   = type === 'idle' ? 'pb-avatar-idle' : 'pb-avatar-talk';
+  const prevId = type === 'idle' ? 'avatar-idle-preview' : 'avatar-talk-preview';
+  const key    = type === 'idle' ? 'avatar_idle_video' : 'avatar_talk_video';
+
+  showProgress(pbId);
   try {
-    const url = await uploadToCloudinary(file, 'ai_robot', 'video');
-    hideProgress('pb-robotvid');
-    siteData.ai_robot_video = url;
-    await apiSave('ai_robot_video', url);
-    // Show preview
-    const prev = document.getElementById('robot-vid-preview');
-    if(prev) prev.innerHTML = `<video src="${url}" controls style="width:100%;border-radius:12px;max-height:160px"></video>`;
+    const url = await uploadToCloudinary(file, 'ai_avatar', 'video');
+    hideProgress(pbId);
+    siteData[key] = url;
+    await apiSave(key, url);
+    const prev = document.getElementById(prevId);
+    if(prev) prev.innerHTML = `<video src="${url}" controls muted style="width:100%;border-radius:10px;max-height:140px;margin-top:4px"></video>`;
     showMsg('msg-robotvid');
   } catch(e) {
-    hideProgress('pb-robotvid');
-    showAdminStatus('❌ Video upload failed: ' + e.message, true);
+    hideProgress(pbId);
+    showAdminStatus('Upload failed: ' + e.message, true);
   }
 }
 
@@ -2791,7 +2975,7 @@ async function savePopupGreeting() {
   if(saved) showMsg('msg-popup-greeting');
 }
 
-// ── Admin: fill popup/chatbot fields on open ──────────
+// ── Admin: fill AI fields on admin open ──────────────
 function fillAIAdminFields() {
   const pg = document.getElementById('popup-greeting-script');
   if(pg) pg.value = siteData.popup_greeting || '';
@@ -2807,219 +2991,22 @@ function fillAIAdminFields() {
     updateKbCount();
     kb.addEventListener('input', updateKbCount);
   }
-  // Show video preview if already uploaded
-  const vid = siteData.ai_robot_video || '';
-  const prev = document.getElementById('robot-vid-preview');
-  if(vid && prev) prev.innerHTML = `<video src="${vid}" controls style="width:100%;border-radius:12px;max-height:160px"></video>`;
-}
-
-function updateKbCount() {
-  const kb = document.getElementById('ai-knowledge-base');
-  const cnt = document.getElementById('kb-char-count');
-  if(kb && cnt) cnt.textContent = `${kb.value.length.toLocaleString()} characters`;
-}
-
-// ── Admin: save chatbot settings ──────────────────────
-async function saveChatbotSettings() {
-  siteData.chatbot_name     = document.getElementById('cb-name')?.value.trim() || 'AiDoBot Assistant';
-  siteData.chatbot_greeting = document.getElementById('cb-greeting')?.value.trim() || 'Hi! How can I help?';
-  siteData.chatbot_emoji    = document.getElementById('cb-emoji')?.value.trim() || '🤖';
-
-  const s1 = await apiSave('chatbot_name',     siteData.chatbot_name);
-  const s2 = await apiSave('chatbot_greeting', siteData.chatbot_greeting);
-  const s3 = await apiSave('chatbot_emoji',    siteData.chatbot_emoji);
-
-  if(s1 && s2 && s3) {
-    updateChatbotUI();
-    showMsg('msg-cbsettings');
+  // Show existing video previews
+  const idlePrev = document.getElementById('avatar-idle-preview');
+  const talkPrev = document.getElementById('avatar-talk-preview');
+  if(idlePrev && siteData.avatar_idle_video) {
+    idlePrev.innerHTML = `<video src="${siteData.avatar_idle_video}" controls muted style="width:100%;border-radius:10px;max-height:140px;margin-top:4px"></video>`;
+  }
+  if(talkPrev && siteData.avatar_talk_video) {
+    talkPrev.innerHTML = `<video src="${siteData.avatar_talk_video}" controls muted style="width:100%;border-radius:10px;max-height:140px;margin-top:4px"></video>`;
   }
 }
 
-// ── Admin: save knowledge base ────────────────────────
-async function saveContactInfo() {
-  const ci = {
-    email1:       document.getElementById('ci-email1-input')?.value.trim() || '',
-    email2:       document.getElementById('ci-email2-input')?.value.trim() || '',
-    whatsapp:     document.getElementById('ci-whatsapp-input')?.value.trim() || '',
-    deployment:   document.getElementById('ci-deployment-input')?.value.trim() || '',
-    partnerships: document.getElementById('ci-partnerships-input')?.value.trim() || '',
-  };
-  siteData.contact_info = ci;
-  const saved = await apiSave('contact_info', ci);
-  if(saved) { renderContact(); showMsg('msg-contact-info'); }
-}
-
-function fillContactInputs() {
-  const ci = siteData.contact_info || DEFAULT.contact_info;
-  const f = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
-  f('ci-email1-input',       ci.email1);
-  f('ci-email2-input',       ci.email2);
-  f('ci-whatsapp-input',     ci.whatsapp);
-  f('ci-deployment-input',   ci.deployment);
-  f('ci-partnerships-input', ci.partnerships);
-}
-
-async function saveKnowledgeBase() {
-  const kb = document.getElementById('ai-knowledge-base')?.value.trim();
-  if(!kb) return;
-  siteData.ai_knowledge_base = kb;
-  const saved = await apiSave('ai_knowledge_base', kb);
-  if(saved) showMsg('msg-kb');
-}
-
-// ════════════════════════════════════════════════════
-// ─── AI CHATBOT ───────────────────────────────────────
-// ════════════════════════════════════════════════════
-
-const GROQ_API_KEY = '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';
-const GROQ_MODEL   = 'llama-3.3-70b-versatile';  // Latest Groq model
-let chatHistory    = [];
-let chatbotOpen    = false;
-
-function updateChatbotUI() {
-  const nameEl  = document.getElementById('cb-name-display');
-  const avatarEl = document.getElementById('cb-avatar-display');
-  if(nameEl)  nameEl.textContent  = siteData.chatbot_name  || 'AiDoBot Assistant';
-  if(avatarEl) avatarEl.textContent = siteData.chatbot_emoji || '🤖';
-}
-
-function toggleChatbot() {
-  const win = document.getElementById('chatbot-window');
-  const unread = document.getElementById('chat-unread');
-  if(!win) return;
-
-  chatbotOpen = !chatbotOpen;
-  win.style.display = chatbotOpen ? 'flex' : 'none';
-
-  if(chatbotOpen) {
-    if(unread) unread.style.display = 'none';
-    // Show greeting if first open
-    const msgs = document.getElementById('chat-messages');
-    if(msgs && msgs.children.length === 0) {
-      const greeting = siteData.chatbot_greeting || "Hi! I'm AiDoBot's AI assistant. Ask me anything about AiDoBot — how it works, features, pricing, team, or anything else!";
-      addChatMessage('bot', greeting);
-    }
-    setTimeout(() => document.getElementById('chat-input')?.focus(), 100);
-  }
-}
-
-function addChatMessage(role, text) {
-  const msgs = document.getElementById('chat-messages');
-  if(!msgs) return;
-
-  const isBot = role === 'bot';
-  const emoji = siteData.chatbot_emoji || '🤖';
-  const div = document.createElement('div');
-  div.className = `chat-msg ${role}`;
-  div.innerHTML = `
-    ${isBot ? `<div class="chat-avatar">${emoji}</div>` : ''}
-    <div class="chat-bubble ${role}">${text.replace(/\n/g,'<br/>')}</div>
-    ${!isBot ? '<div class="chat-avatar" style="background:var(--wood-400);color:white">👤</div>' : ''}
-  `;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function showTyping() {
-  document.getElementById('chat-typing').style.display = 'block';
-  document.getElementById('chat-messages').scrollTop = 99999;
-}
-function hideTyping() {
-  document.getElementById('chat-typing').style.display = 'none';
-}
-
-async function sendChatMessage() {
-  const input = document.getElementById('chat-input');
-  if(!input) return;
-  const text = input.value.trim();
-  if(!text) return;
-
-  addChatMessage('user', text);
-  chatHistory.push({ role: 'user', content: text });
-  input.value = '';
-  input.style.height = 'auto';
-  showTyping();
-
-  try {
-    const reply = await callGroqAI(text);
-    hideTyping();
-    addChatMessage('bot', reply);
-    chatHistory.push({ role: 'assistant', content: reply });
-    // Keep history to last 12 messages to avoid token overflow
-    if(chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
-  } catch(e) {
-    hideTyping();
-    const errMsg = e.message || String(e);
-    console.error('Groq full error:', e);
-    addChatMessage('bot', `⚠️ Error: ${errMsg}`);
-  }
-}
-
-async function callGroqAI(userMessage) {
-  const kb = siteData.ai_knowledge_base || `
-AiDoBot is an AI-powered medical robot that checks vitals, speaks multiple languages, connects patients to live doctors, and arranges medicine delivery. 
-Features: heart rate, SpO2, temperature, blood pressure, weight, height, AI face analysis, live video consultations, digital prescriptions, home medicine delivery.
-Contact: hello@aidoBot.com | WhatsApp: +91 8800 510 790
-`.trim();
-
-  const systemPrompt = `You are AiDoBot's friendly and helpful AI assistant embedded on the AiDoBot website.
-You ONLY answer questions about AiDoBot and healthcare topics related to AiDoBot.
-If someone asks something completely unrelated, politely redirect them back to AiDoBot topics.
-Be warm, concise, and professional. Keep responses under 120 words unless a detailed answer is truly needed.
-Use the following knowledge base to answer accurately:
-
---- KNOWLEDGE BASE ---
-${kb}
---- END KNOWLEDGE BASE ---
-
-If you don't know something from the knowledge base, say so honestly and suggest contacting the team.`;
-
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...chatHistory.slice(-10),  // last 10 turns for context
-    { role: 'user', content: userMessage }
-  ];
-
-  console.log('Calling Groq with model:', GROQ_MODEL, 'messages:', messages.length);
-  let res;
-  try {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages,
-        max_tokens: 300,
-        temperature: 0.65,
-        stream: false
-      })
-    });
-  } catch(fetchErr) {
-    throw new Error('Network failed reaching Groq: ' + fetchErr.message);
-  }
-  console.log('Groq HTTP status:', res.status);
-
-  if(!res.ok) {
-    const err = await res.text();
-    throw new Error(`Groq ${res.status}: ${err}`);
-  }
-
-  const data = await res.json();
-  console.log('Groq response:', data);
-  const reply = data?.choices?.[0]?.message?.content?.trim();
-  if(!reply) throw new Error('Empty response from Groq: ' + JSON.stringify(data));
-  return reply;
-}
-
-// ── Hook AI init into renderAll ───────────────────────
-// Called after siteData is loaded
+// ── Hook AI init into page load ───────────────────────
 function initAIFeatures() {
   updateChatbotUI();
   initAIPopup();
-  // Show chatbot unread badge after 8s if popup was already dismissed
+  // Show chatbot unread badge after 8s
   setTimeout(() => {
     if(!chatbotOpen) {
       const u = document.getElementById('chat-unread');
