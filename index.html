@@ -815,12 +815,15 @@
       </div>
     </div>
     <div class="hero-visual reveal">
-      <div class="hero-robot-wrap" id="hero-robot-wrap">
-        <div class="hero-robot-placeholder" id="robot-placeholder">
-          <span>🤖</span>
-          <p>Robot image here</p>
+      <div class="hero-slider-wrap" id="hero-robot-wrap">
+        <div class="hero-slides" id="hero-slides">
+          <div class="hero-slide active">
+            <div class="hero-robot-placeholder" id="robot-placeholder">
+              <span>🤖</span><p>Upload robot images in admin</p>
+            </div>
+          </div>
         </div>
-        <img id="hero-robot-img" src="" alt="AiDoBot Robot" style="display:none;position:absolute;inset:0;width:85%;height:auto;margin:auto"/>
+        <div class="hero-dots" id="hero-dots"><button class="hero-dot active"></button></div>
       </div>
       <div class="orbit-chip c1">🔬 Face Analysis AI</div>
       <div class="orbit-chip c2">📡 Live Doctor Call</div>
@@ -1313,6 +1316,7 @@
     <div class="admin-body" id="admin-body">
       <div class="admin-sidebar">
         <div class="admin-tab active" data-tab="hero" onclick="switchTab('hero')">🏠 Hero Images</div>
+        <div class="admin-tab" data-tab="about-img" onclick="switchTab('about-img')">🏥 About Images</div>
         <div class="admin-tab" data-tab="gallery" onclick="switchTab('gallery')">🖼 Gallery</div>
         <div class="admin-tab" data-tab="shorts" onclick="switchTab('shorts')">📱 Short Reviews</div>
         <div class="admin-tab" data-tab="vreviews" onclick="switchTab('vreviews')">🎬 Video Reviews</div>
@@ -1342,6 +1346,38 @@
         </div>
 
         <!-- GALLERY -->
+        <!-- ABOUT IMAGES TAB -->
+        <div class="admin-section" id="tab-about-img">
+          <h3>🏥 About Section Images</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:20px">Upload the 3 images shown in the "Revolutionising Healthcare Access" section.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div>
+              <label class="admin-label">① AiDoBot in Action (main)</label>
+              <div id="about-img-slot-0" style="margin-bottom:8px"><div style="height:80px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:8px;font-size:0.75rem;color:var(--text-light)">Not uploaded</div></div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:7px;border-radius:8px;cursor:pointer;font-size:0.78rem">Upload
+                <input type="file" accept="image/*" style="display:none" onchange="uploadAboutImage(this,0)"/>
+              </label>
+            </div>
+            <div>
+              <label class="admin-label">② Temperature Check</label>
+              <div id="about-img-slot-1" style="margin-bottom:8px"><div style="height:80px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:8px;font-size:0.75rem;color:var(--text-light)">Not uploaded</div></div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:7px;border-radius:8px;cursor:pointer;font-size:0.78rem">Upload
+                <input type="file" accept="image/*" style="display:none" onchange="uploadAboutImage(this,1)"/>
+              </label>
+            </div>
+            <div>
+              <label class="admin-label">③ Weight Measurement</label>
+              <div id="about-img-slot-2" style="margin-bottom:8px"><div style="height:80px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:8px;font-size:0.75rem;color:var(--text-light)">Not uploaded</div></div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:7px;border-radius:8px;cursor:pointer;font-size:0.78rem">Upload
+                <input type="file" accept="image/*" style="display:none" onchange="uploadAboutImage(this,2)"/>
+              </label>
+            </div>
+          </div>
+          <div class="progress-bar" id="pb-about-img"><div class="fill"></div></div>
+          <div class="admin-msg" id="msg-about-img">✓ About image updated!</div>
+        </div>
+
         <div class="admin-section" id="tab-gallery">
           <h3>Gallery Images</h3>
           <div class="upload-zone">
@@ -1735,6 +1771,7 @@ function mergeDefaults() {
   if(!siteData.contact_info)        siteData.contact_info = DEFAULT.contact_info;
   if(!siteData.avatar_idle_video)   siteData.avatar_idle_video = '';
   if(!siteData.avatar_talk_video)   siteData.avatar_talk_video = '';
+  if(!siteData.about_images)        siteData.about_images = ['','',''];
 }
 
 // ─── RENDER ALL ──────────────────────────────────────
@@ -1751,6 +1788,7 @@ function renderAll() {
   renderPartners();
   renderSocial();
   renderContact();
+  renderAboutImages();
 }
 
 // ─── HERO SLIDESHOW ──────────────────────────────────
@@ -2190,6 +2228,7 @@ function buildAdminForms() {
   buildAnnounceAdminList();
   fillAIAdminFields();
   fillContactInputs();
+  refreshAboutAdminGrid();
 }
 
 function buildJourneyInputs() {
@@ -2736,7 +2775,8 @@ let avatarHistory  = [];     // conversation history
 
 // ── Init: show popup after 5s ────────────────────────
 function initAIPopup() {
-  if(sessionStorage.getItem('avatarShown')) return;
+  // Remove old session flag so popup shows each page load
+  sessionStorage.removeItem('avatarShown');
   setTimeout(showAIPopup, 5000);
 }
 
@@ -3002,11 +3042,207 @@ function fillAIAdminFields() {
   }
 }
 
+// ════════════════════════════════════════════════════
+// ─── CHATBOT (BOTTOM RIGHT BUBBLE) ───────────────────
+// ════════════════════════════════════════════════════
+const GROQ_API_KEY = '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';
+const GROQ_MODEL   = 'llama-3.3-70b-versatile';
+let chatbotOpen  = false;
+let chatHistory  = [];
+
+function toggleChatbot() {
+  chatbotOpen = !chatbotOpen;
+  const win = document.getElementById('chatbot-window');
+  const btn = document.getElementById('chatbot-trigger');
+  const u   = document.getElementById('chat-unread');
+  if(win) win.style.display = chatbotOpen ? 'flex' : 'none';
+  if(btn) btn.textContent  = chatbotOpen ? '✕' : (siteData.chatbot_emoji || '💬');
+  if(u && chatbotOpen) u.style.display = 'none';
+  if(chatbotOpen && document.getElementById('chat-messages')?.children.length === 0) {
+    const greeting = siteData.chatbot_greeting || "Hi! I'm AiDoBot's AI assistant. Ask me anything!";
+    addChatMessage('bot', greeting);
+  }
+}
+
+function addChatMessage(role, text) {
+  const msgs  = document.getElementById('chat-messages');
+  if(!msgs) return;
+  const emoji = siteData.chatbot_emoji || '🤖';
+  const isBot = role === 'bot';
+  const div   = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.innerHTML = `
+    ${isBot ? `<div class="chat-avatar">${emoji}</div>` : ''}
+    <div class="chat-bubble ${role}">${text.replace(/\n/g,'<br/>')}</div>
+    ${!isBot ? '<div class="chat-avatar" style="background:var(--wood-400);color:white">👤</div>' : ''}
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-messages');
+  if(!msgs) return;
+  const div = document.createElement('div');
+  div.id = 'typing-indicator';
+  div.className = 'chat-msg bot';
+  div.innerHTML = `<div class="chat-avatar">${siteData.chatbot_emoji||'🤖'}</div>
+    <div class="chat-bubble bot" style="padding:10px 14px">
+      <span style="display:inline-flex;gap:4px;align-items:center">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--wood-400);animation:speakBar 0.8s infinite 0s;display:inline-block"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--wood-400);animation:speakBar 0.8s infinite 0.2s;display:inline-block"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--wood-400);animation:speakBar 0.8s infinite 0.4s;display:inline-block"></span>
+      </span>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing-indicator');
+  if(t) t.remove();
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text) return;
+  addChatMessage('user', text);
+  chatHistory.push({ role:'user', content:text });
+  input.value = '';
+  showTyping();
+  try {
+    const reply = await callGroqAI(text);
+    hideTyping();
+    addChatMessage('bot', reply);
+    chatHistory.push({ role:'assistant', content:reply });
+    if(chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+  } catch(e) {
+    hideTyping();
+    console.error('Groq full error:', e);
+    addChatMessage('bot', `⚠️ Error: ${e.message}`);
+  }
+}
+
+async function callGroqAI(userMessage) {
+  const kb = siteData.ai_knowledge_base || 'AiDoBot is an AI-powered medical robot. Features: vitals checking, multilingual support, video doctor consultations, digital prescriptions, medicine delivery. Contact: hello@aidoBot.com';
+  const systemPrompt = `You are AiDoBot's friendly AI assistant. Only answer questions about AiDoBot and related healthcare topics. Be warm, concise, under 120 words. Knowledge base:\n\n${kb}`;
+  const messages = [
+    { role:'system', content:systemPrompt },
+    ...chatHistory.slice(-10),
+    { role:'user', content:userMessage }
+  ];
+  let res;
+  try {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({ model:GROQ_MODEL, messages, max_tokens:300, temperature:0.65, stream:false })
+    });
+  } catch(e) { throw new Error('Network failed: ' + e.message); }
+  if(!res.ok) { const err = await res.text(); throw new Error(`Groq ${res.status}: ${err}`); }
+  const data = await res.json();
+  const reply = data?.choices?.[0]?.message?.content?.trim();
+  if(!reply) throw new Error('Empty response from Groq');
+  return reply;
+}
+
+function updateChatbotUI() {
+  const btn   = document.getElementById('chatbot-trigger');
+  const name  = document.getElementById('chatbot-name-display');
+  const emoji = siteData.chatbot_emoji || '💬';
+  if(btn && !chatbotOpen) btn.textContent = emoji;
+  if(name) name.textContent = siteData.chatbot_name || 'AiDoBot Assistant';
+}
+
+function updateKbCount() {
+  const kb = document.getElementById('ai-knowledge-base');
+  const ct = document.getElementById('kb-char-count');
+  if(kb && ct) ct.textContent = kb.value.length + ' chars';
+}
+
+async function saveChatbotSettings() {
+  siteData.chatbot_name     = document.getElementById('cb-name')?.value.trim() || '';
+  siteData.chatbot_greeting = document.getElementById('cb-greeting')?.value.trim() || '';
+  siteData.chatbot_emoji    = document.getElementById('cb-emoji')?.value.trim() || '🤖';
+  await apiSave('chatbot_name',     siteData.chatbot_name);
+  await apiSave('chatbot_greeting', siteData.chatbot_greeting);
+  await apiSave('chatbot_emoji',    siteData.chatbot_emoji);
+  updateChatbotUI();
+  showMsg('msg-cbsettings');
+}
+
+async function saveKnowledgeBase() {
+  const kb = document.getElementById('ai-knowledge-base')?.value.trim() || '';
+  siteData.ai_knowledge_base = kb;
+  const saved = await apiSave('ai_knowledge_base', kb);
+  if(saved) showMsg('msg-kb');
+}
+
+// ── About section images (3 slots) ───────────────────
+function renderAboutImages() {
+  const imgs = siteData.about_images || [];
+  const labels = ['AiDoBot in action','Temperature check','Weight measurement'];
+  const icons  = ['🖼️','🌡️','⚖️'];
+  const classes = ['big','',''];
+  const c = document.getElementById('about-images');
+  if(!c) return;
+  c.innerHTML = [0,1,2].map(i => {
+    const url = imgs[i] || '';
+    return url
+      ? `<div class="about-img-card ${classes[i]}" style="padding:0;overflow:hidden">
+           <img src="${url}" alt="${labels[i]}" style="width:100%;height:100%;object-fit:cover"/>
+         </div>`
+      : `<div class="about-img-card ${classes[i]}" data-slot="${i}"><span>${icons[i]}</span><p>${labels[i]}</p></div>`;
+  }).join('');
+}
+
+async function uploadAboutImage(input, slot) {
+  const file = input.files[0];
+  if(!file) return;
+  showProgress('pb-about-img');
+  try {
+    const url = await uploadToCloudinary(file, 'about', 'image');
+    hideProgress('pb-about-img');
+    if(!siteData.about_images) siteData.about_images = ['','',''];
+    siteData.about_images[slot] = url;
+    await apiSave('about_images', siteData.about_images);
+    renderAboutImages();
+    refreshAboutAdminGrid();
+    showMsg('msg-about-img');
+  } catch(e) {
+    hideProgress('pb-about-img');
+    showAdminStatus('Upload failed: ' + e.message, true);
+  }
+}
+
+function refreshAboutAdminGrid() {
+  const imgs   = siteData.about_images || ['','',''];
+  const labels = ['AiDoBot in action','Temperature check','Weight measurement'];
+  ['about-img-slot-0','about-img-slot-1','about-img-slot-2'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = imgs[i]
+      ? `<img src="${imgs[i]}" style="width:100%;height:80px;object-fit:cover;border-radius:8px"/>
+         <button onclick="deleteAboutImage(${i})" style="margin-top:4px;font-size:0.7rem;background:rgba(200,50,50,0.2);border:1px solid rgba(200,50,50,0.4);color:#c33;padding:2px 8px;border-radius:4px;cursor:pointer">Remove</button>`
+      : `<div style="height:80px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:8px;color:var(--text-light);font-size:0.75rem">${labels[i]}</div>`;
+  });
+}
+
+async function deleteAboutImage(slot) {
+  if(!confirm('Remove this image?')) return;
+  if(!siteData.about_images) return;
+  siteData.about_images[slot] = '';
+  await apiSave('about_images', siteData.about_images);
+  renderAboutImages();
+  refreshAboutAdminGrid();
+}
+
 // ── Hook AI init into page load ───────────────────────
 function initAIFeatures() {
   updateChatbotUI();
   initAIPopup();
-  // Show chatbot unread badge after 8s
   setTimeout(() => {
     if(!chatbotOpen) {
       const u = document.getElementById('chat-unread');
