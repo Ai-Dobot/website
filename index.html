@@ -732,8 +732,8 @@
   }
 
   /* ── SCROLL ANIMATIONS ──────────────────────────── */
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal { opacity: 1; transform: none; }
+  .reveal.visible { opacity: 1; transform: none; }
 
   /* ── PAGE LOADER ────────────────────────────────── */
   #loader {
@@ -1639,9 +1639,16 @@ window.addEventListener('DOMContentLoaded', () => {
         mergeDefaults();
         renderAll();
         updateChatbotUI();
+        // Reveal all new elements after re-render
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
       }
     })
     .catch(() => {}); // silent fail — page already showing
+
+  // Nuclear fallback: after 4s, force-show everything regardless
+  setTimeout(() => {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }, 4000);
 });
 
 function mergeDefaults() {
@@ -1791,6 +1798,7 @@ function setCounter(id, val, suffix) {
 
 function renderJourney() {
   const c = document.getElementById('journey-grid');
+  if(!c) return;
   const steps = siteData.journey_steps || DEFAULT.journey_steps;
   c.innerHTML = steps.map((s,i) => `
     <div class="journey-card reveal">
@@ -1838,6 +1846,7 @@ function renderVideoReviews() {
 
 function renderTeam() {
   const c = document.getElementById('team-grid');
+  if(!c) return;
   const team = siteData.team || DEFAULT.team;
   c.innerHTML = team.map(m => `
     <div class="team-card reveal">
@@ -1850,6 +1859,7 @@ function renderTeam() {
 
 function renderEvents() {
   const c = document.getElementById('events-grid');
+  if(!c) return;
   const events = siteData.events || DEFAULT.events;
   c.innerHTML = events.map(e => `
     <div class="event-card reveal">
@@ -1865,6 +1875,7 @@ function renderEvents() {
 
 function renderAnnouncements() {
   const c = document.getElementById('announce-list');
+  if(!c) return;
   const items = siteData.announcements || DEFAULT.announcements;
   c.innerHTML = items.map(a => `
     <div class="announce-item reveal">
@@ -1879,6 +1890,7 @@ function renderAnnouncements() {
 
 function renderPartners() {
   const c = document.getElementById('partners-grid');
+  if(!c) return;
   const partners = siteData.partners || DEFAULT.partners;
   c.innerHTML = partners.map(p => `
     <div class="partner-chip reveal">
@@ -1958,15 +1970,27 @@ function setupNavScroll() {
 }
 
 function setupObserver() {
+  // Reveal everything immediately on first load — no scroll needed
+  // This prevents opacity:0 getting stuck if observer misfires
+  function revealAll() {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }
+
+  // Reveal things already in viewport right now
+  revealAll();
+
+  // Also keep observing for scroll-triggered reveals (nice effect when scrolling)
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.05, rootMargin: '0px 0px -50px 0px' });
+
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-  // Re-observe dynamically added elements
+  // Re-observe dynamically added elements (rendered by JS after page load)
   const bodyObs = new MutationObserver(() => {
     document.querySelectorAll('.reveal:not(.observed)').forEach(el => {
       el.classList.add('observed');
+      el.classList.add('visible'); // make immediately visible
       obs.observe(el);
     });
   });
