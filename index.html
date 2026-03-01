@@ -293,6 +293,9 @@
     width: 100%; height: 100%; object-fit: cover;
     border-radius: 0;
   }
+  .short-card iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: none; border-radius: 20px;
+  }
   .short-card .overlay {
     position: absolute; inset: 0;
     background: linear-gradient(to top, rgba(20,10,2,0.8) 0%, transparent 60%);
@@ -1034,19 +1037,19 @@
         <div class="contact-info">
           <div class="contact-item">
             <div class="contact-item-icon">📧</div>
-            <div><div class="contact-item-label">Email</div><div class="contact-item-val">hello@aidoBot.com<br/>info@aidoBot.com</div></div>
+            <div><div class="contact-item-label">Email</div><div class="contact-item-val" id="ci-email1">hello@aidoBot.com</div></div>
           </div>
           <div class="contact-item">
             <div class="contact-item-icon">💬</div>
-            <div><div class="contact-item-label">WhatsApp</div><div class="contact-item-val">+91 8800 510 790</div></div>
+            <div><div class="contact-item-label">WhatsApp</div><div class="contact-item-val" id="ci-whatsapp">+91 8800 510 790</div></div>
           </div>
           <div class="contact-item">
             <div class="contact-item-icon">🌍</div>
-            <div><div class="contact-item-label">Deployment</div><div class="contact-item-val">Available worldwide — hospitals, clinics, communities, homes.</div></div>
+            <div><div class="contact-item-label">Deployment</div><div class="contact-item-val" id="ci-deployment">Available worldwide — hospitals, clinics, communities, homes.</div></div>
           </div>
           <div class="contact-item">
             <div class="contact-item-icon">🤝</div>
-            <div><div class="contact-item-label">Partnerships</div><div class="contact-item-val">Ministries of Health, hospitals, NGOs — let's build together.</div></div>
+            <div><div class="contact-item-label">Partnerships</div><div class="contact-item-val" id="ci-partnerships">Ministries of Health, hospitals, NGOs — let's build together.</div></div>
           </div>
         </div>
       </div>
@@ -1284,6 +1287,7 @@
         <div class="admin-tab" data-tab="social" onclick="switchTab('social')">📲 Social</div>
         <div class="admin-tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</div>
         <div class="admin-tab" data-tab="inbox" onclick="switchTab('inbox')">📩 Inbox</div>
+        <div class="admin-tab" data-tab="contact-info" onclick="switchTab('contact-info')">📞 Contact Info</div>
         <div class="admin-tab" data-tab="aibot" onclick="switchTab('aibot')">🤖 AI Robot Popup</div>
         <div class="admin-tab" data-tab="aichat" onclick="switchTab('aichat')">💬 AI Chatbot</div>
       </div>
@@ -1466,6 +1470,24 @@
           </div>
         </div>
 
+        <!-- CONTACT INFO TAB -->
+        <div class="admin-section" id="tab-contact-info">
+          <h3>📞 Contact Information</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Edit the contact details shown on your website.</p>
+          <label class="admin-label">Primary Email</label>
+          <input class="admin-input" id="ci-email1-input" placeholder="hello@aidoBot.com"/>
+          <label class="admin-label">Secondary Email</label>
+          <input class="admin-input" id="ci-email2-input" placeholder="info@aidoBot.com"/>
+          <label class="admin-label">WhatsApp Number</label>
+          <input class="admin-input" id="ci-whatsapp-input" placeholder="+91 8800 510 790"/>
+          <label class="admin-label">Deployment Info</label>
+          <input class="admin-input" id="ci-deployment-input" placeholder="Available worldwide..."/>
+          <label class="admin-label">Partnerships Info</label>
+          <input class="admin-input" id="ci-partnerships-input" placeholder="Ministries of Health, hospitals..."/>
+          <button class="admin-save" onclick="saveContactInfo()">Save Contact Info</button>
+          <div class="admin-msg" id="msg-contact-info">✓ Contact info updated!</div>
+        </div>
+
         <!-- AI ROBOT POPUP TAB -->
         <div class="admin-section" id="tab-aibot">
           <h3>🤖 AI Robot Popup</h3>
@@ -1590,6 +1612,13 @@ const DEFAULT = {
     { icon: '💊', name: 'PharmaCare Network', type: 'Healthcare', desc: 'Pharmacy network enabling home medicine delivery.' }
   ],
   social: { youtube: '#', facebook: '#', instagram: '#', whatsapp: 'https://wa.me/918800510790' },
+  contact_info: {
+    email1: 'hello@aidoBot.com',
+    email2: 'info@aidoBot.com',
+    whatsapp: '+91 8800 510 790',
+    deployment: 'Available worldwide — hospitals, clinics, communities, homes.',
+    partnerships: 'Ministries of Health, hospitals, NGOs — let\'s build together.'
+  },
   latest_youtube: ''
 };
 
@@ -1659,6 +1688,7 @@ function mergeDefaults() {
   if(!siteData.chatbot_name)      siteData.chatbot_name = 'AiDoBot Assistant';
   if(!siteData.chatbot_greeting)  siteData.chatbot_greeting = "Hi! I'm AiDoBot's AI assistant. Ask me anything!";
   if(!siteData.chatbot_emoji)     siteData.chatbot_emoji = '🤖';
+  if(!siteData.contact_info)      siteData.contact_info = DEFAULT.contact_info;
 }
 
 // ─── RENDER ALL ──────────────────────────────────────
@@ -1674,6 +1704,7 @@ function renderAll() {
   renderAnnouncements();
   renderPartners();
   renderSocial();
+  renderContact();
 }
 
 // ─── HERO SLIDESHOW ──────────────────────────────────
@@ -1681,7 +1712,11 @@ let heroSlideIndex = 0;
 let heroSlideTimer = null;
 
 function renderHero() {
-  const images = siteData.hero_images || [];
+  // hero_images might come back as a string if DB returned JSON-encoded string
+  let images = siteData.hero_images || [];
+  if(typeof images === 'string') { try { images = JSON.parse(images); } catch(e) { images = []; } }
+  if(!Array.isArray(images)) images = [];
+  console.log('renderHero: images count =', images.length, images);
   const slidesEl = document.getElementById('hero-slides');
   const dotsEl   = document.getElementById('hero-dots');
   if(!slidesEl) return;
@@ -1763,6 +1798,7 @@ async function deleteHeroImage(idx) {
 
 function renderShorts() {
   const c = document.getElementById('shorts-container');
+  if(!c) return;
   const items = siteData.reviews_video || [];
   if(!items.length) {
     c.innerHTML = [0,1,2,3,4].map(() => `
@@ -1771,11 +1807,33 @@ function renderShorts() {
       </div>`).join('');
     return;
   }
-  c.innerHTML = items.map(v => `
-    <div class="short-card" onclick="openLightbox('${v.url}','${v.type||'video'}')">
-      ${v.type==='youtube' ? `<iframe src="${ytEmbed(v.url)}" frameborder="0" allowfullscreen></iframe>` : `<video src="${v.url}" muted playsinline></video>`}
-      <div class="overlay"><div class="play-btn">▶</div></div>
-    </div>`).join('');
+  // Videos play INLINE — no lightbox popup
+  // YouTube: embed with autoplay on click via iframe
+  // Uploaded video: plays directly inside card with controls
+  c.innerHTML = items.map((v, i) => {
+    if(v.type === 'youtube') {
+      // Use lazy-load: show thumbnail, swap to iframe on click
+      const embedUrl = ytEmbed(v.url) + '&autoplay=1&rel=0&modestbranding=1';
+      const thumbId = v.url.includes('shorts/') ? v.url.split('shorts/')[1].split('?')[0]
+                    : (v.url.includes('v=') ? v.url.split('v=')[1].split('&')[0] : '');
+      const thumb = thumbId ? `https://img.youtube.com/vi/${thumbId}/hqdefault.jpg` : '';
+      return `<div class="short-card" id="sc-${i}">
+        ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"/>` : ''}
+        <div class="overlay"><div class="play-btn" onclick="playShort(${i},'${embedUrl}')">▶</div></div>
+      </div>`;
+    } else {
+      return `<div class="short-card">
+        <video src="${v.url}" playsinline controls style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:0"></video>
+      </div>`;
+    }
+  }).join('');
+}
+
+function playShort(idx, embedUrl) {
+  const card = document.getElementById('sc-' + idx);
+  if(!card) return;
+  card.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allowfullscreen
+    style="position:absolute;inset:0;width:100%;height:100%;border-radius:20px"></iframe>`;
 }
 
 function renderStats() {
@@ -1892,6 +1950,19 @@ function renderPartners() {
       <div class="icon">${p.icon}</div>
       <div><div class="pname">${p.name}</div><div class="ptype">${p.type}</div></div>
     </div>`).join('');
+}
+
+function renderContact() {
+  const ci = siteData.contact_info || DEFAULT.contact_info;
+  const e1 = document.getElementById('ci-email1');
+  const wa = document.getElementById('ci-whatsapp');
+  const dp = document.getElementById('ci-deployment');
+  const pt = document.getElementById('ci-partnerships');
+  if(e1) e1.textContent = [ci.email1, ci.email2].filter(Boolean).join('\n');
+  if(e1) e1.innerHTML  = [ci.email1, ci.email2].filter(Boolean).join('<br/>');
+  if(wa) wa.textContent = ci.whatsapp || '';
+  if(dp) dp.textContent = ci.deployment || '';
+  if(pt) pt.textContent = ci.partnerships || '';
 }
 
 function renderSocial() {
@@ -2072,6 +2143,7 @@ function buildAdminForms() {
   refreshHeroImgGrid();
   buildAnnounceAdminList();
   fillAIAdminFields();
+  fillContactInputs();
 }
 
 function buildJourneyInputs() {
@@ -2764,6 +2836,29 @@ async function saveChatbotSettings() {
 }
 
 // ── Admin: save knowledge base ────────────────────────
+async function saveContactInfo() {
+  const ci = {
+    email1:       document.getElementById('ci-email1-input')?.value.trim() || '',
+    email2:       document.getElementById('ci-email2-input')?.value.trim() || '',
+    whatsapp:     document.getElementById('ci-whatsapp-input')?.value.trim() || '',
+    deployment:   document.getElementById('ci-deployment-input')?.value.trim() || '',
+    partnerships: document.getElementById('ci-partnerships-input')?.value.trim() || '',
+  };
+  siteData.contact_info = ci;
+  const saved = await apiSave('contact_info', ci);
+  if(saved) { renderContact(); showMsg('msg-contact-info'); }
+}
+
+function fillContactInputs() {
+  const ci = siteData.contact_info || DEFAULT.contact_info;
+  const f = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+  f('ci-email1-input',       ci.email1);
+  f('ci-email2-input',       ci.email2);
+  f('ci-whatsapp-input',     ci.whatsapp);
+  f('ci-deployment-input',   ci.deployment);
+  f('ci-partnerships-input', ci.partnerships);
+}
+
 async function saveKnowledgeBase() {
   const kb = document.getElementById('ai-knowledge-base')?.value.trim();
   if(!kb) return;
