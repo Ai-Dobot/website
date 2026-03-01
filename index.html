@@ -1797,12 +1797,9 @@ body.admin-mode .soc-embed-edit{display:flex;align-items:center;gap:6px;}
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════════════════════════════
-// BACKEND API HELPERS (Flask on Vercel)
-// By default uses same origin. You can override by setting:
-//   window.AIDOBOT_API_BASE = 'https://your-flask-backend.vercel.app';
-// before this script runs.
+// BACKEND API (Render). Override with window.AIDOBOT_API_BASE if needed.
 // ═══════════════════════════════════════════════
-const API_BASE = window.AIDOBOT_API_BASE || '';
+const API_BASE = window.AIDOBOT_API_BASE || 'https://webback-end.onrender.com';
 
 async function postJSON(path, payload){
   const res = await fetch(API_BASE + path, {
@@ -2014,18 +2011,42 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
     document.getElementById('murl-modal').classList.add('open');
   });
 
-  // Called from applyMedia when _heroAddSlide=true OR when replacing an existing slide's content
-  window._createHeroSlide = function(src){
+  function heroGetYT(url){
+    if(!url) return null;
+    const m = url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+    return m ? 'https://www.youtube.com/embed/'+m[1]+'?autoplay=0&rel=0&modestbranding=1' : null;
+  }
+  // Called from applyMedia when _heroAddSlide=true; slot from backend so it persists on refresh
+  window._createHeroSlide = function(src, slot){
     window._heroAddSlide = false;
-    const isVid = src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src);
+    const ytEmbed = heroGetYT(src);
+    const isYT = !!ytEmbed;
+    const isVid = !isYT && (src.startsWith('data:video') || /\.(mp4|mov|webm|ogg)(\?.*)?$/i.test(src));
     const slide = document.createElement('div');
     slide.className = 'hero-robot-slide';
+    const slotId = slot || ('hero-' + Date.now());
 
-    if(isVid){
+    if(isYT){
       slide.style.cssText = 'position:relative;overflow:hidden;';
       const wrap = document.createElement('div');
       wrap.className = 'uploadable'; wrap.dataset.type = 'video';
-      wrap.dataset.id = 'hero-vid-' + Date.now();
+      wrap.dataset.id = slotId;
+      wrap.style.cssText = 'position:absolute;inset:0;';
+      wrap.innerHTML = `<div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Replace video</div></div>`;
+      const iframe = document.createElement('iframe');
+      iframe.src = ytEmbed;
+      iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+      wrap.appendChild(iframe);
+      slide.appendChild(wrap);
+      const ov = document.createElement('div'); ov.className = 'hero-vid-overlay';
+      slide.appendChild(ov);
+    } else if(isVid){
+      slide.style.cssText = 'position:relative;overflow:hidden;';
+      const wrap = document.createElement('div');
+      wrap.className = 'uploadable'; wrap.dataset.type = 'video';
+      wrap.dataset.id = slotId;
       wrap.style.cssText = 'position:absolute;inset:0;';
       wrap.innerHTML = `<div class="upload-overlay"><div class="up-ico">📁</div><div class="up-txt">Replace video</div></div>`;
       const vid = document.createElement('video');
@@ -2037,10 +2058,9 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
       const ov = document.createElement('div'); ov.className = 'hero-vid-overlay';
       slide.appendChild(ov);
     } else {
-      // Image (PNG transparent)
       const wrap = document.createElement('div');
       wrap.className = 'hero-robot-img uploadable'; wrap.dataset.type = 'image';
-      wrap.dataset.id = 'hero-img-' + Date.now();
+      wrap.dataset.id = slotId;
       wrap.innerHTML = `<div class="upload-overlay"><div class="up-ico">🖼️</div><div class="up-txt">Replace image</div></div>`;
       const img = document.createElement('img'); img.src = src; img.alt = 'AiDoBot';
       wrap.appendChild(img);
@@ -2050,7 +2070,6 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
     track.appendChild(slide);
     attachDel(slide);
     if(window._reattachAdminListeners) window._reattachAdminListeners();
-    if(window._saveMediaToStorage) window._saveMediaToStorage();
     rebuildDots();
     go(track.children.length - 1);
     document.getElementById('murl-modal').classList.remove('open');
@@ -2148,10 +2167,10 @@ function makeSlider(slidesEl, dotsEl, prevBtn, nextBtn, visCount){
     document.getElementById('murl-modal').classList.add('open');
   });
 
-  // Build a card from src (YouTube URL or data URL/file URL)
-  window._createShortCard = function(src){
+  // Build a card from src; slot from backend so it persists on refresh
+  window._createShortCard = function(src, slot){
     window._shortsAddPending = false;
-    const id  = 'sc-' + Date.now();
+    const id  = slot || ('short-' + Date.now());
     const ytSrc = getYT(src);
     const isYT  = !!ytSrc;
 
@@ -2509,16 +2528,23 @@ document.getElementById('m-email-btn').onclick=async()=>{
   murlApply.addEventListener('click',()=>{
     const url=murlUrlInp.value.trim();
     if(!url) return;
-    // All URLs go via backend so they are persisted in Neon.
-    const slot = (window._heroAddSlide || window._shortsAddPending || !activeTarget)
-      ? ''
-      : (activeTarget.dataset.id || '');
+    const isNewHero = !!window._heroAddSlide;
+    const isNewShort = !!window._shortsAddPending;
+    const slot = (isNewHero || isNewShort)
+      ? (isNewHero ? 'hero-' : 'short-') + Date.now()
+      : (activeTarget ? (activeTarget.dataset.id || '') : '');
     showToast('Uploading from URL…',0,true);
     uploadMediaFromUrl(url,slot)
       .then(data=>{
-        // data.type may be 'youtube', 'image', or 'video'
-        const target = (window._heroAddSlide || window._shortsAddPending) ? null : activeTarget;
-        applyMedia(target,data.url,null);
+        if(isNewHero && window._createHeroSlide){
+          window._createHeroSlide(data.url, data.slot);
+          showToast('✓ Hero slide added!',2200,false);
+        } else if(isNewShort && window._createShortCard){
+          window._createShortCard(data.url, data.slot);
+          showToast('✓ Short added!',2200,false);
+        } else{
+          applyMedia(activeTarget,data.url,null);
+        }
       })
       .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
       .finally(()=>{hideToast();murlModal.classList.remove('open');window._heroAddSlide=false;window._shortsAddPending=false;});
@@ -2529,12 +2555,17 @@ fileInp.addEventListener('change',()=>{
     const file=fileInp.files[0];
     if(!file) return;
     if(window._heroAddSlide || window._shortsAddPending){
+      const isNewHero = !!window._heroAddSlide;
+      const slot = (isNewHero ? 'hero-' : 'short-') + Date.now();
       murlModal.classList.remove('open');
       showToast('Uploading '+shortName(file.name)+'…',0,true);
-      uploadMediaFile(file,'')
-        .then(data=>{applyMedia(null,data.url,file.name);})
+      uploadMediaFile(file,slot)
+        .then(data=>{
+          if(isNewHero && window._createHeroSlide){ window._createHeroSlide(data.url, data.slot); showToast('✓ Hero slide added!',2200,false); }
+          else if(!isNewHero && window._createShortCard){ window._createShortCard(data.url, data.slot); showToast('✓ Short added!',2200,false); }
+        })
         .catch(err=>{console.error(err);showToast('❌ Upload failed',3000,false);})
-        .finally(()=>hideToast());
+        .finally(()=>{hideToast();window._heroAddSlide=false;window._shortsAddPending=false;});
       return;
     }
     if(file&&activeTarget){
@@ -2571,15 +2602,15 @@ fileInp.addEventListener('change',()=>{
   }
 
   function applyMedia(target, src, fileName){
-    // Intercept: adding a new hero slide
+    // Intercept: adding a new hero slide (prefer URL/file flow so slot is saved)
     if(window._heroAddSlide){
-      window._createHeroSlide && window._createHeroSlide(src, fileName);
+      window._createHeroSlide && window._createHeroSlide(src);
       murlModal.classList.remove('open');
       showToast('✓ Hero slide added!', 2200, false);
       activeTarget = null;
       return;
     }
-    // Intercept: adding a new short review
+    // Intercept: adding a new short review (prefer URL/file flow so slot is saved)
     if(window._shortsAddPending){
       window._createShortCard && window._createShortCard(src);
       murlModal.classList.remove('open');
@@ -2914,26 +2945,9 @@ fileInp.addEventListener('change',()=>{
     });
   }
 
-  // ── SAVE ──
+  // ── SAVE (no download): media is saved to Cloudinary/Neon when you upload ──
   saveBtn.addEventListener('click',()=>{
-    showToast('Generating updated website file…',0,true);
-    setTimeout(()=>{
-      try{
-        const html=document.documentElement.outerHTML;
-        const full='<!DOCTYPE html>\n'+html;
-        const blob=new Blob([full],{type:'text/html;charset=utf-8'});
-        const a=document.createElement('a');
-        a.href=URL.createObjectURL(blob);
-        a.download='aidobot_updated.html';
-        document.body.appendChild(a);a.click();
-        document.body.removeChild(a);URL.revokeObjectURL(a.href);
-        hideToast();
-        showToast('✅ Saved! Open aidobot_updated.html to see your changes.',4000,false);
-      }catch(err){
-        hideToast();
-        showToast('❌ Error saving. Try a different browser.',3000,false);
-      }
-    },300);
+    showToast('✅ Media is saved to the cloud when you upload. Refresh the page to see it on any device.',4500,false);
   });
 
   // ── Toast ──
@@ -3338,9 +3352,9 @@ fileInp.addEventListener('change',()=>{
 
 })();
 
-/* Load persisted media content from backend on page load — production robust */
+/* Load persisted media content from backend on page load */
 document.addEventListener('DOMContentLoaded',function(){
-  const API_BASE = window.AIDOBOT_API_BASE || '';
+  const API_BASE = window.AIDOBOT_API_BASE || 'https://webback-end.onrender.com';
   if(!API_BASE) return;
   const CONTENT_TIMEOUT_MS = 15000;
   const slotSafeRe = /^[a-zA-Z0-9_-]{1,120}$/;
@@ -3366,8 +3380,17 @@ document.addEventListener('DOMContentLoaded',function(){
       Object.keys(bySlot).forEach(function(slot){
         var m = bySlot[slot];
         var el = document.querySelector('.uploadable[data-id="' + slot + '"]');
-        if(!el || !window._applyContentToElement) return;
-        window._applyContentToElement(el, m.url, m.type);
+        if(el && window._applyContentToElement){
+          window._applyContentToElement(el, m.url, m.type);
+          return;
+        }
+        if(!el && slot.indexOf('hero-') === 0 && window._createHeroSlide){
+          window._createHeroSlide(m.url, slot);
+          return;
+        }
+        if(!el && slot.indexOf('short-') === 0 && window._createShortCard){
+          window._createShortCard(m.url, slot);
+        }
       });
     })
     .catch(function(err){
