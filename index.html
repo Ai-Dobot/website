@@ -50,7 +50,7 @@
   /* ── GRAIN OVERLAY ─────────────────────────────── */
   body::before {
     content: '';
-    position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
     opacity: 0.4;
   }
@@ -609,7 +609,7 @@
 
   /* ── ADMIN TOGGLE ───────────────────────────────── */
   #admin-trigger {
-    position: fixed; bottom: 28px; right: 28px; z-index: 2000;
+    position: fixed; bottom: 28px; right: 28px; z-index: 10000;
     width: 52px; height: 52px; border-radius: 50%;
     background: var(--wood-dark); border: 2px solid var(--wood-500);
     color: var(--wood-300); font-size: 1.2rem;
@@ -621,7 +621,7 @@
 
   /* ── ADMIN PANEL ────────────────────────────────── */
   #admin-overlay {
-    display: none; position: fixed; inset: 0; z-index: 3000;
+    display: none; position: fixed; inset: 0; z-index: 9995;
     background: rgba(20,10,2,0.85); backdrop-filter: blur(8px);
     align-items: center; justify-content: center;
   }
@@ -707,7 +707,7 @@
 
   /* ── LIGHTBOX ───────────────────────────────────── */
   #lightbox {
-    display: none; position: fixed; inset: 0; z-index: 5000;
+    display: none; position: fixed; inset: 0; z-index: 9997;
     background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
   }
   #lightbox.open { display: flex; }
@@ -737,7 +737,7 @@
 
   /* ── PAGE LOADER ────────────────────────────────── */
   #loader {
-    position: fixed; inset: 0; z-index: 9998;
+    position: fixed; inset: 0; z-index: 10002;
     background: var(--wood-dark);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     /* Self-destructs after 2.3s purely via CSS — no JS required */
@@ -1102,73 +1102,68 @@
 </footer>
 
 <!-- ── AI ROBOT POPUP ─────────────────────────────── -->
-<div id="ai-popup-overlay" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.5s">
+<div id="ai-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.5s">
   <div id="ai-popup-card" style="
-    position:fixed;bottom:32px;left:32px;
+    position:fixed;bottom:28px;left:28px;
     background:var(--wood-dark);border:2px solid var(--wood-500);
-    border-radius:24px;padding:0;overflow:hidden;
-    width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    border-radius:20px;padding:0;overflow:hidden;
+    width:300px;box-shadow:0 24px 70px rgba(0,0,0,0.7);
     transform:translateY(120%);opacity:0;
     transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+    pointer-events:auto;z-index:9991;
   ">
-    <!-- Robot video -->
-    <div style="position:relative;background:#000;border-radius:20px 20px 0 0;overflow:hidden;aspect-ratio:16/9">
+    <!-- BIG square video -->
+    <div style="position:relative;background:#000;width:100%;aspect-ratio:1/1;overflow:hidden;">
       <video id="popup-robot-video" autoplay muted loop playsinline
-        style="width:100%;height:100%;object-fit:cover;opacity:0.9">
+        style="width:100%;height:100%;object-fit:cover;">
       </video>
       <div id="popup-video-placeholder" style="
         position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-        flex-direction:column;gap:8px;color:var(--wood-300);font-size:2.5rem;
-      ">🤖<div style="font-size:0.75rem;font-family:Space Mono,monospace">Robot video here</div></div>
-      <!-- Speaking indicator -->
-      <div id="speaking-indicator" style="
-        position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
-        display:flex;gap:4px;align-items:flex-end;height:20px;
-      ">
+        flex-direction:column;gap:10px;color:var(--wood-300);font-size:4rem;background:#111;
+      ">🤖<div style="font-size:0.72rem;font-family:Space Mono,monospace;color:var(--wood-500)">Upload video in admin</div></div>
+      <!-- Speaking bars overlay bottom of video -->
+      <div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:4px;align-items:flex-end;height:20px;">
         <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0s"></span>
         <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.15s"></span>
         <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.3s"></span>
         <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.45s"></span>
         <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.6s"></span>
       </div>
+      <!-- Close X on video -->
+      <button onclick="dismissAIPopup()" style="
+        position:absolute;top:8px;right:8px;
+        background:rgba(0,0,0,0.6);border:none;color:white;
+        width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.85rem;line-height:1;
+      ">✕</button>
     </div>
-    <!-- Message bubble -->
-    <div style="padding:18px 20px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse-green 2s infinite"></div>
-        <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--wood-300);letter-spacing:0.08em">AIDOBot AI</span>
+    <!-- Compact text + buttons -->
+    <div style="padding:12px 14px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>
+        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--wood-400);letter-spacing:0.06em">AiDoBot AI • Live</span>
       </div>
-      <div id="popup-message" style="
-        font-size:0.92rem;color:var(--wood-100);line-height:1.6;
-        margin-bottom:16px;min-height:48px;
-      ">Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more?</div>
-      <div style="display:flex;gap:10px">
+      <div id="popup-message" style="font-size:0.78rem;color:var(--wood-200);line-height:1.5;margin-bottom:10px;">
+        Hello! I'm AiDoBot. Would you like to learn more?
+      </div>
+      <div style="display:flex;gap:8px;">
         <button onclick="acceptAIPopup()" style="
           flex:1;background:linear-gradient(135deg,var(--wood-500),var(--wood-300));
-          color:white;border:none;border-radius:12px;padding:11px;
-          font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.88rem;cursor:pointer;
-          transition:transform 0.2s;
-        " onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-          Yes, tell me more! 👍
-        </button>
+          color:white;border:none;border-radius:10px;padding:8px 10px;
+          font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.75rem;cursor:pointer;
+        ">Yes, tell me! 👍</button>
         <button onclick="dismissAIPopup()" style="
-          flex:0 0 auto;background:rgba(255,255,255,0.08);
-          color:var(--wood-400);border:1px solid rgba(255,255,255,0.15);
-          border-radius:12px;padding:11px 14px;
-          font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;
+          flex:0 0 auto;background:rgba(255,255,255,0.07);
+          color:var(--wood-500);border:1px solid rgba(255,255,255,0.12);
+          border-radius:10px;padding:8px 10px;
+          font-family:'DM Sans',sans-serif;font-size:0.75rem;cursor:pointer;
         ">No thanks</button>
       </div>
     </div>
-    <button onclick="dismissAIPopup()" style="
-      position:absolute;top:10px;right:12px;
-      background:rgba(0,0,0,0.5);border:none;color:white;
-      width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;
-    ">✕</button>
   </div>
 </div>
 
 <!-- ── AI CHATBOT BUBBLE ────────────────────────────── -->
-<div id="chatbot-container" style="position:fixed;bottom:32px;right:92px;z-index:3500">
+<div id="chatbot-container" style="position:fixed;bottom:32px;right:92px;z-index:10000">
   <!-- Trigger button -->
   <button id="chatbot-trigger" onclick="toggleChatbot()" style="
     width:58px;height:58px;border-radius:50%;
@@ -1662,7 +1657,7 @@ function mergeDefaults() {
   if(!siteData.popup_greeting)    siteData.popup_greeting = '';
   if(!siteData.ai_robot_video)    siteData.ai_robot_video = '';
   if(!siteData.chatbot_name)      siteData.chatbot_name = 'AiDoBot Assistant';
-  if(!siteData.chatbot_greeting)  siteData.chatbot_greeting = 'Hi! I'm AiDoBot's AI assistant. Ask me anything!';
+  if(!siteData.chatbot_greeting)  siteData.chatbot_greeting = "Hi! I'm AiDoBot's AI assistant. Ask me anything!";
   if(!siteData.chatbot_emoji)     siteData.chatbot_emoji = '🤖';
 }
 
@@ -2573,7 +2568,7 @@ function showAdminStatus(msg, isError = false) {
     bar = document.createElement('div');
     bar.id = 'admin-status-bar';
     bar.style.cssText = `
-      position:fixed; bottom:90px; right:28px; z-index:9999;
+      position:fixed; bottom:90px; right:28px; z-index:10001;
       background:${isError ? '#c0392b' : '#2d6a4f'};
       color:white; padding:12px 18px; border-radius:12px;
       font-size:0.85rem; font-family:'Space Mono',monospace;
@@ -2629,9 +2624,8 @@ function showAIPopup() {
   if(!overlay || !card) return;
 
   overlay.style.display = 'block';
-  overlay.style.pointerEvents = 'auto';
+  overlay.style.pointerEvents = 'none'; // overlay never blocks clicks
   requestAnimationFrame(() => {
-    overlay.style.background = 'rgba(0,0,0,0.3)';
     card.style.transform = 'translateY(0)';
     card.style.opacity   = '1';
   });
@@ -2647,7 +2641,7 @@ function showAIPopup() {
   }
 
   // Set greeting text
-  const greeting = siteData.popup_greeting || 'Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more about how I can bring quality healthcare to you?';
+  const greeting = siteData.popup_greeting || "Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more about how I can bring quality healthcare to you?";
   const msgEl = document.getElementById('popup-message');
   if(msgEl) msgEl.textContent = greeting;
 
@@ -2676,7 +2670,7 @@ function acceptAIPopup() {
     if(win) {
       win.style.display = 'flex';
       // Send first message automatically
-      addChatMessage('bot', siteData.chatbot_greeting || 'Great! Ask me anything about AiDoBot — our features, how it works, pricing, team, or anything else you'd like to know!');
+      addChatMessage('bot', siteData.chatbot_greeting || "Great! Ask me anything about AiDoBot — our features, how it works, pricing, team, or anything else you'd like to know!");
     }
   }, 800);
 }
@@ -2807,7 +2801,7 @@ function toggleChatbot() {
     // Show greeting if first open
     const msgs = document.getElementById('chat-messages');
     if(msgs && msgs.children.length === 0) {
-      const greeting = siteData.chatbot_greeting || 'Hi! I'm AiDoBot's AI assistant. Ask me anything about AiDoBot — how it works, features, pricing, team, or anything else!';
+      const greeting = siteData.chatbot_greeting || "Hi! I'm AiDoBot's AI assistant. Ask me anything about AiDoBot — how it works, features, pricing, team, or anything else!";
       addChatMessage('bot', greeting);
     }
     setTimeout(() => document.getElementById('chat-input')?.focus(), 100);
@@ -2824,8 +2818,7 @@ function addChatMessage(role, text) {
   div.className = `chat-msg ${role}`;
   div.innerHTML = `
     ${isBot ? `<div class="chat-avatar">${emoji}</div>` : ''}
-    <div class="chat-bubble ${role}">${text.replace(/
-/g,'<br/>')}</div>
+    <div class="chat-bubble ${role}">${text.replace(/\n/g,'<br/>')}</div>
     ${!isBot ? '<div class="chat-avatar" style="background:var(--wood-400);color:white">👤</div>' : ''}
   `;
   msgs.appendChild(div);
@@ -2912,7 +2905,7 @@ If you don't know something from the knowledge base, say so honestly and suggest
   }
 
   const data = await res.json();
-  return data.choices?.[0]?.message?.content?.trim() || 'I'm not sure about that. Please contact our team at hello@aidoBot.com!';
+  return data.choices?.[0]?.message?.content?.trim() || "I'm not sure about that. Please contact our team at hello@aidoBot.com!";
 }
 
 // ── Hook AI init into renderAll ───────────────────────
