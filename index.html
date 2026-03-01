@@ -194,6 +194,38 @@
   }
   .hero-robot-placeholder p { font-size: 0.85rem; font-family: 'Space Mono',monospace; color: var(--wood-400); }
 
+  /* ── HERO SLIDER ───────────────────────────────── */
+  .hero-slider-wrap {
+    position: relative; width: 100%; max-width: 480px;
+    background: radial-gradient(ellipse at center, var(--wood-100) 0%, transparent 70%);
+    border-radius: 50%; aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    animation: float 5s ease-in-out infinite;
+    overflow: visible;
+  }
+  .hero-slides { width: 100%; height: 100%; position: relative; }
+  .hero-slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.7s ease;
+    pointer-events: none;
+  }
+  .hero-slide.active { opacity: 1; pointer-events: auto; }
+  .hero-slide img {
+    width: 85%; object-fit: contain; border-radius: 0;
+    filter: drop-shadow(0 30px 60px rgba(176,124,58,0.35));
+  }
+  .hero-dots {
+    position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .hero-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--wood-300); cursor: pointer; transition: var(--transition);
+    border: none; padding: 0;
+  }
+  .hero-dot.active { background: var(--wood-600); width: 22px; border-radius: 4px; }
+
   .orbit-chip {
     position: absolute;
     background: white; border: 1.5px solid var(--wood-200);
@@ -1060,6 +1092,163 @@
   </div>
 </footer>
 
+<!-- ── AI ROBOT POPUP ─────────────────────────────── -->
+<div id="ai-popup-overlay" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.5s">
+  <div id="ai-popup-card" style="
+    position:fixed;bottom:32px;left:32px;
+    background:var(--wood-dark);border:2px solid var(--wood-500);
+    border-radius:24px;padding:0;overflow:hidden;
+    width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    transform:translateY(120%);opacity:0;
+    transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+  ">
+    <!-- Robot video -->
+    <div style="position:relative;background:#000;border-radius:20px 20px 0 0;overflow:hidden;aspect-ratio:16/9">
+      <video id="popup-robot-video" autoplay muted loop playsinline
+        style="width:100%;height:100%;object-fit:cover;opacity:0.9">
+      </video>
+      <div id="popup-video-placeholder" style="
+        position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+        flex-direction:column;gap:8px;color:var(--wood-300);font-size:2.5rem;
+      ">🤖<div style="font-size:0.75rem;font-family:Space Mono,monospace">Robot video here</div></div>
+      <!-- Speaking indicator -->
+      <div id="speaking-indicator" style="
+        position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+        display:flex;gap:4px;align-items:flex-end;height:20px;
+      ">
+        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0s"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.15s"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.3s"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.45s"></span>
+        <span class="speak-bar" style="width:3px;background:var(--wood-400);border-radius:2px;animation:speakBar 0.8s ease-in-out infinite 0.6s"></span>
+      </div>
+    </div>
+    <!-- Message bubble -->
+    <div style="padding:18px 20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse-green 2s infinite"></div>
+        <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--wood-300);letter-spacing:0.08em">AIDOBot AI</span>
+      </div>
+      <div id="popup-message" style="
+        font-size:0.92rem;color:var(--wood-100);line-height:1.6;
+        margin-bottom:16px;min-height:48px;
+      ">Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more?</div>
+      <div style="display:flex;gap:10px">
+        <button onclick="acceptAIPopup()" style="
+          flex:1;background:linear-gradient(135deg,var(--wood-500),var(--wood-300));
+          color:white;border:none;border-radius:12px;padding:11px;
+          font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.88rem;cursor:pointer;
+          transition:transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          Yes, tell me more! 👍
+        </button>
+        <button onclick="dismissAIPopup()" style="
+          flex:0 0 auto;background:rgba(255,255,255,0.08);
+          color:var(--wood-400);border:1px solid rgba(255,255,255,0.15);
+          border-radius:12px;padding:11px 14px;
+          font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;
+        ">No thanks</button>
+      </div>
+    </div>
+    <button onclick="dismissAIPopup()" style="
+      position:absolute;top:10px;right:12px;
+      background:rgba(0,0,0,0.5);border:none;color:white;
+      width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;
+    ">✕</button>
+  </div>
+</div>
+
+<!-- ── AI CHATBOT BUBBLE ────────────────────────────── -->
+<div id="chatbot-container" style="position:fixed;bottom:32px;right:92px;z-index:3500">
+  <!-- Trigger button -->
+  <button id="chatbot-trigger" onclick="toggleChatbot()" style="
+    width:58px;height:58px;border-radius:50%;
+    background:linear-gradient(135deg,var(--wood-600),var(--wood-400));
+    border:2px solid var(--wood-300);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;cursor:pointer;
+    box-shadow:0 4px 20px rgba(61,36,8,0.4);
+    transition:transform 0.3s,box-shadow 0.3s;
+    position:relative;
+  " title="Chat with AiDoBot AI" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+    💬
+    <span id="chat-unread" style="
+      display:none;position:absolute;top:-4px;right:-4px;
+      background:#e74c3c;color:white;font-size:0.65rem;
+      width:18px;height:18px;border-radius:50%;
+      font-family:'Space Mono',monospace;line-height:18px;text-align:center;
+    ">1</span>
+  </button>
+
+  <!-- Chat window -->
+  <div id="chatbot-window" style="
+    display:none;
+    position:absolute;bottom:72px;right:0;
+    width:340px;height:480px;
+    background:white;border-radius:20px;
+    box-shadow:0 16px 60px rgba(61,36,8,0.25);
+    border:1px solid var(--wood-200);
+    flex-direction:column;overflow:hidden;
+  ">
+    <!-- Header -->
+    <div style="
+      background:linear-gradient(135deg,var(--wood-dark),var(--wood-700));
+      padding:16px 18px;display:flex;align-items:center;gap:12px;
+    ">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--wood-500);display:flex;align-items:center;justify-content:center;font-size:1.3rem" id="cb-avatar-display">🤖</div>
+      <div style="flex:1">
+        <div style="color:var(--wood-100);font-weight:700;font-size:0.92rem" id="cb-name-display">AiDoBot Assistant</div>
+        <div style="color:var(--wood-400);font-size:0.72rem;font-family:'Space Mono',monospace;display:flex;align-items:center;gap:6px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block"></span>Online · Powered by Groq AI
+        </div>
+      </div>
+      <button onclick="toggleChatbot()" style="background:none;border:none;color:var(--wood-400);cursor:pointer;font-size:1.1rem">✕</button>
+    </div>
+
+    <!-- Messages area -->
+    <div id="chat-messages" style="
+      flex:1;overflow-y:auto;padding:16px;
+      display:flex;flex-direction:column;gap:10px;
+      background:var(--wood-50);
+    "></div>
+
+    <!-- Typing indicator -->
+    <div id="chat-typing" style="display:none;padding:0 16px 8px;background:var(--wood-50)">
+      <div style="
+        display:inline-flex;align-items:center;gap:6px;
+        background:white;border:1px solid var(--wood-200);
+        padding:8px 14px;border-radius:18px 18px 18px 4px;
+      ">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--wood-400);animation:speakBar 0.8s ease-in-out infinite 0s;display:block"></span>
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--wood-400);animation:speakBar 0.8s ease-in-out infinite 0.2s;display:block"></span>
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--wood-400);animation:speakBar 0.8s ease-in-out infinite 0.4s;display:block"></span>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div style="padding:12px 14px;border-top:1px solid var(--wood-200);background:white;display:flex;gap:8px;align-items:flex-end">
+      <textarea id="chat-input" placeholder="Ask me about AiDoBot..." rows="1"
+        style="
+          flex:1;border:1.5px solid var(--wood-200);border-radius:14px;
+          padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:0.88rem;
+          resize:none;outline:none;transition:border-color 0.2s;
+          max-height:90px;overflow-y:auto;line-height:1.4;
+        "
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage()}"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+        onfocus="this.style.borderColor='var(--wood-400)'"
+        onblur="this.style.borderColor='var(--wood-200)'">
+      </textarea>
+      <button onclick="sendChatMessage()" style="
+        width:40px;height:40px;border-radius:12px;flex-shrink:0;
+        background:linear-gradient(135deg,var(--wood-600),var(--wood-400));
+        border:none;color:white;cursor:pointer;font-size:1.1rem;
+        transition:transform 0.2s;display:flex;align-items:center;justify-content:center;
+      " onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">➤</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── ADMIN TRIGGER ───────────────────────────────── -->
 <button id="admin-trigger" title="Admin Panel" onclick="openAdmin()">⚙️</button>
 
@@ -1081,27 +1270,32 @@
     <!-- Body -->
     <div class="admin-body" id="admin-body">
       <div class="admin-sidebar">
-        <div class="admin-tab active" data-tab="hero" onclick="switchTab('hero')">🏠 Hero / Robot</div>
+        <div class="admin-tab active" data-tab="hero" onclick="switchTab('hero')">🏠 Hero Images</div>
         <div class="admin-tab" data-tab="gallery" onclick="switchTab('gallery')">🖼 Gallery</div>
         <div class="admin-tab" data-tab="shorts" onclick="switchTab('shorts')">📱 Short Reviews</div>
         <div class="admin-tab" data-tab="vreviews" onclick="switchTab('vreviews')">🎬 Video Reviews</div>
         <div class="admin-tab" data-tab="journey" onclick="switchTab('journey')">🚶 Journey Videos</div>
-        <div class="admin-tab" data-tab="team" onclick="switchTab('team')">👥 Team Photos</div>
+        <div class="admin-tab" data-tab="team" onclick="switchTab('team')">👥 Team</div>
         <div class="admin-tab" data-tab="events" onclick="switchTab('events')">📅 Events</div>
-        <div class="admin-tab" data-tab="social" onclick="switchTab('social')">📲 Social / YouTube</div>
+        <div class="admin-tab" data-tab="social" onclick="switchTab('social')">📲 Social</div>
         <div class="admin-tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</div>
+        <div class="admin-tab" data-tab="inbox" onclick="switchTab('inbox')">📩 Inbox</div>
+        <div class="admin-tab" data-tab="aibot" onclick="switchTab('aibot')">🤖 AI Robot Popup</div>
+        <div class="admin-tab" data-tab="aichat" onclick="switchTab('aichat')">💬 AI Chatbot</div>
       </div>
       <div class="admin-content">
         <!-- HERO -->
         <div class="admin-section active" id="tab-hero">
-          <h3>Hero Section — Upload Robot Image</h3>
-          <div class="upload-zone" id="hero-upload-zone">
-            <input type="file" accept="image/*" onchange="uploadFile(this,'hero','image','hero-robot')"/>
+          <h3>Hero Slideshow Images</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Upload multiple robot / product images. They will auto-slide in the hero section with dot navigation.</p>
+          <div class="upload-zone">
+            <input type="file" accept="image/*" multiple onchange="uploadHeroImages(this)"/>
             <div class="upload-icon">🤖</div>
-            <p>Click to upload robot PNG (transparent background recommended)</p>
+            <p>Click to upload one or more images (PNG transparent background recommended)</p>
           </div>
           <div class="progress-bar" id="pb-hero"><div class="fill"></div></div>
-          <div class="admin-msg" id="msg-hero">✓ Robot image updated!</div>
+          <div class="admin-msg" id="msg-hero">✓ Hero images updated!</div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="hero-img-grid"></div>
         </div>
 
         <!-- GALLERY -->
@@ -1156,24 +1350,60 @@
 
         <!-- TEAM -->
         <div class="admin-section" id="tab-team">
-          <h3>Team Member Photos</h3>
+          <h3>Team Members</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Add, edit photos, or delete team members.</p>
+          <button class="admin-save" onclick="addTeamMemberForm()" style="margin-bottom:16px">+ Add New Member</button>
           <div id="team-upload-list"></div>
-          <div class="admin-msg" id="msg-team">✓ Team photos updated!</div>
+          <div id="new-team-form" style="display:none;background:var(--wood-50);border:1px solid var(--wood-200);border-radius:14px;padding:18px;margin-top:16px">
+            <h4 style="margin-bottom:12px;color:var(--wood-700)">New Team Member</h4>
+            <label class="admin-label">Full Name</label>
+            <input class="admin-input" id="nt-name" placeholder="Dr. Jane Smith"/>
+            <label class="admin-label">Role</label>
+            <input class="admin-input" id="nt-role" placeholder="Chief Medical Officer"/>
+            <label class="admin-label">Bio</label>
+            <input class="admin-input" id="nt-bio" placeholder="Brief description..."/>
+            <label class="admin-label">Emoji (avatar placeholder)</label>
+            <input class="admin-input" id="nt-emoji" placeholder="👨‍⚕️" style="width:80px"/>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button class="admin-save" onclick="saveNewTeamMember()">✓ Add Member</button>
+              <button class="admin-save" style="background:var(--wood-300)" onclick="document.getElementById('new-team-form').style.display='none'">Cancel</button>
+            </div>
+          </div>
+          <div class="admin-msg" id="msg-team">✓ Team updated!</div>
         </div>
 
         <!-- EVENTS -->
         <div class="admin-section" id="tab-events">
-          <h3>Event Images</h3>
+          <h3>Events</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Add, update images, or delete events.</p>
+          <button class="admin-save" onclick="showAddEventForm()" style="margin-bottom:16px">+ Add New Event</button>
           <div id="event-upload-list"></div>
+          <div id="new-event-form" style="display:none;background:var(--wood-50);border:1px solid var(--wood-200);border-radius:14px;padding:18px;margin-top:16px">
+            <h4 style="margin-bottom:12px;color:var(--wood-700)">New Event</h4>
+            <label class="admin-label">Event Title</label>
+            <input class="admin-input" id="ne-title" placeholder="Healthcare Summit 2026"/>
+            <label class="admin-label">Date</label>
+            <input class="admin-input" id="ne-date" placeholder="Jun 2026"/>
+            <label class="admin-label">Location</label>
+            <input class="admin-input" id="ne-loc" placeholder="Lagos, Nigeria"/>
+            <label class="admin-label">Description</label>
+            <input class="admin-input" id="ne-desc" placeholder="Brief event description..."/>
+            <label class="admin-label">Icon (emoji)</label>
+            <input class="admin-input" id="ne-icon" placeholder="🏥" style="width:80px"/>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button class="admin-save" onclick="saveNewEvent()">✓ Add Event</button>
+              <button class="admin-save" style="background:var(--wood-300)" onclick="document.getElementById('new-event-form').style.display='none'">Cancel</button>
+            </div>
+          </div>
           <div class="admin-msg" id="msg-events">✓ Events updated!</div>
         </div>
 
         <!-- SOCIAL -->
         <div class="admin-section" id="tab-social">
-          <h3>Social Media & YouTube</h3>
+          <h3>Social Media Links</h3>
           <label class="admin-label">YouTube Channel URL</label>
           <input class="admin-input" id="soc-yt" placeholder="https://youtube.com/@aidoBot"/>
-          <label class="admin-label">Latest YouTube Video URL (to embed)</label>
+          <label class="admin-label">Latest YouTube Video URL (to embed on site)</label>
           <input class="admin-input" id="soc-yt-latest" placeholder="https://www.youtube.com/watch?v=..."/>
           <label class="admin-label">Facebook URL</label>
           <input class="admin-input" id="soc-fb" placeholder="https://facebook.com/aidoBot"/>
@@ -1181,8 +1411,33 @@
           <input class="admin-input" id="soc-ig" placeholder="https://instagram.com/aidoBot"/>
           <label class="admin-label">WhatsApp Link</label>
           <input class="admin-input" id="soc-wa" placeholder="https://wa.me/918800510790"/>
+          <label class="admin-label">TikTok URL</label>
+          <input class="admin-input" id="soc-tk" placeholder="https://tiktok.com/@aidoBot"/>
+          <label class="admin-label">LinkedIn URL</label>
+          <input class="admin-input" id="soc-li" placeholder="https://linkedin.com/company/aidoBot"/>
           <button class="admin-save" onclick="saveSocial()">Save Social Links</button>
           <div class="admin-msg" id="msg-social">✓ Social links saved!</div>
+
+          <hr style="border:none;border-top:1px solid var(--wood-200);margin:24px 0"/>
+          <h3>Announcements / News</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:12px">Add or delete news announcements shown on the site.</p>
+          <button class="admin-save" onclick="showAddAnnouncementForm()" style="margin-bottom:12px">+ Add Announcement</button>
+          <div id="announce-admin-list"></div>
+          <div id="new-announce-form" style="display:none;background:var(--wood-50);border:1px solid var(--wood-200);border-radius:14px;padding:18px;margin-top:12px">
+            <label class="admin-label">Icon (emoji)</label>
+            <input class="admin-input" id="na-icon" placeholder="🚀" style="width:80px"/>
+            <label class="admin-label">Date</label>
+            <input class="admin-input" id="na-date" placeholder="Mar 1, 2026"/>
+            <label class="admin-label">Title</label>
+            <input class="admin-input" id="na-title" placeholder="Big announcement title"/>
+            <label class="admin-label">Body Text</label>
+            <input class="admin-input" id="na-body" placeholder="Description of the announcement..."/>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button class="admin-save" onclick="saveNewAnnouncement()">✓ Add</button>
+              <button class="admin-save" style="background:var(--wood-300)" onclick="document.getElementById('new-announce-form').style.display='none'">Cancel</button>
+            </div>
+          </div>
+          <div class="admin-msg" id="msg-announce">✓ Announcements updated!</div>
         </div>
 
         <!-- STATS -->
@@ -1197,6 +1452,87 @@
           <button class="admin-save" onclick="saveStats()">Save Stats</button>
           <div class="admin-msg" id="msg-stats">✓ Stats saved!</div>
         </div>
+
+        <div class="admin-section" id="tab-inbox">
+          <h3>📩 Contact Form Inbox</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Messages sent through the website contact form appear here.</p>
+          <button class="admin-save" onclick="loadInbox()" style="margin-bottom:16px">🔄 Refresh Inbox</button>
+          <div id="inbox-list">
+            <div style="text-align:center;padding:32px;color:var(--text-light);font-size:0.85rem">Click Refresh Inbox to load messages.</div>
+          </div>
+        </div>
+
+        <!-- AI ROBOT POPUP TAB -->
+        <div class="admin-section" id="tab-aibot">
+          <h3>🤖 AI Robot Popup</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">Upload the robot talking video clip. It will pop up after 5 seconds on the site and greet visitors with AI voice.</p>
+          <div class="upload-zone">
+            <input type="file" accept="video/*" onchange="uploadRobotVideo(this)"/>
+            <div class="upload-icon">🎬</div>
+            <p>Upload robot talking video (MP4, WebM recommended)</p>
+          </div>
+          <div class="progress-bar" id="pb-robotvid"><div class="fill"></div></div>
+          <div id="robot-vid-preview" style="margin-top:12px"></div>
+          <div class="admin-msg" id="msg-robotvid">✓ Robot video updated!</div>
+
+          <hr style="border:none;border-top:1px solid var(--wood-200);margin:20px 0"/>
+          <h4 style="color:var(--wood-700);margin-bottom:12px">🎤 Popup AI Greeting Script</h4>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:10px">This is what the AI will say out loud when it pops up.</p>
+          <textarea class="admin-input" id="popup-greeting-script" rows="3" placeholder="Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more about how I can bring quality healthcare to you?"></textarea>
+          <div style="display:flex;gap:10px;margin-top:6px">
+            <button class="admin-save" onclick="savePopupGreeting()">Save Greeting Script</button>
+          </div>
+          <div class="admin-msg" id="msg-popup-greeting">✓ Greeting saved!</div>
+        </div>
+
+        <!-- AI CHATBOT TAB -->
+        <div class="admin-section" id="tab-aichat">
+          <h3>💬 AI Chatbot Settings</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:16px">The chatbot uses Groq AI and answers questions about AiDoBot based on your knowledge base below.</p>
+
+          <label class="admin-label">Chatbot Name</label>
+          <input class="admin-input" id="cb-name" placeholder="AiDoBot Assistant"/>
+          <label class="admin-label">Chatbot Greeting Message</label>
+          <input class="admin-input" id="cb-greeting" placeholder="Hi! I'm AiDoBot's AI assistant. Ask me anything about AiDoBot!"/>
+          <label class="admin-label">Chatbot Avatar Emoji</label>
+          <input class="admin-input" id="cb-emoji" placeholder="🤖" style="width:80px"/>
+          <button class="admin-save" onclick="saveChatbotSettings()">Save Chatbot Settings</button>
+          <div class="admin-msg" id="msg-cbsettings">✓ Chatbot settings saved!</div>
+
+          <hr style="border:none;border-top:1px solid var(--wood-200);margin:20px 0"/>
+          <h4 style="color:var(--wood-700);margin-bottom:8px">📚 AI Knowledge Base</h4>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:10px">Add everything about your company, products, team, pricing, and services here. The AI will use this to answer visitor questions accurately. Be as detailed as possible.</p>
+          <textarea class="admin-input" id="ai-knowledge-base" rows="14" placeholder="Company Name: AiDoBot
+What we do: AiDoBot is an AI-powered medical robot that checks vitals, speaks multiple languages, connects patients to doctors, and delivers medicine.
+
+Products/Features:
+- Heart rate monitoring
+- Blood oxygen (SpO2) detection
+- Temperature measurement
+- Blood pressure monitoring
+- Weight and height measurement
+- AI face analysis (emotion, pallor, fatigue)
+- Live video doctor consultation
+- Digital prescriptions
+- Medicine home delivery
+- Multi-language support
+- 24/7 availability
+
+Pricing: Contact us for pricing.
+Website: aidoBot.com
+Email: hello@aidoBot.com
+WhatsApp: +91 8800 510 790
+
+Team: Abdoukadir Jabbi (Inventor), Anushka (AI Design), Isatou Jallow (Finance), Nuna (Communications)...
+
+Add more details here..."></textarea>
+          <div style="display:flex;gap:10px;margin-top:8px;align-items:center">
+            <button class="admin-save" onclick="saveKnowledgeBase()">💾 Save Knowledge Base</button>
+            <span style="font-size:0.78rem;color:var(--text-light)" id="kb-char-count"></span>
+          </div>
+          <div class="admin-msg" id="msg-kb">✓ Knowledge base saved! AI will use this in all conversations.</div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1271,12 +1607,22 @@ window.addEventListener('DOMContentLoaded', async () => {
   setupNavScroll();
   buildMarquee();
   animateStats();
+  initAIFeatures();
 });
 
 function mergeDefaults() {
   Object.keys(DEFAULT).forEach(k => {
-    if(!siteData[k]) siteData[k] = DEFAULT[k];
+    if(siteData[k] === undefined) siteData[k] = DEFAULT[k];
   });
+  if(!siteData.hero_images)       siteData.hero_images = [];
+  if(!siteData.announcements)     siteData.announcements = DEFAULT.announcements;
+  if(!siteData.vreviews)          siteData.vreviews = [];
+  if(!siteData.ai_knowledge_base) siteData.ai_knowledge_base = '';
+  if(!siteData.popup_greeting)    siteData.popup_greeting = '';
+  if(!siteData.ai_robot_video)    siteData.ai_robot_video = '';
+  if(!siteData.chatbot_name)      siteData.chatbot_name = 'AiDoBot Assistant';
+  if(!siteData.chatbot_greeting)  siteData.chatbot_greeting = 'Hi! I'm AiDoBot's AI assistant. Ask me anything!';
+  if(!siteData.chatbot_emoji)     siteData.chatbot_emoji = '🤖';
 }
 
 // ─── RENDER ALL ──────────────────────────────────────
@@ -1294,13 +1640,89 @@ function renderAll() {
   renderSocial();
 }
 
+// ─── HERO SLIDESHOW ──────────────────────────────────
+let heroSlideIndex = 0;
+let heroSlideTimer = null;
+
 function renderHero() {
-  const img = siteData.hero?.robot_image;
-  if(img) {
-    document.getElementById('robot-placeholder').style.display = 'none';
-    const ri = document.getElementById('hero-robot-img');
-    ri.src = img; ri.style.display = 'block';
+  const images = siteData.hero_images || [];
+  const slidesEl = document.getElementById('hero-slides');
+  const dotsEl   = document.getElementById('hero-dots');
+  if(!slidesEl) return;
+
+  if(!images.length) {
+    slidesEl.innerHTML = `<div class="hero-slide active"><div class="hero-robot-placeholder"><span>🤖</span><p>Upload robot images in admin</p></div></div>`;
+    dotsEl.innerHTML = '<span class="hero-dot active"></span>';
+    return;
   }
+
+  slidesEl.innerHTML = images.map((url, i) => `
+    <div class="hero-slide${i===0?' active':''}">
+      <img src="${url}" alt="AiDoBot Robot ${i+1}"/>
+    </div>`).join('');
+
+  dotsEl.innerHTML = images.map((_, i) =>
+    `<button class="hero-dot${i===0?' active':''}" onclick="goToSlide(${i})"></button>`
+  ).join('');
+
+  clearInterval(heroSlideTimer);
+  if(images.length > 1) {
+    heroSlideTimer = setInterval(() => goToSlide((heroSlideIndex + 1) % images.length), 3500);
+  }
+  heroSlideIndex = 0;
+}
+
+function goToSlide(idx) {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots   = document.querySelectorAll('.hero-dot');
+  slides.forEach((s,i) => s.classList.toggle('active', i === idx));
+  dots.forEach((d,i)   => d.classList.toggle('active', i === idx));
+  heroSlideIndex = idx;
+}
+
+// ─── HERO IMAGES: refresh admin grid ─────────────────
+function refreshHeroImgGrid() {
+  const images = siteData.hero_images || [];
+  const grid = document.getElementById('hero-img-grid');
+  if(!grid) return;
+  if(!images.length) {
+    grid.innerHTML = '<p style="font-size:0.82rem;color:var(--text-light)">No images yet. Upload above.</p>';
+    return;
+  }
+  grid.innerHTML = images.map((url, i) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;background:var(--wood-100)">
+      <img src="${url}" style="width:100%;height:100%;object-fit:cover"/>
+      <button onclick="deleteHeroImage(${i})" style="
+        position:absolute;top:6px;right:6px;
+        background:rgba(200,50,50,0.85);color:white;
+        border:none;border-radius:50%;width:26px;height:26px;
+        font-size:0.8rem;cursor:pointer;line-height:1
+      ">✕</button>
+      ${i===0 ? '<div style="position:absolute;bottom:6px;left:6px;background:var(--wood-600);color:white;font-size:0.65rem;padding:2px 8px;border-radius:4px;font-family:Space Mono,monospace">MAIN</div>' : ''}
+    </div>`).join('');
+}
+
+async function uploadHeroImages(input) {
+  const files = Array.from(input.files);
+  if(!files.length) return;
+  showProgress('pb-hero');
+  siteData.hero_images = siteData.hero_images || [];
+  for(const file of files) {
+    try {
+      const url = await uploadToCloudinary(file, 'hero', 'image');
+      siteData.hero_images.push(url);
+    } catch(e) { console.error(e); }
+  }
+  hideProgress('pb-hero');
+  const saved = await apiSave('hero_images', siteData.hero_images);
+  if(saved) { renderHero(); refreshHeroImgGrid(); showMsg('msg-hero'); }
+}
+
+async function deleteHeroImage(idx) {
+  if(!confirm('Delete this hero image?')) return;
+  siteData.hero_images.splice(idx, 1);
+  const saved = await apiSave('hero_images', siteData.hero_images);
+  if(saved) { renderHero(); refreshHeroImgGrid(); showMsg('msg-hero'); }
 }
 
 function renderShorts() {
@@ -1594,6 +2016,9 @@ function buildAdminForms() {
   buildEventUploads();
   fillSocialInputs();
   fillStatsInputs();
+  refreshHeroImgGrid();
+  buildAnnounceAdminList();
+  fillAIAdminFields();
 }
 
 function buildJourneyInputs() {
@@ -1663,7 +2088,7 @@ function saveVReviews() {
 function buildTeamUploads() {
   const team = siteData.team || DEFAULT.team;
   document.getElementById('team-upload-list').innerHTML = team.map((m,i) => `
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px;background:var(--wood-50);border-radius:12px;border:1px solid var(--wood-200)">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;padding:12px;background:var(--wood-50);border-radius:12px;border:1px solid var(--wood-200)">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--wood-100);display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden;flex-shrink:0">
         ${m.photo ? `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : m.emoji||'👤'}
       </div>
@@ -1671,11 +2096,45 @@ function buildTeamUploads() {
         <div style="font-weight:600;font-size:0.9rem">${m.name}</div>
         <div style="font-size:0.75rem;color:var(--wood-500)">${m.role}</div>
       </div>
-      <label style="cursor:pointer;background:var(--wood-600);color:white;padding:8px 14px;border-radius:8px;font-size:0.8rem">
-        Upload Photo
+      <label style="cursor:pointer;background:var(--wood-600);color:white;padding:8px 10px;border-radius:8px;font-size:0.78rem;white-space:nowrap">
+        📷 Photo
         <input type="file" accept="image/*" style="display:none" onchange="uploadTeamPhoto(this,${i})"/>
       </label>
+      <button onclick="deleteTeamMember(${i})" style="background:#c0392b;color:white;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.78rem;flex-shrink:0">
+        🗑 Delete
+      </button>
     </div>`).join('');
+}
+
+function addTeamMemberForm() {
+  document.getElementById('new-team-form').style.display = 'block';
+  document.getElementById('new-team-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveNewTeamMember() {
+  const name  = document.getElementById('nt-name').value.trim();
+  const role  = document.getElementById('nt-role').value.trim();
+  const bio   = document.getElementById('nt-bio').value.trim();
+  const emoji = document.getElementById('nt-emoji').value.trim() || '👤';
+  if(!name || !role) { alert('Name and role are required.'); return; }
+  siteData.team = siteData.team || DEFAULT.team;
+  siteData.team.push({ name, role, bio, emoji, photo: '' });
+  const saved = await apiSave('team', siteData.team);
+  if(saved) {
+    renderTeam();
+    buildTeamUploads();
+    showMsg('msg-team');
+    document.getElementById('new-team-form').style.display = 'none';
+    ['nt-name','nt-role','nt-bio','nt-emoji'].forEach(id => document.getElementById(id).value = '');
+  }
+}
+
+async function deleteTeamMember(idx) {
+  if(!confirm(`Delete "${(siteData.team||DEFAULT.team)[idx]?.name}"?`)) return;
+  siteData.team = siteData.team || DEFAULT.team;
+  siteData.team.splice(idx, 1);
+  const saved = await apiSave('team', siteData.team);
+  if(saved) { renderTeam(); buildTeamUploads(); showMsg('msg-team'); }
 }
 
 async function uploadTeamPhoto(input, idx) {
@@ -1692,17 +2151,55 @@ async function uploadTeamPhoto(input, idx) {
 function buildEventUploads() {
   const events = siteData.events || DEFAULT.events;
   document.getElementById('event-upload-list').innerHTML = events.map((e,i) => `
-    <div style="margin-bottom:14px;padding:12px;background:var(--wood-50);border-radius:12px;border:1px solid var(--wood-200)">
+    <div style="margin-bottom:12px;padding:12px;background:var(--wood-50);border-radius:12px;border:1px solid var(--wood-200)">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
         <span style="font-size:1.4rem">${e.icon}</span>
-        <div><div style="font-weight:600;font-size:0.9rem">${e.title}</div><div style="font-size:0.75rem;color:var(--wood-500)">${e.location}</div></div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.9rem">${e.title}</div>
+          <div style="font-size:0.75rem;color:var(--wood-500)">${e.date} · ${e.location}</div>
+        </div>
+        <button onclick="deleteEvent(${i})" style="background:#c0392b;color:white;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:0.78rem;flex-shrink:0">
+          🗑 Delete
+        </button>
       </div>
-      <label style="cursor:pointer;background:var(--wood-600);color:white;padding:8px 14px;border-radius:8px;font-size:0.8rem;display:inline-block">
-        Upload Event Image
+      <label style="cursor:pointer;background:var(--wood-600);color:white;padding:7px 12px;border-radius:8px;font-size:0.78rem;display:inline-block">
+        📷 Upload Image
         <input type="file" accept="image/*" style="display:none" onchange="uploadEventImg(this,${i})"/>
       </label>
-      ${e.image ? `<img src="${e.image}" style="margin-top:8px;border-radius:10px;max-height:100px"/>` : ''}
+      ${e.image ? `<img src="${e.image}" style="margin-top:8px;border-radius:10px;max-height:80px"/>` : ''}
     </div>`).join('');
+}
+
+function showAddEventForm() {
+  document.getElementById('new-event-form').style.display = 'block';
+  document.getElementById('new-event-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveNewEvent() {
+  const title = document.getElementById('ne-title').value.trim();
+  const date  = document.getElementById('ne-date').value.trim();
+  const loc   = document.getElementById('ne-loc').value.trim();
+  const desc  = document.getElementById('ne-desc').value.trim();
+  const icon  = document.getElementById('ne-icon').value.trim() || '📅';
+  if(!title) { alert('Event title is required.'); return; }
+  siteData.events = siteData.events || DEFAULT.events;
+  siteData.events.push({ title, date, location: loc, desc, icon, image: '' });
+  const saved = await apiSave('events', siteData.events);
+  if(saved) {
+    renderEvents();
+    buildEventUploads();
+    showMsg('msg-events');
+    document.getElementById('new-event-form').style.display = 'none';
+    ['ne-title','ne-date','ne-loc','ne-desc','ne-icon'].forEach(id => document.getElementById(id).value = '');
+  }
+}
+
+async function deleteEvent(idx) {
+  if(!confirm(`Delete "${(siteData.events||DEFAULT.events)[idx]?.title}"?`)) return;
+  siteData.events = siteData.events || DEFAULT.events;
+  siteData.events.splice(idx, 1);
+  const saved = await apiSave('events', siteData.events);
+  if(saved) { renderEvents(); buildEventUploads(); showMsg('msg-events'); }
 }
 
 async function uploadEventImg(input, idx) {
@@ -1744,6 +2241,118 @@ function fillStatsInputs() {
   document.getElementById('stat-acc-input').value = s.accuracy||98;
   document.getElementById('stat-ts-input').value = s.time_saved||70;
   document.getElementById('stat-sc-input').value = s.daily_screenings||500;
+}
+
+// ─── SOCIAL: add TikTok + LinkedIn to fill/save ──────
+function fillSocialInputs() {
+  const s = siteData.social || DEFAULT.social;
+  document.getElementById('soc-yt').value = s.youtube||'';
+  document.getElementById('soc-yt-latest').value = siteData.latest_youtube||'';
+  document.getElementById('soc-fb').value = s.facebook||'';
+  document.getElementById('soc-ig').value = s.instagram||'';
+  document.getElementById('soc-wa').value = s.whatsapp||'';
+  const tk = document.getElementById('soc-tk');
+  const li = document.getElementById('soc-li');
+  if(tk) tk.value = s.tiktok||'';
+  if(li) li.value = s.linkedin||'';
+}
+
+// ─── ANNOUNCEMENTS ADMIN ──────────────────────────────
+function buildAnnounceAdminList() {
+  const list = document.getElementById('announce-admin-list');
+  if(!list) return;
+  const items = siteData.announcements || DEFAULT.announcements;
+  if(!items.length) {
+    list.innerHTML = '<p style="font-size:0.82rem;color:var(--text-light)">No announcements yet.</p>';
+    return;
+  }
+  list.innerHTML = items.map((a,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--wood-50);border-radius:10px;border:1px solid var(--wood-200);margin-bottom:8px">
+      <span style="font-size:1.4rem">${a.icon}</span>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.88rem">${a.title}</div>
+        <div style="font-size:0.75rem;color:var(--wood-500)">${a.date}</div>
+      </div>
+      <button onclick="deleteAnnouncement(${i})" style="background:#c0392b;color:white;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:0.78rem">
+        🗑 Delete
+      </button>
+    </div>`).join('');
+}
+
+function showAddAnnouncementForm() {
+  document.getElementById('new-announce-form').style.display = 'block';
+  document.getElementById('new-announce-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveNewAnnouncement() {
+  const icon  = document.getElementById('na-icon').value.trim() || '📢';
+  const date  = document.getElementById('na-date').value.trim();
+  const title = document.getElementById('na-title').value.trim();
+  const body  = document.getElementById('na-body').value.trim();
+  if(!title) { alert('Title is required.'); return; }
+  siteData.announcements = siteData.announcements || DEFAULT.announcements;
+  siteData.announcements.unshift({ icon, date, title, body });
+  const saved = await apiSave('announcements', siteData.announcements);
+  if(saved) {
+    renderAnnouncements();
+    buildAnnounceAdminList();
+    showMsg('msg-announce');
+    document.getElementById('new-announce-form').style.display = 'none';
+    ['na-icon','na-date','na-title','na-body'].forEach(id => document.getElementById(id).value = '');
+  }
+}
+
+async function deleteAnnouncement(idx) {
+  if(!confirm('Delete this announcement?')) return;
+  siteData.announcements = siteData.announcements || DEFAULT.announcements;
+  siteData.announcements.splice(idx, 1);
+  const saved = await apiSave('announcements', siteData.announcements);
+  if(saved) { renderAnnouncements(); buildAnnounceAdminList(); showMsg('msg-announce'); }
+}
+
+// ─── INBOX: load contact messages from backend ────────
+async function loadInbox() {
+  const box = document.getElementById('inbox-list');
+  if(!box) return;
+  box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-light)">Loading...</div>';
+  try {
+    const res = await fetch(`${API}/api/admin/inbox`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if(!res.ok) throw new Error('Failed');
+    const messages = await res.json();
+    if(!messages.length) {
+      box.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-light);font-size:0.85rem">No messages yet. They will appear here when people fill the contact form.</div>';
+      return;
+    }
+    box.innerHTML = messages.map((m,i) => `
+      <div style="padding:16px;background:var(--wood-50);border:1px solid var(--wood-200);border-radius:12px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-weight:700;font-size:0.95rem">${m.first||''} ${m.last||''}</div>
+            <div style="font-size:0.78rem;color:var(--wood-500)">${m.email||''} · ${m.org||''}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:0.72rem;font-family:Space Mono,monospace;color:var(--text-light)">${m.created_at ? new Date(m.created_at).toLocaleDateString() : ''}</span>
+            <button onclick="deleteMessage(${m.id})" style="background:#c0392b;color:white;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.72rem">🗑</button>
+          </div>
+        </div>
+        <div style="font-size:0.88rem;color:var(--text-mid);line-height:1.6;background:white;padding:10px 12px;border-radius:8px;border:1px solid var(--wood-100)">${m.message||''}</div>
+      </div>`).join('');
+  } catch(e) {
+    box.innerHTML = `<div style="text-align:center;padding:20px;color:#c0392b;font-size:0.85rem">❌ Error loading inbox: ${e.message}</div>`;
+  }
+}
+
+async function deleteMessage(id) {
+  if(!confirm('Delete this message?')) return;
+  try {
+    await fetch(`${API}/api/admin/inbox/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    loadInbox();
+  } catch(e) { alert('Delete failed: ' + e.message); }
 }
 
 async function saveStats() {
@@ -1942,6 +2551,324 @@ function showMsg(id) {
   if(!el) return;
   el.style.display = 'block';
   setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+// ════════════════════════════════════════════════════
+// ─── AI ROBOT POPUP ──────────────────────────────────
+// ════════════════════════════════════════════════════
+
+let popupShown = sessionStorage.getItem('popupShown');
+
+function initAIPopup() {
+  if(popupShown) return;
+  setTimeout(showAIPopup, 5000); // 5 seconds
+}
+
+function showAIPopup() {
+  if(sessionStorage.getItem('popupShown')) return;
+  const overlay = document.getElementById('ai-popup-overlay');
+  const card    = document.getElementById('ai-popup-card');
+  if(!overlay || !card) return;
+
+  overlay.style.display = 'block';
+  overlay.style.pointerEvents = 'auto';
+  requestAnimationFrame(() => {
+    overlay.style.background = 'rgba(0,0,0,0.3)';
+    card.style.transform = 'translateY(0)';
+    card.style.opacity   = '1';
+  });
+
+  // Load robot video if set
+  const vid = siteData.ai_robot_video || '';
+  const videoEl = document.getElementById('popup-robot-video');
+  const placeholder = document.getElementById('popup-video-placeholder');
+  if(vid && videoEl) {
+    videoEl.src = vid;
+    videoEl.style.display = 'block';
+    if(placeholder) placeholder.style.display = 'none';
+  }
+
+  // Set greeting text
+  const greeting = siteData.popup_greeting || 'Hello! I'm AiDoBot, your AI healthcare companion. Would you like to learn more about how I can bring quality healthcare to you?';
+  const msgEl = document.getElementById('popup-message');
+  if(msgEl) msgEl.textContent = greeting;
+
+  // Speak the greeting with browser TTS
+  speakText(greeting);
+}
+
+function dismissAIPopup() {
+  const overlay = document.getElementById('ai-popup-overlay');
+  const card    = document.getElementById('ai-popup-card');
+  if(!overlay || !card) return;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  card.style.transform  = 'translateY(120%)';
+  card.style.opacity    = '0';
+  overlay.style.background = 'rgba(0,0,0,0)';
+  overlay.style.pointerEvents = 'none';
+  setTimeout(() => { overlay.style.display = 'none'; }, 600);
+  sessionStorage.setItem('popupShown', '1');
+}
+
+function acceptAIPopup() {
+  dismissAIPopup();
+  // Open chatbot after a short delay
+  setTimeout(() => {
+    const win = document.getElementById('chatbot-window');
+    if(win) {
+      win.style.display = 'flex';
+      // Send first message automatically
+      addChatMessage('bot', siteData.chatbot_greeting || 'Great! Ask me anything about AiDoBot — our features, how it works, pricing, team, or anything else you'd like to know!');
+    }
+  }, 800);
+}
+
+// ── Text-to-Speech ───────────────────────────────────
+function speakText(text) {
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate  = 0.92;
+  utt.pitch = 1.05;
+  utt.volume = 0.9;
+  // Try to pick a nice English voice
+  const voices = window.speechSynthesis.getVoices();
+  const nice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google')));
+  if(nice) utt.voice = nice;
+  window.speechSynthesis.speak(utt);
+}
+
+// ── Admin: upload robot video ─────────────────────────
+async function uploadRobotVideo(input) {
+  const file = input.files[0];
+  if(!file) return;
+  showProgress('pb-robotvid');
+  try {
+    const url = await uploadToCloudinary(file, 'ai_robot', 'video');
+    hideProgress('pb-robotvid');
+    siteData.ai_robot_video = url;
+    await apiSave('ai_robot_video', url);
+    // Show preview
+    const prev = document.getElementById('robot-vid-preview');
+    if(prev) prev.innerHTML = `<video src="${url}" controls style="width:100%;border-radius:12px;max-height:160px"></video>`;
+    showMsg('msg-robotvid');
+  } catch(e) {
+    hideProgress('pb-robotvid');
+    showAdminStatus('❌ Video upload failed: ' + e.message, true);
+  }
+}
+
+// ── Admin: save popup greeting ────────────────────────
+async function savePopupGreeting() {
+  const text = document.getElementById('popup-greeting-script')?.value.trim();
+  if(!text) return;
+  siteData.popup_greeting = text;
+  const saved = await apiSave('popup_greeting', text);
+  if(saved) showMsg('msg-popup-greeting');
+}
+
+// ── Admin: fill popup/chatbot fields on open ──────────
+function fillAIAdminFields() {
+  const pg = document.getElementById('popup-greeting-script');
+  if(pg) pg.value = siteData.popup_greeting || '';
+  const cbn = document.getElementById('cb-name');
+  if(cbn) cbn.value = siteData.chatbot_name || '';
+  const cbg = document.getElementById('cb-greeting');
+  if(cbg) cbg.value = siteData.chatbot_greeting || '';
+  const cbe = document.getElementById('cb-emoji');
+  if(cbe) cbe.value = siteData.chatbot_emoji || '🤖';
+  const kb = document.getElementById('ai-knowledge-base');
+  if(kb) {
+    kb.value = siteData.ai_knowledge_base || '';
+    updateKbCount();
+    kb.addEventListener('input', updateKbCount);
+  }
+  // Show video preview if already uploaded
+  const vid = siteData.ai_robot_video || '';
+  const prev = document.getElementById('robot-vid-preview');
+  if(vid && prev) prev.innerHTML = `<video src="${vid}" controls style="width:100%;border-radius:12px;max-height:160px"></video>`;
+}
+
+function updateKbCount() {
+  const kb = document.getElementById('ai-knowledge-base');
+  const cnt = document.getElementById('kb-char-count');
+  if(kb && cnt) cnt.textContent = `${kb.value.length.toLocaleString()} characters`;
+}
+
+// ── Admin: save chatbot settings ──────────────────────
+async function saveChatbotSettings() {
+  siteData.chatbot_name     = document.getElementById('cb-name')?.value.trim() || 'AiDoBot Assistant';
+  siteData.chatbot_greeting = document.getElementById('cb-greeting')?.value.trim() || 'Hi! How can I help?';
+  siteData.chatbot_emoji    = document.getElementById('cb-emoji')?.value.trim() || '🤖';
+
+  const s1 = await apiSave('chatbot_name',     siteData.chatbot_name);
+  const s2 = await apiSave('chatbot_greeting', siteData.chatbot_greeting);
+  const s3 = await apiSave('chatbot_emoji',    siteData.chatbot_emoji);
+
+  if(s1 && s2 && s3) {
+    updateChatbotUI();
+    showMsg('msg-cbsettings');
+  }
+}
+
+// ── Admin: save knowledge base ────────────────────────
+async function saveKnowledgeBase() {
+  const kb = document.getElementById('ai-knowledge-base')?.value.trim();
+  if(!kb) return;
+  siteData.ai_knowledge_base = kb;
+  const saved = await apiSave('ai_knowledge_base', kb);
+  if(saved) showMsg('msg-kb');
+}
+
+// ════════════════════════════════════════════════════
+// ─── AI CHATBOT ───────────────────────────────────────
+// ════════════════════════════════════════════════════
+
+const GROQ_API_KEY = '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';
+const GROQ_MODEL   = 'llama3-70b-8192';  // Fast, smart Groq model
+let chatHistory    = [];
+let chatbotOpen    = false;
+
+function updateChatbotUI() {
+  const nameEl  = document.getElementById('cb-name-display');
+  const avatarEl = document.getElementById('cb-avatar-display');
+  if(nameEl)  nameEl.textContent  = siteData.chatbot_name  || 'AiDoBot Assistant';
+  if(avatarEl) avatarEl.textContent = siteData.chatbot_emoji || '🤖';
+}
+
+function toggleChatbot() {
+  const win = document.getElementById('chatbot-window');
+  const unread = document.getElementById('chat-unread');
+  if(!win) return;
+
+  chatbotOpen = !chatbotOpen;
+  win.style.display = chatbotOpen ? 'flex' : 'none';
+
+  if(chatbotOpen) {
+    if(unread) unread.style.display = 'none';
+    // Show greeting if first open
+    const msgs = document.getElementById('chat-messages');
+    if(msgs && msgs.children.length === 0) {
+      const greeting = siteData.chatbot_greeting || 'Hi! I'm AiDoBot's AI assistant. Ask me anything about AiDoBot — how it works, features, pricing, team, or anything else!';
+      addChatMessage('bot', greeting);
+    }
+    setTimeout(() => document.getElementById('chat-input')?.focus(), 100);
+  }
+}
+
+function addChatMessage(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  if(!msgs) return;
+
+  const isBot = role === 'bot';
+  const emoji = siteData.chatbot_emoji || '🤖';
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = `
+    ${isBot ? `<div class="chat-avatar">${emoji}</div>` : ''}
+    <div class="chat-bubble ${role}">${text.replace(/
+/g,'<br/>')}</div>
+    ${!isBot ? '<div class="chat-avatar" style="background:var(--wood-400);color:white">👤</div>' : ''}
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  document.getElementById('chat-typing').style.display = 'block';
+  document.getElementById('chat-messages').scrollTop = 99999;
+}
+function hideTyping() {
+  document.getElementById('chat-typing').style.display = 'none';
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text) return;
+
+  addChatMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  input.value = '';
+  input.style.height = 'auto';
+  showTyping();
+
+  try {
+    const reply = await callGroqAI(text);
+    hideTyping();
+    addChatMessage('bot', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    // Keep history to last 12 messages to avoid token overflow
+    if(chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+  } catch(e) {
+    hideTyping();
+    addChatMessage('bot', 'Sorry, I had trouble connecting. Please try again in a moment!');
+    console.error('Groq error:', e);
+  }
+}
+
+async function callGroqAI(userMessage) {
+  const kb = siteData.ai_knowledge_base || `
+AiDoBot is an AI-powered medical robot that checks vitals, speaks multiple languages, connects patients to live doctors, and arranges medicine delivery. 
+Features: heart rate, SpO2, temperature, blood pressure, weight, height, AI face analysis, live video consultations, digital prescriptions, home medicine delivery.
+Contact: hello@aidoBot.com | WhatsApp: +91 8800 510 790
+`.trim();
+
+  const systemPrompt = `You are AiDoBot's friendly and helpful AI assistant embedded on the AiDoBot website.
+You ONLY answer questions about AiDoBot and healthcare topics related to AiDoBot.
+If someone asks something completely unrelated, politely redirect them back to AiDoBot topics.
+Be warm, concise, and professional. Keep responses under 120 words unless a detailed answer is truly needed.
+Use the following knowledge base to answer accurately:
+
+--- KNOWLEDGE BASE ---
+${kb}
+--- END KNOWLEDGE BASE ---
+
+If you don't know something from the knowledge base, say so honestly and suggest contacting the team.`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...chatHistory.slice(-10),  // last 10 turns for context
+    { role: 'user', content: userMessage }
+  ];
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages,
+      max_tokens: 300,
+      temperature: 0.65,
+      stream: false
+    })
+  });
+
+  if(!res.ok) {
+    const err = await res.text();
+    throw new Error(`Groq API error: ${err}`);
+  }
+
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content?.trim() || 'I'm not sure about that. Please contact our team at hello@aidoBot.com!';
+}
+
+// ── Hook AI init into renderAll ───────────────────────
+// Called after siteData is loaded
+function initAIFeatures() {
+  updateChatbotUI();
+  initAIPopup();
+  // Show chatbot unread badge after 8s if popup was already dismissed
+  setTimeout(() => {
+    if(!chatbotOpen) {
+      const u = document.getElementById('chat-unread');
+      if(u) u.style.display = 'block';
+    }
+  }, 8000);
 }
 </script>
 </body>
