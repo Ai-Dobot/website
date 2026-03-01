@@ -1392,19 +1392,24 @@
 
         <!-- SHORTS -->
         <div class="admin-section" id="tab-shorts">
-          <h3>Short Review Videos (Vertical / Reels style)</h3>
+          <h3>📱 Short Review Videos</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:14px">Upload vertical videos or add YouTube Shorts links. All items are listed below with a delete button.</p>
+
           <div class="upload-zone">
             <input type="file" accept="video/*" multiple onchange="uploadMultiple(this,'shorts','video')"/>
             <div class="upload-icon">📱</div>
-            <p>Click to upload short vertical videos</p>
+            <p>Click to upload vertical/short videos</p>
           </div>
           <div class="progress-bar" id="pb-shorts"><div class="fill"></div></div>
-          <label class="admin-label" style="margin-top:16px">Or add YouTube / TikTok / Reel URL</label>
-          <div style="display:flex;gap:8px">
+
+          <label class="admin-label" style="margin-top:16px">Add YouTube Shorts / Reels URL</label>
+          <div style="display:flex;gap:8px;margin-bottom:20px">
             <input class="admin-input" id="short-url-input" placeholder="https://youtube.com/shorts/..." style="margin:0;flex:1"/>
-            <button class="admin-save" onclick="addShortUrl()">Add</button>
+            <button class="admin-save" onclick="addShortUrl()">+ Add</button>
           </div>
-          <div class="media-grid" id="media-shorts"></div>
+
+          <div class="admin-label" style="margin-bottom:10px">All Short Videos <span id="shorts-count" style="color:var(--wood-500);font-weight:normal"></span></div>
+          <div id="shorts-list" style="display:flex;flex-direction:column;gap:10px"></div>
           <div class="admin-msg" id="msg-shorts">✓ Shorts updated!</div>
         </div>
 
@@ -2229,6 +2234,7 @@ function buildAdminForms() {
   fillAIAdminFields();
   fillContactInputs();
   refreshAboutAdminGrid();
+  refreshShortsList();
 }
 
 function buildJourneyInputs() {
@@ -2649,22 +2655,84 @@ async function addShortUrl() {
 }
 
 function refreshMediaGrid(section) {
-  const arr = section === 'shorts' ? siteData.reviews_video : siteData.gallery;
-  const c = document.getElementById(`media-${section}`);
+  if(section === 'shorts') {
+    refreshShortsList();
+    return;
+  }
+  // Gallery grid
+  const arr = siteData.gallery || [];
+  const c = document.getElementById('media-gallery');
   if(!c) return;
-  c.innerHTML = (arr||[]).map((item,i) => `
+  c.innerHTML = arr.map((item,i) => `
     <div class="media-thumb">
-      ${item.type==='video'||item.type==='youtube' ? `<video src="${item.type==='youtube'?'':item.url}" style="background:#333">` : `<img src="${item.url}" alt=""/>`}
-      <button class="del-btn" onclick="deleteMedia('${section}',${i})">✕</button>
+      ${item.type==='video' ? `<video src="${item.url}" muted style="background:#333;width:100%;height:100%;object-fit:cover"></video>` : `<img src="${item.url}" alt=""/>`}
+      <button class="del-btn" onclick="deleteMedia('gallery',${i})">✕</button>
     </div>`).join('');
 }
 
+function refreshShortsList() {
+  const items = siteData.reviews_video || [];
+  const list  = document.getElementById('shorts-list');
+  const count = document.getElementById('shorts-count');
+  if(!list) return;
+  if(count) count.textContent = items.length ? `(${items.length} item${items.length>1?'s':''})` : '(none yet)';
+
+  if(!items.length) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-light);font-size:0.83rem;background:var(--wood-100);border-radius:10px">No short videos yet. Upload above or add a YouTube URL.</div>';
+    return;
+  }
+
+  list.innerHTML = items.map((item, i) => {
+    // Get thumbnail for YouTube
+    let thumb = '';
+    let label = '';
+    if(item.type === 'youtube') {
+      const m = item.url.match(/shorts\/([^?]+)/) || item.url.match(/v=([^&]+)/) || item.url.match(/youtu\.be\/([^?]+)/);
+      const vid = m ? m[1] : '';
+      thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
+      label = 'YouTube Short';
+    } else {
+      label = 'Uploaded Video';
+    }
+    return `
+    <div style="display:flex;align-items:center;gap:12px;background:var(--wood-100);border-radius:12px;padding:10px 14px;border:1px solid var(--wood-200)">
+      <div style="width:54px;height:54px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#222">
+        ${thumb
+          ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover"/>`
+          : item.type === 'youtube'
+            ? `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem">▶</div>`
+            : `<video src="${item.url}" muted style="width:100%;height:100%;object-fit:cover"></video>`
+        }
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.78rem;font-weight:600;color:var(--wood-700)">${label} #${i+1}</div>
+        <div style="font-size:0.68rem;color:var(--text-light);word-break:break-all;margin-top:2px">${item.url.slice(0,55)}${item.url.length>55?'…':''}</div>
+      </div>
+      <button onclick="deleteShort(${i})" style="
+        flex-shrink:0;background:rgba(200,50,50,0.12);border:1px solid rgba(200,50,50,0.3);
+        color:#c33;padding:6px 12px;border-radius:8px;cursor:pointer;
+        font-size:0.78rem;font-family:'DM Sans',sans-serif;font-weight:600;
+        transition:background 0.2s
+      " onmouseover="this.style.background='rgba(200,50,50,0.25)'" onmouseout="this.style.background='rgba(200,50,50,0.12)'">
+        🗑 Delete
+      </button>
+    </div>`;
+  }).join('');
+}
+
 function deleteMedia(section, idx) {
-  const arr = section === 'shorts' ? siteData.reviews_video : siteData.gallery;
-  arr.splice(idx,1);
-  if(section === 'gallery') { apiSave('gallery', siteData.gallery); renderGallery(); }
-  if(section === 'shorts') { apiSave('reviews_video', siteData.reviews_video); renderShorts(); }
-  refreshMediaGrid(section);
+  const arr = section === 'gallery' ? siteData.gallery : siteData.reviews_video;
+  if(!arr) return;
+  arr.splice(idx, 1);
+  if(section === 'gallery') { apiSave('gallery', siteData.gallery); renderGallery(); refreshMediaGrid('gallery'); }
+}
+
+async function deleteShort(idx) {
+  if(!confirm('Delete this short video?')) return;
+  siteData.reviews_video = siteData.reviews_video || [];
+  siteData.reviews_video.splice(idx, 1);
+  const saved = await apiSave('reviews_video', siteData.reviews_video);
+  if(saved) { renderShorts(); refreshShortsList(); showMsg('msg-shorts'); }
 }
 
 // ─── UPLOAD TO CLOUDINARY VIA BACKEND ───────────────
@@ -3237,6 +3305,7 @@ async function deleteAboutImage(slot) {
   await apiSave('about_images', siteData.about_images);
   renderAboutImages();
   refreshAboutAdminGrid();
+  refreshShortsList();
 }
 
 // ── Hook AI init into page load ───────────────────────
