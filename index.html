@@ -612,15 +612,21 @@
 
   /* ── ADMIN TOGGLE ───────────────────────────────── */
   #admin-trigger {
-    position: fixed; bottom: 28px; right: 28px; z-index: 10000;
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--wood-dark); border: 2px solid var(--wood-500);
-    color: var(--wood-300); font-size: 1.2rem;
+    position: fixed; bottom: 18px; left: 18px; z-index: 10000;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: transparent; border: 1px solid rgba(180,140,100,0.18);
+    color: rgba(180,140,100,0.25); font-size: 0.85rem;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    transition: var(--transition);
+    cursor: pointer; box-shadow: none;
+    transition: all 0.3s ease;
+    opacity: 0.35;
   }
-  #admin-trigger:hover { background: var(--wood-700); color: var(--wood-200); transform: rotate(15deg); }
+  #admin-trigger:hover {
+    background: var(--wood-dark); border-color: var(--wood-500);
+    color: var(--wood-300); opacity: 1;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transform: rotate(20deg);
+  }
 
   /* ── ADMIN PANEL ────────────────────────────────── */
   #admin-overlay {
@@ -2762,6 +2768,20 @@ async function uploadToCloudinary(file, section, resourceType) {
 }
 
 // ─── SAVE SECTION TO NEON DB VIA BACKEND ─────────────
+async function saveContactInfo() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  const ci = {
+    email1:       g('ci-email1-input'),
+    email2:       g('ci-email2-input'),
+    whatsapp:     g('ci-whatsapp-input'),
+    deployment:   g('ci-deployment-input'),
+    partnerships: g('ci-partnerships-input'),
+  };
+  siteData.contact_info = ci;
+  const saved = await apiSave('contact_info', ci);
+  if(saved) { renderContact(); showMsg('msg-contact-info'); }
+}
+
 async function apiSave(section, data) {
   showAdminStatus(`💾 Saving ${section}...`);
   try {
