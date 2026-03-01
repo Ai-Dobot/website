@@ -476,6 +476,32 @@
   /* ── VIDEO REVIEWS ──────────────────────────────── */
   #video-reviews { background: var(--wood-50); }
   .video-reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .order-filter-btn {
+    padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--wood-200); background: transparent;
+    color: var(--wood-500); font-size: 0.75rem; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .order-filter-btn.active, .order-filter-btn:hover {
+    background: var(--wood-500); color: white; border-color: var(--wood-500);
+  }
+  .order-card {
+    background: var(--wood-100); border: 1px solid var(--wood-200);
+    border-radius: 14px; padding: 16px 18px;
+  }
+  .order-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  }
+  .order-status-badge {
+    font-size: 0.65rem; font-family: 'Space Mono', monospace;
+    padding: 3px 10px; border-radius: 20px; font-weight: 600;
+  }
+  .status-New      { background: #fef3c7; color: #92400e; }
+  .status-Confirmed{ background: #d1fae5; color: #065f46; }
+  .status-Shipped  { background: #dbeafe; color: #1e40af; }
+  .status-Delivered{ background: #f3f4f6; color: #374151; }
+
   .vreview-card {
     border-radius: 20px; overflow: hidden;
     background: white; box-shadow: var(--shadow-card);
@@ -793,6 +819,366 @@
   .loader-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
   .loader-fill { height: 100%; background: var(--wood-400); border-radius: 2px; animation: load 1.8s ease forwards; }
   @keyframes load { 0%{width:0}100%{width:100%} }
+
+  /* ── PRICING SECTION ────────────────────────────────── */
+  #pricing {
+    background: linear-gradient(160deg, var(--wood-dark) 0%, #1e0d04 60%, var(--wood-700) 100%);
+    padding: 110px 5%;
+    position: relative;
+    overflow: hidden;
+  }
+  #pricing::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: -20%;
+    width: 80%;
+    height: 160%;
+    background: radial-gradient(ellipse, rgba(196,149,85,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #pricing .section-tag { color: var(--wood-300); }
+  #pricing h2 { color: var(--wood-100); }
+  #pricing .section-sub { color: var(--wood-300); }
+
+  /* Currency switcher */
+  .currency-switcher {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 36px 0 56px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(196,149,85,0.2);
+    border-radius: 50px;
+    padding: 5px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .currency-btn {
+    padding: 8px 20px;
+    border-radius: 40px;
+    border: none;
+    background: transparent;
+    color: var(--wood-400);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.04em;
+  }
+  .currency-btn.active {
+    background: linear-gradient(135deg, var(--wood-500), var(--wood-400));
+    color: white;
+    box-shadow: 0 4px 16px rgba(176,124,58,0.4);
+  }
+  .currency-btn:hover:not(.active) { color: var(--wood-200); background: rgba(255,255,255,0.06); }
+
+  /* Pricing grid */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1320px;
+    margin: 0 auto 80px;
+    align-items: start;
+  }
+  @media(max-width:1100px) { .pricing-grid { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:640px)  { .pricing-grid { grid-template-columns: 1fr; } }
+
+  .pricing-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(196,149,85,0.18);
+    border-radius: 24px;
+    padding: 32px 28px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    border-color: rgba(196,149,85,0.45);
+  }
+  .pricing-card.featured {
+    background: linear-gradient(160deg, rgba(176,124,58,0.18) 0%, rgba(196,149,85,0.08) 100%);
+    border-color: rgba(196,149,85,0.5);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.35);
+  }
+  .pricing-card.future {
+    background: rgba(255,255,255,0.02);
+    border-style: dashed;
+    border-color: rgba(196,149,85,0.2);
+    opacity: 0.75;
+  }
+  .pricing-badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--wood-500), var(--wood-300));
+    color: white;
+    font-size: 0.65rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+    padding: 4px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(176,124,58,0.5);
+  }
+  .pricing-img-wrap {
+    width: 100%;
+    aspect-ratio: 4/3;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border: 1px solid rgba(196,149,85,0.15);
+    margin-bottom: 18px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pricing-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    transition: transform 0.4s ease;
+  }
+  .pricing-card:hover .pricing-img-wrap img { transform: scale(1.04); }
+  .pricing-img-ph {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 8px; width: 100%; height: 100%;
+  }
+  .pricing-icon {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .pricing-tier {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--wood-400);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .pricing-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--wood-100);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .pricing-tagline {
+    font-size: 0.8rem;
+    color: var(--wood-400);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+  .pricing-price {
+    margin-bottom: 24px;
+  }
+  .pricing-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: var(--wood-200);
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .pricing-amount .currency-sym {
+    font-size: 1.1rem;
+    color: var(--wood-400);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .pricing-amount .price-val { color: var(--wood-100); }
+  .pricing-future-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--wood-500);
+    letter-spacing: 0.05em;
+    padding: 6px 0;
+  }
+  .pricing-divider {
+    height: 1px;
+    background: rgba(196,149,85,0.15);
+    margin: 0 0 20px;
+  }
+  .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pricing-features li {
+    font-size: 0.82rem;
+    color: var(--wood-300);
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    line-height: 1.4;
+  }
+  .pricing-features li .feat-icon {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    margin-top: 1px;
+  }
+  .pricing-specs {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 22px;
+    font-size: 0.74rem;
+    color: var(--wood-400);
+    font-family: 'Space Mono', monospace;
+    line-height: 1.7;
+  }
+  .pricing-order-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .pricing-order-btn.primary {
+    background: linear-gradient(135deg, var(--wood-500), var(--wood-300));
+    color: white;
+    box-shadow: 0 6px 20px rgba(176,124,58,0.35);
+  }
+  .pricing-order-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(176,124,58,0.5);
+  }
+  .pricing-order-btn.secondary {
+    background: rgba(255,255,255,0.07);
+    color: var(--wood-300);
+    border: 1px solid rgba(196,149,85,0.3);
+  }
+  .pricing-order-btn.secondary:hover { background: rgba(255,255,255,0.11); color: var(--wood-200); }
+  .pricing-order-btn.disabled {
+    background: rgba(255,255,255,0.04);
+    color: var(--wood-600);
+    border: 1px dashed rgba(196,149,85,0.2);
+    cursor: default;
+  }
+
+  /* Order modal */
+  #order-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9993;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #order-modal-overlay.open { display: flex; }
+  #order-modal {
+    background: var(--wood-dark);
+    border: 1.5px solid rgba(196,149,85,0.35);
+    border-radius: 24px;
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+  }
+  #order-modal h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--wood-100);
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+  #order-modal .order-product-info {
+    font-size: 0.78rem;
+    color: var(--wood-400);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(196,149,85,0.15);
+  }
+  #order-modal .form-group { margin-bottom: 14px; }
+  #order-modal .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--wood-400);
+    margin-bottom: 5px;
+    letter-spacing: 0.05em;
+  }
+  #order-modal .form-group input,
+  #order-modal .form-group textarea,
+  #order-modal .form-group select {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(196,149,85,0.2);
+    background: rgba(255,255,255,0.05);
+    color: var(--wood-100);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  #order-modal .form-group input:focus,
+  #order-modal .form-group textarea:focus { border-color: var(--wood-400); }
+  #order-modal .form-group select option { background: var(--wood-dark); }
+  #order-modal .order-submit-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--wood-500), var(--wood-300));
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 20px rgba(176,124,58,0.35);
+  }
+  #order-modal .order-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(176,124,58,0.5); }
+  #order-modal .order-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: rgba(255,255,255,0.07);
+    border: none;
+    color: var(--wood-400);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  #order-modal .order-close-btn:hover { background: rgba(200,50,50,0.3); color: white; }
+  .order-success {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+    color: var(--wood-200);
+  }
+  .order-success .success-icon { font-size: 3rem; margin-bottom: 12px; }
+  .order-success h4 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 8px; }
+  .order-success p { font-size: 0.85rem; color: var(--wood-400); line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -819,6 +1205,7 @@
     <li><a href="#gallery">Gallery</a></li>
     <li><a href="#video-reviews">Reviews</a></li>
     <li><a href="#team">Team</a></li>
+    <li><a href="#pricing">Pricing</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="nav-cta">
@@ -1028,6 +1415,217 @@
   </div>
 </section>
 
+<!-- ── PRICING ────────────────────────────────────── -->
+<section id="pricing">
+  <div class="container" style="max-width:1400px;margin:auto">
+    <div style="text-align:center" class="reveal">
+      <div class="section-tag">Products & Pricing</div>
+      <h2 class="section-title" style="color:var(--wood-100)">Choose Your AiDoBot</h2>
+      <p class="section-sub" style="color:var(--wood-300)">Hospital-grade AI healthcare for every setting — home, community, or institution.</p>
+    </div>
+
+    <!-- Currency Switcher -->
+    <div class="currency-switcher reveal" id="currency-switcher">
+      <button class="currency-btn active" onclick="setCurrency('USD','$')">$ USD</button>
+      <button class="currency-btn" onclick="setCurrency('INR','₹')">₹ INR</button>
+      <button class="currency-btn" onclick="setCurrency('GMD','D')">D GMD</button>
+      <button class="currency-btn" onclick="setCurrency('GBP','£')">£ GBP</button>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="pricing-grid">
+
+      <!-- HOME -->
+      <div class="pricing-card reveal">
+        <div class="pricing-img-wrap">
+          <div class="ph-box" id="pimg-home-ph"><div class="ph-icon">🏠</div><div class="ph-label">Home Edition</div></div>
+          <img id="pimg-home" src="" alt="Home Edition" style="display:none;position:absolute;inset:0"/>
+        </div>
+        <div class="pricing-tier">Individual</div>
+        <div class="pricing-name">Home Edition</div>
+        <div class="pricing-tagline">Your personal health companion, always at home.</div>
+        <div class="pricing-price">
+          <div class="pricing-amount">
+            <span class="currency-sym" id="sym-home">$</span>
+            <span class="price-val" id="price-home">999</span>
+          </div>
+        </div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="feat-icon">❤️</span><span>Vital Monitoring — heart rate, SpO2, temperature, weight, height, blood pressure</span></li>
+          <li><span class="feat-icon">🧠</span><span>AI Health Assistant — speaks Wolof, English, Hindi & more</span></li>
+          <li><span class="feat-icon">😊</span><span>Face Analysis — emotion, fatigue, pallor & age detection</span></li>
+          <li><span class="feat-icon">👁️</span><span>Face Tracking — camera always keeps you in frame</span></li>
+          <li><span class="feat-icon">🩺</span><span>Live Doctor Calling via video call</span></li>
+          <li><span class="feat-icon">📋</span><span>Health Interview with risk level result</span></li>
+          <li><span class="feat-icon">💊</span><span>Medicine Delivery to your home</span></li>
+          <li><span class="feat-icon">📁</span><span>Lifetime Health Records</span></li>
+        </ul>
+        <div class="pricing-specs">
+          📺 7" touchscreen · 1 camera<br/>
+          🌐 Wolof, English, Hindi + more<br/>
+          🏠 Compact & lightweight
+        </div>
+        <button class="pricing-order-btn secondary" onclick="openOrderModal('Home Edition','home')">Order Now →</button>
+      </div>
+
+      <!-- COMMUNITY (featured) -->
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">⭐ Most Popular</div>
+        <div class="pricing-img-wrap">
+          <div class="ph-box" id="pimg-community-ph"><div class="ph-icon">🏘️</div><div class="ph-label">Community Edition</div></div>
+          <img id="pimg-community" src="" alt="Community Edition" style="display:none;position:absolute;inset:0"/>
+        </div>
+        <div class="pricing-tier">Community</div>
+        <div class="pricing-name">Shared Edition</div>
+        <div class="pricing-tagline">Bringing healthcare to your entire community.</div>
+        <div class="pricing-price">
+          <div class="pricing-amount">
+            <span class="currency-sym" id="sym-community">$</span>
+            <span class="price-val" id="price-community">1,999</span>
+          </div>
+        </div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="feat-icon">❤️</span><span>Full vital check for every person who walks up</span></li>
+          <li><span class="feat-icon">🧠</span><span>AI speaks each patient's language automatically</span></li>
+          <li><span class="feat-icon">😊</span><span>Face Analysis for every patient</span></li>
+          <li><span class="feat-icon">👁️</span><span>Auto face tracking locks onto each new patient</span></li>
+          <li><span class="feat-icon">🩺</span><span>Any patient can call a doctor instantly</span></li>
+          <li><span class="feat-icon">📋</span><span>Guided voice interview with automatic risk scoring</span></li>
+          <li><span class="feat-icon">💊</span><span>Prescriptions delivered to patient's home</span></li>
+          <li><span class="feat-icon">📁</span><span>Shared patient records — each person gets their own</span></li>
+        </ul>
+        <div class="pricing-specs">
+          📺 10" touchscreen · 1 camera<br/>
+          🌐 Full multilingual support<br/>
+          🏘️ Built for heavy daily use
+        </div>
+        <button class="pricing-order-btn primary" onclick="openOrderModal('Community Shared Edition','community')">Order Now →</button>
+      </div>
+
+      <!-- GOVERNMENT -->
+      <div class="pricing-card reveal">
+        <div class="pricing-img-wrap">
+          <div class="ph-box" id="pimg-gov-ph"><div class="ph-icon">🏛️</div><div class="ph-label">Institutional Edition</div></div>
+          <img id="pimg-gov" src="" alt="Institutional Edition" style="display:none;position:absolute;inset:0"/>
+        </div>
+        <div class="pricing-tier">Government</div>
+        <div class="pricing-name">Institutional Edition</div>
+        <div class="pricing-tagline">Hospital-grade healthcare infrastructure.</div>
+        <div class="pricing-price">
+          <div class="pricing-amount">
+            <span class="currency-sym" id="sym-gov">$</span>
+            <span class="price-val" id="price-gov">3,999</span>
+          </div>
+        </div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="feat-icon">❤️</span><span>Instant real-time readings for hundreds of patients per day</span></li>
+          <li><span class="feat-icon">🧠</span><span>Fastest AI responses for high patient volume</span></li>
+          <li><span class="feat-icon">😊</span><span>Real-time face analysis with instant results</span></li>
+          <li><span class="feat-icon">👁️</span><span>Dual camera precision tracking system</span></li>
+          <li><span class="feat-icon">🩺</span><span>Direct connection to hospital doctors</span></li>
+          <li><span class="feat-icon">📋</span><span>Fully automated triage before doctor consultation</span></li>
+          <li><span class="feat-icon">💊</span><span>Direct hospital pharmacy + home delivery</span></li>
+          <li><span class="feat-icon">📁</span><span>Full patient database — searchable across all robots</span></li>
+          <li><span class="feat-icon">📊</span><span>Analytics dashboard — volume, risk, doctor response times</span></li>
+          <li><span class="feat-icon">🔗</span><span>Multi-robot management from one dashboard</span></li>
+        </ul>
+        <div class="pricing-specs">
+          📺 15" Full HD touchscreen · 2 cameras<br/>
+          🏛️ 24/7 non-stop operation<br/>
+          🎖️ Priority 24/7 support included
+        </div>
+        <button class="pricing-order-btn secondary" onclick="openOrderModal('Government Institutional Edition','gov')">Order Now →</button>
+      </div>
+
+      <!-- FUTURE -->
+      <div class="pricing-card future reveal">
+        <div class="pricing-img-wrap">
+          <div class="ph-box" id="pimg-future-ph" style="background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))"><div class="ph-icon">🚀</div><div class="ph-label">Coming Soon</div></div>
+          <img id="pimg-future" src="" alt="Next Generation" style="display:none;position:absolute;inset:0"/>
+        </div>
+        <div class="pricing-tier">Coming Soon</div>
+        <div class="pricing-name">Next Generation</div>
+        <div class="pricing-tagline">The future of AiDoBot — currently in development.</div>
+        <div class="pricing-price">
+          <div class="pricing-future-tag">Pricing available in next version</div>
+        </div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="feat-icon">🤖</span><span>Full autonomous mobility & navigation</span></li>
+          <li><span class="feat-icon">🧬</span><span>Advanced genetic & lab integration</span></li>
+          <li><span class="feat-icon">🌍</span><span>Global telemedicine network access</span></li>
+          <li><span class="feat-icon">⚡</span><span>Real-time AI diagnostics engine</span></li>
+          <li><span class="feat-icon">🔮</span><span>Predictive health monitoring & alerts</span></li>
+          <li><span class="feat-icon">🏥</span><span>Full hospital OS integration</span></li>
+        </ul>
+        <div class="pricing-specs">
+          🔬 Specs to be announced<br/>
+          🌐 Available worldwide<br/>
+          📧 Join the waitlist below
+        </div>
+        <button class="pricing-order-btn disabled">Coming Soon</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── ORDER MODAL ─────────────────────────────────── -->
+<div id="order-modal-overlay" onclick="if(event.target===this)closeOrderModal()">
+  <div id="order-modal">
+    <button class="order-close-btn" onclick="closeOrderModal()">✕</button>
+    <div id="order-form-wrap">
+      <h3>Place Your Order</h3>
+      <div class="order-product-info" id="order-product-info">Home Edition — $999</div>
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="ord-name" placeholder="Your full name"/>
+      </div>
+      <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" id="ord-email" placeholder="your@email.com"/>
+      </div>
+      <div class="form-group">
+        <label>Phone / WhatsApp *</label>
+        <input type="tel" id="ord-phone" placeholder="+1 234 567 8900"/>
+      </div>
+      <div class="form-group">
+        <label>Organisation / Hospital (optional)</label>
+        <input type="text" id="ord-org" placeholder="Where are you from?"/>
+      </div>
+      <div class="form-group">
+        <label>Delivery Country *</label>
+        <input type="text" id="ord-country" placeholder="Country"/>
+      </div>
+      <div class="form-group">
+        <label>Full Delivery Address *</label>
+        <textarea id="ord-address" rows="2" placeholder="Street address, city, postal code…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <select id="ord-qty">
+          <option>1</option><option>2</option><option>3</option>
+          <option>5</option><option>10</option><option>Custom — contact us</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="ord-notes" rows="2" placeholder="Any special requirements or questions…"></textarea>
+      </div>
+      <button class="order-submit-btn" onclick="submitOrder()">Confirm Order →</button>
+    </div>
+    <div class="order-success" id="order-success">
+      <div class="success-icon">✅</div>
+      <h4>Order Received!</h4>
+      <p>Thank you. We've received your order and will contact you within 24 hours to confirm details and arrange delivery.</p>
+      <p style="margin-top:12px">Questions? WhatsApp us at +91 8800 510 790</p>
+    </div>
+  </div>
+</div>
+
 <!-- ── PARTNERS ────────────────────────────────────── -->
 <section id="partners">
   <div class="container">
@@ -1113,6 +1711,7 @@
       <div class="footer-col">
         <h4>Product</h4>
         <a href="#journey">How It Works</a>
+        <a href="#pricing">Pricing</a>
         <a href="#usecases">Use Cases</a>
         <a href="#gallery">Gallery</a>
         <a href="#events">Events</a>
@@ -1357,6 +1956,8 @@
         <div class="admin-tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</div>
         <div class="admin-tab" data-tab="partners-admin" onclick="switchTab('partners-admin')">🤝 Partners</div>
         <div class="admin-tab" data-tab="inbox" onclick="switchTab('inbox')">📩 Inbox</div>
+        <div class="admin-tab" data-tab="orders" onclick="switchTab('orders')">🛒 Orders</div>
+        <div class="admin-tab" data-tab="product-images" onclick="switchTab('product-images')">🖼 Product Images</div>
         <div class="admin-tab" data-tab="contact-info" onclick="switchTab('contact-info')">📞 Contact Info</div>
         <div class="admin-tab" data-tab="aibot" onclick="switchTab('aibot')">🤖 AI Robot Popup</div>
         <div class="admin-tab" data-tab="aichat" onclick="switchTab('aichat')">💬 AI Chatbot</div>
@@ -1625,6 +2226,85 @@
           <div class="admin-msg" id="msg-partner-delete">✓ Partner removed!</div>
         </div>
 
+        <!-- ORDERS TAB -->
+        <div class="admin-section" id="tab-orders">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h3 style="margin:0">🛒 Customer Orders</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span id="orders-count" style="font-size:0.78rem;color:var(--wood-500);font-family:Space Mono,monospace"></span>
+              <button onclick="exportOrdersCSV()" style="font-size:0.75rem;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid var(--wood-200);color:var(--wood-600);cursor:pointer">⬇ Export CSV</button>
+            </div>
+          </div>
+          <!-- Filter bar -->
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="order-filter-btn active" onclick="filterOrders('all',this)">All</button>
+            <button class="order-filter-btn" onclick="filterOrders('New',this)">🆕 New</button>
+            <button class="order-filter-btn" onclick="filterOrders('Confirmed',this)">✅ Confirmed</button>
+            <button class="order-filter-btn" onclick="filterOrders('Shipped',this)">📦 Shipped</button>
+            <button class="order-filter-btn" onclick="filterOrders('Delivered',this)">🏁 Delivered</button>
+          </div>
+          <div id="orders-admin-list" style="display:flex;flex-direction:column;gap:12px"></div>
+        </div>
+
+        <!-- PRODUCT IMAGES TAB -->
+        <div class="admin-section" id="tab-product-images">
+          <h3>🖼 Product Images</h3>
+          <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:20px">Upload one image per product. These appear at the top of each pricing card on the website.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+
+            <div>
+              <label class="admin-label">🏠 Home Edition</label>
+              <div id="pi-home-preview" style="margin-bottom:8px">
+                <div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:10px;font-size:0.75rem;color:var(--text-light)">No image yet</div>
+              </div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600">
+                Upload Image
+                <input type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this,'home')"/>
+              </label>
+              <div class="progress-bar" id="pb-pi-home" style="margin-top:6px"><div class="fill"></div></div>
+            </div>
+
+            <div>
+              <label class="admin-label">🏘️ Community Edition</label>
+              <div id="pi-community-preview" style="margin-bottom:8px">
+                <div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:10px;font-size:0.75rem;color:var(--text-light)">No image yet</div>
+              </div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600">
+                Upload Image
+                <input type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this,'community')"/>
+              </label>
+              <div class="progress-bar" id="pb-pi-community" style="margin-top:6px"><div class="fill"></div></div>
+            </div>
+
+            <div>
+              <label class="admin-label">🏛️ Government Edition</label>
+              <div id="pi-gov-preview" style="margin-bottom:8px">
+                <div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:10px;font-size:0.75rem;color:var(--text-light)">No image yet</div>
+              </div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600">
+                Upload Image
+                <input type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this,'gov')"/>
+              </label>
+              <div class="progress-bar" id="pb-pi-gov" style="margin-top:6px"><div class="fill"></div></div>
+            </div>
+
+            <div>
+              <label class="admin-label">🚀 Next Generation</label>
+              <div id="pi-future-preview" style="margin-bottom:8px">
+                <div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:10px;font-size:0.75rem;color:var(--text-light)">No image yet</div>
+              </div>
+              <label style="display:block;background:var(--wood-500);color:white;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600">
+                Upload Image
+                <input type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this,'future')"/>
+              </label>
+              <div class="progress-bar" id="pb-pi-future" style="margin-top:6px"><div class="fill"></div></div>
+            </div>
+
+          </div>
+          <div class="admin-msg" id="msg-product-image" style="margin-top:12px">✓ Product image updated!</div>
+        </div>
+
         <!-- CONTACT INFO TAB -->
         <div class="admin-section" id="tab-contact-info">
           <h3>📞 Contact Information</h3>
@@ -1891,6 +2571,8 @@ function mergeDefaults() {
   if(!siteData.avatar_idle_video)   siteData.avatar_idle_video = '';
   if(!siteData.avatar_talk_video)   siteData.avatar_talk_video = '';
   if(!siteData.about_images)        siteData.about_images = ['','',''];
+  if(!siteData.orders)             siteData.orders = [];
+  if(!siteData.product_images)     siteData.product_images = {};
 }
 
 // ─── RENDER ALL ──────────────────────────────────────
@@ -1908,6 +2590,7 @@ function renderAll() {
   renderSocial();
   renderContact();
   renderAboutImages();
+  renderProductImages();
 }
 
 // ─── HERO SLIDESHOW ──────────────────────────────────
@@ -2353,6 +3036,8 @@ function buildAdminForms() {
   refreshAboutAdminGrid();
   refreshShortsList();
   refreshPartnersAdminList();
+  refreshOrdersAdmin();
+  refreshProductImagePreviews();
 }
 
 function buildJourneyInputs() {
@@ -3542,6 +4227,8 @@ async function deleteAboutImage(slot) {
   refreshAboutAdminGrid();
   refreshShortsList();
   refreshPartnersAdminList();
+  refreshOrdersAdmin();
+  refreshProductImagePreviews();
 }
 
 // ── Hook AI init into page load ───────────────────────
@@ -3555,6 +4242,271 @@ function initAIFeatures() {
     }
   }, 8000);
 }
+
+// ════════════════════════════════════════════════════
+// ─── PRICING & ORDERS ────────────────────────────────
+// ════════════════════════════════════════════════════
+
+const PRICES = {
+  home:      { USD: [999,   '$'],  INR: [83917,  '₹'], GMD: [71928,  'D'],  GBP: [788,   '£'] },
+  community: { USD: [1999,  '$'],  INR: [167917, '₹'], GMD: [143928, 'D'],  GBP: [1578,  '£'] },
+  gov:       { USD: [3999,  '$'],  INR: [335917, '₹'], GMD: [287928, 'D'],  GBP: [3158,  '£'] },
+};
+
+let activeCurrency = 'USD';
+let activeOrderProduct = '';
+let activeOrderKey = '';
+
+function setCurrency(code, sym) {
+  activeCurrency = code;
+  // Update switcher buttons
+  document.querySelectorAll('.currency-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(code));
+  });
+  // Update all price displays
+  ['home','community','gov'].forEach(key => {
+    const [amount] = PRICES[key][code];
+    const symEl = document.getElementById('sym-' + key);
+    const valEl = document.getElementById('price-' + key);
+    if(symEl) symEl.textContent = sym;
+    if(valEl) valEl.textContent = Number(amount).toLocaleString();
+  });
+}
+
+function openOrderModal(productName, productKey) {
+  activeOrderProduct = productName;
+  activeOrderKey     = productKey;
+  const [amount, sym] = PRICES[productKey]
+    ? PRICES[productKey][activeCurrency]
+    : [null, ''];
+  const priceStr = amount ? `${sym}${Number(amount).toLocaleString()} ${activeCurrency}` : '';
+  document.getElementById('order-product-info').textContent =
+    productName + (priceStr ? ' — ' + priceStr : '');
+  // Reset form & success
+  document.getElementById('order-form-wrap').style.display = 'block';
+  document.getElementById('order-success').style.display = 'none';
+  ['ord-name','ord-email','ord-phone','ord-org','ord-country','ord-address','ord-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const qty = document.getElementById('ord-qty');
+  if(qty) qty.selectedIndex = 0;
+  document.getElementById('order-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function submitOrder() {
+  const name    = document.getElementById('ord-name')?.value.trim();
+  const email   = document.getElementById('ord-email')?.value.trim();
+  const phone   = document.getElementById('ord-phone')?.value.trim();
+  const country = document.getElementById('ord-country')?.value.trim();
+  const address = document.getElementById('ord-address')?.value.trim();
+
+  if(!name || !email || !phone || !country || !address) {
+    alert('Please fill in all required fields (Name, Email, Phone, Country, Address).');
+    return;
+  }
+
+  const [amount, sym] = PRICES[activeOrderKey]
+    ? PRICES[activeOrderKey][activeCurrency]
+    : [null, ''];
+
+  const order = {
+    id:        'ORD-' + Date.now(),
+    product:   activeOrderProduct,
+    price:     amount ? `${sym}${Number(amount).toLocaleString()} ${activeCurrency}` : 'TBD',
+    currency:  activeCurrency,
+    name,
+    email,
+    phone,
+    org:       document.getElementById('ord-org')?.value.trim() || '',
+    country,
+    address,
+    qty:       document.getElementById('ord-qty')?.value || '1',
+    notes:     document.getElementById('ord-notes')?.value.trim() || '',
+    status:    'New',
+    placed_at: new Date().toLocaleString(),
+  };
+
+  // Save to siteData orders and persist
+  if(!siteData.orders) siteData.orders = [];
+  siteData.orders.unshift(order); // newest first
+  await apiSave('orders', siteData.orders);
+
+  // Show success
+  document.getElementById('order-form-wrap').style.display = 'none';
+  document.getElementById('order-success').style.display = 'block';
+
+  // Refresh admin list if open
+  refreshOrdersAdmin();
+  refreshProductImagePreviews();
+}
+
+
+// ════════════════════════════════════════════════════
+// ─── ORDERS ADMIN ────────────────────────────────────
+// ════════════════════════════════════════════════════
+
+let ordersFilter = 'all';
+
+function filterOrders(status, btn) {
+  ordersFilter = status;
+  document.querySelectorAll('.order-filter-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  refreshOrdersAdmin();
+  refreshProductImagePreviews();
+}
+
+function refreshOrdersAdmin() {
+  const all  = siteData.orders || [];
+  const list = document.getElementById('orders-admin-list');
+  const countEl = document.getElementById('orders-count');
+  if(!list) return;
+
+  const filtered = ordersFilter === 'all' ? all : all.filter(o => o.status === ordersFilter);
+  if(countEl) countEl.textContent = `${all.length} total · ${filtered.length} shown`;
+
+  if(!filtered.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.83rem;background:var(--wood-100);border-radius:10px">
+      ${all.length ? 'No orders match this filter.' : 'No orders yet. Orders will appear here when customers place them.'}
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((o, i) => {
+    const realIdx = all.indexOf(o);
+    return `
+    <div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <div style="font-size:0.7rem;font-family:Space Mono,monospace;color:var(--wood-500);margin-bottom:3px">${o.id} · ${o.placed_at}</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--wood-700)">${o.name}</div>
+          <div style="font-size:0.82rem;color:var(--wood-600);margin-top:2px">${o.product}</div>
+          <div style="font-size:0.88rem;font-weight:600;color:var(--wood-500);margin-top:4px">${o.price} × ${o.qty}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <span class="order-status-badge status-${o.status}">${o.status}</span>
+          <select onchange="updateOrderStatus(${realIdx}, this.value)" style="font-size:0.72rem;padding:4px 8px;border-radius:6px;border:1px solid var(--wood-200);background:white;color:var(--wood-700);cursor:pointer">
+            ${['New','Confirmed','Shipped','Delivered'].map(s =>
+              `<option${s===o.status?' selected':''}>${s}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.78rem;color:var(--wood-600);margin-bottom:10px">
+        <div>📧 ${o.email}</div>
+        <div>📞 ${o.phone}</div>
+        <div>🌍 ${o.country}</div>
+        ${o.org ? `<div>🏥 ${o.org}</div>` : '<div></div>'}
+      </div>
+      <div style="font-size:0.78rem;color:var(--wood-600);background:rgba(255,255,255,0.6);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+        📍 <strong>Address:</strong> ${o.address}
+      </div>
+      ${o.notes ? `<div style="font-size:0.78rem;color:var(--wood-500);font-style:italic;margin-bottom:10px">💬 Note: ${o.notes}</div>` : ''}
+      <div style="display:flex;justify-content:flex-end">
+        <button onclick="deleteOrder(${realIdx})" style="font-size:0.72rem;padding:5px 12px;border-radius:6px;background:rgba(200,50,50,0.1);border:1px solid rgba(200,50,50,0.25);color:#c33;cursor:pointer">🗑 Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function updateOrderStatus(idx, newStatus) {
+  if(!siteData.orders || !siteData.orders[idx]) return;
+  siteData.orders[idx].status = newStatus;
+  await apiSave('orders', siteData.orders);
+  refreshOrdersAdmin();
+  refreshProductImagePreviews();
+}
+
+async function deleteOrder(idx) {
+  if(!confirm('Remove this order from records?')) return;
+  siteData.orders.splice(idx, 1);
+  await apiSave('orders', siteData.orders);
+  refreshOrdersAdmin();
+  refreshProductImagePreviews();
+}
+
+function exportOrdersCSV() {
+  const orders = siteData.orders || [];
+  if(!orders.length) { alert('No orders to export.'); return; }
+  const headers = ['Order ID','Date','Product','Price','Qty','Status','Name','Email','Phone','Organisation','Country','Address','Notes'];
+  const rows = orders.map(o => [
+    o.id, o.placed_at, o.product, o.price, o.qty, o.status,
+    o.name, o.email, o.phone, o.org||'', o.country, `"${(o.address||'').replace(/"/g,'""')}"`, `"${(o.notes||'').replace(/"/g,'""')}"`
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type:'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'aidoBot_orders.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+
+// ════════════════════════════════════════════════════
+// ─── PRODUCT IMAGES ──────────────────────────────────
+// ════════════════════════════════════════════════════
+
+function renderProductImages() {
+  const keys = ['home','community','gov','future'];
+  keys.forEach(key => {
+    const url = siteData.product_images?.[key] || '';
+    const img = document.getElementById('pimg-' + key);
+    const ph  = document.getElementById('pimg-' + key + '-ph');
+    if(!img) return;
+    if(url) {
+      img.src = url;
+      img.style.display = 'block';
+      img.style.width  = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      if(ph) ph.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if(ph) ph.style.display = 'flex';
+    }
+  });
+}
+
+async function uploadProductImage(input, key) {
+  const file = input.files[0];
+  if(!file) return;
+  const pbId   = 'pb-pi-' + key;
+  const prevId = 'pi-' + key + '-preview';
+  showProgress(pbId);
+  try {
+    const url = await uploadToCloudinary(file, 'products', 'image');
+    hideProgress(pbId);
+    if(!siteData.product_images) siteData.product_images = {};
+    siteData.product_images[key] = url;
+    await apiSave('product_images', siteData.product_images);
+    renderProductImages();
+    refreshProductImagePreviews();
+    showMsg('msg-product-image');
+  } catch(e) {
+    hideProgress(pbId);
+    showAdminStatus('Upload failed: ' + e.message, true);
+  }
+}
+
+function refreshProductImagePreviews() {
+  const keys   = ['home','community','gov','future'];
+  const labels = { home:'Home Edition', community:'Community Edition', gov:'Government Edition', future:'Next Generation' };
+  keys.forEach(key => {
+    const url    = siteData.product_images?.[key] || '';
+    const prevEl = document.getElementById('pi-' + key + '-preview');
+    if(!prevEl) return;
+    prevEl.innerHTML = url
+      ? `<img src="${url}" style="width:100%;height:90px;object-fit:cover;border-radius:10px;display:block"/>`
+      : `<div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--wood-100);border-radius:10px;font-size:0.75rem;color:var(--text-light)">${labels[key]} — no image yet</div>`;
+  });
+}
+
 </script>
 </body>
 </html>
