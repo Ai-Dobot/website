@@ -740,10 +740,18 @@
     position: fixed; inset: 0; z-index: 9998;
     background: var(--wood-dark);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: opacity 0.5s ease;
+    /* Self-destructs after 2.3s purely via CSS — no JS required */
+    animation: loaderExit 0.5s ease 2.2s forwards;
     pointer-events: all;
   }
-  #loader.done { opacity: 0; pointer-events: none; }
+  @keyframes loaderExit {
+    0%   { opacity: 1; pointer-events: all; }
+    99%  { opacity: 0; pointer-events: none; display: flex; }
+    100% { opacity: 0; pointer-events: none; display: none; visibility: hidden; }
+  }
+  #loader.done {
+    animation: loaderExit 0.3s ease forwards !important;
+  }
   .loader-logo { font-family: 'Playfair Display',serif; font-size: 2.5rem; color: var(--wood-200); font-weight: 900; margin-bottom: 24px; }
   .loader-logo span { color: var(--wood-400); }
   .loader-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
@@ -1593,52 +1601,47 @@ const DEFAULT = {
 // ─── INIT ────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
 
-  // ── INSTANTLY dismiss loader — page opens immediately, no waiting ──
+  // CSS auto-dismisses loader after 2.2s — no JS needed for that
+  // JS also dismisses it for speed, but if JS crashes CSS still saves us
   const loader = document.getElementById('loader');
   if(loader) {
-    // Let the bar animation finish (1.8s CSS), then fade out
+    setTimeout(() => loader.classList.add('done'), 2000);
+    // Hard-remove after 3s no matter what — belt AND suspenders
     setTimeout(() => {
-      loader.classList.add('done');           // fade out (0.5s CSS transition)
-      setTimeout(() => {
-        loader.style.display = 'none';        // fully remove from layout
-      }, 500);
-    }, 1900);
+      loader.style.cssText = 'display:none!important';
+    }, 3000);
   }
 
-  // ── Render page immediately with default content ──
-  siteData = {};
-  mergeDefaults();
-  renderAll();
-  setupObserver();
-  setupNavScroll();
-  buildMarquee();
-  animateStats();
-  initAIFeatures();
+  // Render page immediately with defaults
+  try {
+    siteData = {};
+    mergeDefaults();
+    renderAll();
+    setupObserver();
+    setupNavScroll();
+    buildMarquee();
+    animateStats();
+    initAIFeatures();
+  } catch(e) {
+    console.error('Render error:', e);
+    // Even if JS crashes, loader is gone by 3s via the hard-remove above
+  }
 
-  // ── Fetch live data from Render in background — NEVER blocks the page ──
-  // AbortController gives Render max 8s to wake up from free-tier sleep
+  // Fetch live data silently in background
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  setTimeout(() => controller.abort(), 8000);
 
   fetch(`${API}/api/data`, { signal: controller.signal })
-    .then(res => {
-      clearTimeout(timeout);
-      if(!res.ok) throw new Error('Bad response');
-      return res.json();
-    })
+    .then(res => res.ok ? res.json() : null)
     .then(freshData => {
       if(freshData && typeof freshData === 'object') {
         siteData = freshData;
         mergeDefaults();
-        renderAll();        // silently update page with real images/data
+        renderAll();
         updateChatbotUI();
       }
     })
-    .catch(e => {
-      clearTimeout(timeout);
-      // Page already showing — this is silent, visitors see nothing wrong
-      console.warn('Backend not ready yet:', e.message);
-    });
+    .catch(() => {}); // silent fail — page already showing
 });
 
 function mergeDefaults() {
