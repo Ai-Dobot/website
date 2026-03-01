@@ -1205,7 +1205,8 @@
 <!-- ── SCRIPTS ─────────────────────────────────────── -->
 <script>
 // ─── CONFIG ─────────────────────────────────────────
-const API = 'http://localhost:5000';
+// ✅ Points to your live Render backend
+const API = 'https://webback-end.onrender.com';
 let adminToken = localStorage.getItem('aidoAdminToken') || '';
 let siteData = {};
 
@@ -1556,22 +1557,28 @@ function closeAdmin() { document.getElementById('admin-overlay').classList.remov
 
 async function doLogin() {
   const pw = document.getElementById('admin-pw').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = 'Connecting to server...';
+
   try {
-    const res = await fetch(`${API}/api/admin/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pw}) });
+    const res = await fetch(`${API}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
     const d = await res.json();
     if(d.ok) {
       adminToken = d.token;
       localStorage.setItem('aidoAdminToken', adminToken);
+      errEl.textContent = '';
       document.getElementById('admin-login').style.display = 'none';
       document.getElementById('admin-body').classList.add('visible');
       buildAdminForms();
-    } else { document.getElementById('login-err').textContent = 'Incorrect password.'; }
+    } else {
+      errEl.textContent = '❌ Wrong password.';
+    }
   } catch(e) {
-    // Offline demo fallback
-    adminToken = 'admin-token-aidoBot';
-    document.getElementById('admin-login').style.display = 'none';
-    document.getElementById('admin-body').classList.add('visible');
-    buildAdminForms();
+    errEl.textContent = `❌ Cannot reach server at ${API}. Is the backend running?`;
   }
 }
 
@@ -1674,14 +1681,12 @@ function buildTeamUploads() {
 async function uploadTeamPhoto(input, idx) {
   const file = input.files[0];
   if(!file) return;
-  const url = await uploadToCloudinary(file, 'team', 'image');
-  if(url) {
+  try {
+    const url = await uploadToCloudinary(file, 'team', 'image');
     siteData.team[idx].photo = url;
-    apiSave('team', siteData.team);
-    renderTeam();
-    buildTeamUploads();
-    showMsg('msg-team');
-  }
+    const saved = await apiSave('team', siteData.team);
+    if(saved) { renderTeam(); buildTeamUploads(); showMsg('msg-team'); }
+  } catch(e) { console.error('Team photo failed:', e); }
 }
 
 function buildEventUploads() {
@@ -1703,14 +1708,12 @@ function buildEventUploads() {
 async function uploadEventImg(input, idx) {
   const file = input.files[0];
   if(!file) return;
-  const url = await uploadToCloudinary(file, 'events', 'image');
-  if(url) {
+  try {
+    const url = await uploadToCloudinary(file, 'events', 'image');
     siteData.events[idx].image = url;
-    apiSave('events', siteData.events);
-    renderEvents();
-    buildEventUploads();
-    showMsg('msg-events');
-  }
+    const saved = await apiSave('events', siteData.events);
+    if(saved) { renderEvents(); buildEventUploads(); showMsg('msg-events'); }
+  } catch(e) { console.error('Event image failed:', e); }
 }
 
 function fillSocialInputs() {
@@ -1722,7 +1725,7 @@ function fillSocialInputs() {
   document.getElementById('soc-wa').value = s.whatsapp||'';
 }
 
-function saveSocial() {
+async function saveSocial() {
   const social = {
     youtube: document.getElementById('soc-yt').value,
     facebook: document.getElementById('soc-fb').value,
@@ -1731,10 +1734,9 @@ function saveSocial() {
   };
   siteData.social = social;
   siteData.latest_youtube = document.getElementById('soc-yt-latest').value;
-  apiSave('social', social);
-  apiSave('latest_youtube', siteData.latest_youtube);
-  renderSocial();
-  showMsg('msg-social');
+  const s1 = await apiSave('social', social);
+  const s2 = await apiSave('latest_youtube', siteData.latest_youtube);
+  if(s1 && s2) { renderSocial(); showMsg('msg-social'); }
 }
 
 function fillStatsInputs() {
@@ -1744,16 +1746,15 @@ function fillStatsInputs() {
   document.getElementById('stat-sc-input').value = s.daily_screenings||500;
 }
 
-function saveStats() {
+async function saveStats() {
   const stats = {
     accuracy: parseInt(document.getElementById('stat-acc-input').value)||98,
     time_saved: parseInt(document.getElementById('stat-ts-input').value)||70,
     daily_screenings: parseInt(document.getElementById('stat-sc-input').value)||500
   };
   siteData.stats = stats;
-  apiSave('stats', stats);
-  animateStats();
-  showMsg('msg-stats');
+  const saved = await apiSave('stats', stats);
+  if(saved) { animateStats(); showMsg('msg-stats'); }
 }
 
 // ─── FILE UPLOADS ────────────────────────────────────
@@ -1761,44 +1762,71 @@ async function uploadFile(input, section, resourceType, key) {
   const file = input.files[0];
   if(!file) return;
   showProgress(`pb-${section}`);
-  const url = await uploadToCloudinary(file, section, resourceType);
-  hideProgress(`pb-${section}`);
-  if(!url) return;
+  try {
+    const url = await uploadToCloudinary(file, section, resourceType);
+    hideProgress(`pb-${section}`);
 
-  if(key === 'hero-robot') {
-    siteData.hero.robot_image = url;
-    apiSave('hero', siteData.hero);
-    renderHero();
-    showMsg('msg-hero');
+    if(key === 'hero-robot') {
+      siteData.hero = siteData.hero || {};
+      siteData.hero.robot_image = url;
+      const saved = await apiSave('hero', siteData.hero);
+      if(saved) {
+        renderHero();
+        showMsg('msg-hero');
+      }
+    }
+  } catch(e) {
+    hideProgress(`pb-${section}`);
+    console.error('Upload error:', e);
   }
 }
 
 async function uploadMultiple(input, section, resourceType='image') {
   const files = Array.from(input.files);
+  if(!files.length) return;
   showProgress(`pb-${section}`);
+
   for(const file of files) {
-    const url = await uploadToCloudinary(file, section, file.type.startsWith('video')?'video':'image');
-    if(url) {
-      const arr = section === 'shorts' ? (siteData.reviews_video = siteData.reviews_video||[]) : (siteData.gallery = siteData.gallery||[]);
-      arr.push({ url, type: file.type.startsWith('video')?'video':'image' });
+    try {
+      const rtype = file.type.startsWith('video') ? 'video' : 'image';
+      const url = await uploadToCloudinary(file, section, rtype);
+      if(section === 'shorts') {
+        siteData.reviews_video = siteData.reviews_video || [];
+        siteData.reviews_video.push({ url, type: rtype });
+      } else {
+        siteData.gallery = siteData.gallery || [];
+        siteData.gallery.push({ url, type: rtype });
+      }
+    } catch(e) {
+      console.error('Upload error for file:', file.name, e);
     }
   }
+
   hideProgress(`pb-${section}`);
-  if(section === 'gallery') { apiSave('gallery', siteData.gallery); renderGallery(); showMsg('msg-gallery'); }
-  if(section === 'shorts') { apiSave('reviews_video', siteData.reviews_video); renderShorts(); showMsg('msg-shorts'); }
+
+  if(section === 'gallery') {
+    const saved = await apiSave('gallery', siteData.gallery);
+    if(saved) { renderGallery(); showMsg('msg-gallery'); }
+  }
+  if(section === 'shorts') {
+    const saved = await apiSave('reviews_video', siteData.reviews_video);
+    if(saved) { renderShorts(); showMsg('msg-shorts'); }
+  }
   refreshMediaGrid(section);
 }
 
-function addShortUrl() {
+async function addShortUrl() {
   const url = document.getElementById('short-url-input').value.trim();
   if(!url) return;
   siteData.reviews_video = siteData.reviews_video || [];
   siteData.reviews_video.push({ url, type:'youtube' });
-  apiSave('reviews_video', siteData.reviews_video);
-  renderShorts();
-  refreshMediaGrid('shorts');
-  document.getElementById('short-url-input').value = '';
-  showMsg('msg-shorts');
+  const saved = await apiSave('reviews_video', siteData.reviews_video);
+  if(saved) {
+    renderShorts();
+    refreshMediaGrid('shorts');
+    document.getElementById('short-url-input').value = '';
+    showMsg('msg-shorts');
+  }
 }
 
 function refreshMediaGrid(section) {
@@ -1820,36 +1848,80 @@ function deleteMedia(section, idx) {
   refreshMediaGrid(section);
 }
 
-// ─── CLOUDINARY UPLOAD ───────────────────────────────
+// ─── UPLOAD TO CLOUDINARY VIA BACKEND ───────────────
 async function uploadToCloudinary(file, section, resourceType) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('section', section);
+  fd.append('resource_type', resourceType);
+
+  showAdminStatus(`⏳ Uploading ${file.name} to Cloudinary...`);
+
+  const res = await fetch(`${API}/api/admin/upload`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${adminToken}` },
+    body: fd
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    showAdminStatus(`❌ Upload failed: ${err}`, true);
+    throw new Error(`Upload failed: ${err}`);
+  }
+
+  const d = await res.json();
+  showAdminStatus(`✅ Uploaded successfully to Cloudinary!`);
+  return d.url; // permanent Cloudinary URL — never expires
+}
+
+// ─── SAVE SECTION TO NEON DB VIA BACKEND ─────────────
+async function apiSave(section, data) {
+  showAdminStatus(`💾 Saving ${section}...`);
   try {
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('section', section);
-    fd.append('resource_type', resourceType);
-    const res = await fetch(`${API}/api/admin/upload`, {
-      method:'POST',
-      headers:{ 'Authorization': `Bearer ${adminToken}` },
-      body: fd
+    const res = await fetch(`${API}/api/admin/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({ section, data })
     });
-    if(!res.ok) throw new Error('Upload failed');
-    const d = await res.json();
-    return d.url;
+    if (!res.ok) {
+      const err = await res.text();
+      showAdminStatus(`❌ Save failed: ${err}`, true);
+      return false;
+    }
+    showAdminStatus(`✅ ${section} saved to database!`);
+    return true;
   } catch(e) {
-    // Fallback: create local object URL for preview
-    return URL.createObjectURL(file);
+    showAdminStatus(`❌ Network error: ${e.message}`, true);
+    return false;
   }
 }
 
-// ─── API SAVE ────────────────────────────────────────
-async function apiSave(section, data) {
-  try {
-    await fetch(`${API}/api/admin/update`, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${adminToken}` },
-      body: JSON.stringify({ section, data })
-    });
-  } catch(e) { /* offline — data stored in memory */ }
+// ─── ADMIN STATUS BAR ────────────────────────────────
+function showAdminStatus(msg, isError = false) {
+  let bar = document.getElementById('admin-status-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'admin-status-bar';
+    bar.style.cssText = `
+      position:fixed; bottom:90px; right:28px; z-index:9999;
+      background:${isError ? '#c0392b' : '#2d6a4f'};
+      color:white; padding:12px 18px; border-radius:12px;
+      font-size:0.85rem; font-family:'Space Mono',monospace;
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      max-width:320px; line-height:1.4;
+      transition: opacity 0.3s;
+    `;
+    document.body.appendChild(bar);
+  } else {
+    bar.style.background = isError ? '#c0392b' : '#2d6a4f';
+  }
+  bar.textContent = msg;
+  bar.style.opacity = '1';
+  clearTimeout(bar._timer);
+  bar._timer = setTimeout(() => { bar.style.opacity = '0'; }, 4000);
 }
 
 // ─── UI HELPERS ──────────────────────────────────────
